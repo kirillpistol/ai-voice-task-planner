@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182105444448",
+    "project_id": "timeflame-9c5f7",
+    "storage_bucket": "timeflame-9c5f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182105444448:android:65ee92852e1a991c3d3305",
+        "android_client_info": {
+          "package_name": "dem.dev.timeflame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT0puuMJMGb9YQYxSdRhdwpYUZTBsEYkc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

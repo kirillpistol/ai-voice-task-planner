@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">TimeFlame</string>
+    <string name="welcome_to">Welcome to</string>
+    <string name="log_into_account">Войдите в аккаунт</string>
+    <string name="forgot_password_q">Забыли пароль?</string>
+    <string name="login">Войти</string>
+    <string name="no_account_q">Еще нет аккаунта?</string>
+    <string name="create">Создать</string>
+    <string name="account">аккаунт</string>
+    <string name="in_timeflame">в TimeFlame</string>
+    <string name="takes_30_sec">Займет 30 секунд</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="logging_in">Входим в аккаунт</string>
+    <string name="error_logging_in_check_your_cred">Ошибка входа в аккаунт. Проверьте введенные данные</string>
+    <string name="name">Имя</string>
+    <string name="already_have_an_account_q">Уже есть аккаунт?</string>
+    <string name="register">Зарегистрироваться</string>
+
+    <string name="creating_your_account">Создаем ваш аккаунт..</string>
+    <string name="got_error_while_creating_account">Во время создания аккаунта возникла ошибка.</string>
+    <string name="add_at_least_six_symbols">Пароль должен быть не менее 6 символов в длину</string>
+    <string name="password_needs_to_contain_both_small_and_large">Пароль должен содержать заглавные и прописные буквы</string>
+    <string name="add_special_letters">Добавьте специальные символы</string>
+    <string name="all_good">У вас отличный пароль!</string>
+    <string name="start_typing_your_password">Начните набирать ваш пароль</string>
+
+    <string name="reset_password">Сброс пароля</string>
+    <string name="set_your_email">Укажите вашу почту</string>
+    <string name="will_send_new_password">Отправим на нее новый пароль</string>
+    <string name="send">Отправить</string>
+
+    <string name="sending_new_password">Отправляем вам новый пароль..</string>
+    <string name="password_was_sent">Пароль был отправлен на вашу почту</string>
+    <string name="there_is_no_user">Пользователя с таким email-ом не существует</string>
+
+    <string name="your">Ваши</string>
+    <string name="tasks">Задачи</string>
+
+    <string name="fields_cannot_be_empty">Поля для ввода не могут быть пустыми</string>
+    <string name="password_strength_level_3_needed">Уровень пароля должен быть минимум 3</string>
+    <string name="edit_task">Редактировать задачу</string>
+
+    <string name="task_text">Задача</string>
+    <string name="save">Сохранить</string>
+    <string name="need_to_set_task_title">Обязательно установить имя задачи</string>
+
+    <string name="add_new_task">Добавить задачу</string>
+    <string name="dictate_your_task">Продиктуйте вашу задачу..</string>
+    <string name="recording">Слушаем вас..</string>
+
+    <string name="settings">Настройки</string>
+    <string name="dark_mode">Темная тема</string>
+    <string name="interface_language">Язык интерфейса</string>
+    <string name="logout">Выйти из аккаунта</string>
+
+    <string name="ui_language">Язык интерфейса</string>
+</resources>
