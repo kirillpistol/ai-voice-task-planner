@@ -1,7 +1,7 @@
 This is a Kotlin Multiplatform project targeting Android, iOS.
 | | |
 |:-:|:-:|
-| ![Main screen dark](screenshots/MainScreenDark.png) | ![Registration light](screenshots/RegisterScreenLight.png) |
+| ![Main screen dark](screenshots/MainScreenWeeklyDark.png) | ![Registration light](screenshots/RegisterScreenLight.png) |
 | *Main screen (dark)* | *Registration screen (light)* |
 | ![Profile settings dark](screenshots/MainScreenProfileSettingsDark.png) | ![Weekly view light](screenshots/MainScreenWeeklyLight.png) |
 | *Profile settings (dark)* | *Weekly view (light)* |
