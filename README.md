@@ -1,5 +1,12 @@
 This is a Kotlin Multiplatform project targeting Android, iOS.
-
+| | |
+|:-:|:-:|
+| ![Main screen dark](screenshots/MainScreenDark.png) | ![Registration light](screenshots/RegisterScreenLight.png) |
+| *Main screen (dark)* | *Registration screen (light)* |
+| ![Profile settings dark](screenshots/MainScreenProfileSettingDark.png) | ![Weekly view light](screenshots/MainScreenWeeklyLight.png) |
+| *Profile settings (dark)* | *Weekly view (light)* |
+| ![Edit task light](screenshots/MainScreenWeeklyTaskEditLight.png) | ![Recording finished dark](screenshots/MainScreenWeeklyRecordingFinishedDark.png) |
+| *Edit task (light)* | *Recording finished (dark)* |
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
   - `commonMain` is for code that’s common for all targets.
@@ -15,15 +22,3 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
-# ai-voice-task-planner
-Kotlin-based AI Voice Task Planner with speech recognition (Whisper/ML Kit) and LLM integration — designed for banking &amp; analytics workflows.
-<div align="center">
-    <img src="screenshots/MainScreenDark.png" alt="Screenshot 1" width="20%">
-    <img src="screenshots/RegisterScreenLight.png" alt="Screenshot 2" width="20%">
-</div>
-<div align="center">
-    <img src="screenshots/MainScreenProfileSettingDark.png" alt="Screenshot 3" width="25%">
-    <img src="screenshots/MainScreenWeeklyLight.png" alt="Screenshot 4" width="25%">
-    <img src="screenshots/MainScreenWeeklyTaskEditLight.png" alt="Screenshot 5" width="25%">
-    <img src="screenshots/MainScreenWeeklyRecordingFinishedDark.png" alt="Screenshot 6" width="25%">
-</div>
