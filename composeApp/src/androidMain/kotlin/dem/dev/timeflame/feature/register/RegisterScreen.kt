@@ -126,7 +126,7 @@ private fun RegisterHeader(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = stringResource(R.string.in_timeflame),
+            text = stringResource(R.string.in_genesis),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
