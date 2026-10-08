@@ -17,6 +17,9 @@ class FakeDocument:
     def get(self):
         return self
 
+    def to_dict(self):
+        return self.data
+
     def update(self, data):
         self.data.update(data)
 
