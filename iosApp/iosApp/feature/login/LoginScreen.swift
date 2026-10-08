@@ -60,7 +60,7 @@ struct LoginScreen: View {
             }
             HStack {
                 Spacer()
-                Text("TimeFlame")
+                Text("PISTOL GENESIS")
                     .foregroundColor(Color.white)
                     .padding(.bottom, 30)
                     .font(.title)
