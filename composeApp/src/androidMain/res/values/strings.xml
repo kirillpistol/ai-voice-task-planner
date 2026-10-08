@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TimeFlame</string>
+    <string name="app_name">PISTOL GENESIS</string>
     <string name="welcome_to">Welcome to</string>
     <string name="log_into_account">Войдите в аккаунт</string>
     <string name="forgot_password_q">Забыли пароль?</string>
@@ -7,7 +7,7 @@
     <string name="no_account_q">Еще нет аккаунта?</string>
     <string name="create">Создать</string>
     <string name="account">аккаунт</string>
-    <string name="in_timeflame">в TimeFlame</string>
+    <string name="in_timeflame">в PISTOL GENESIS</string>
     <string name="takes_30_sec">Займет 30 секунд</string>
     <string name="email">Email</string>
     <string name="password">Пароль</string>
