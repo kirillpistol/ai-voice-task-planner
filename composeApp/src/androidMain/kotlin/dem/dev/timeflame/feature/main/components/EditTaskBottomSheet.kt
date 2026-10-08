@@ -45,34 +45,28 @@ import kotlinx.datetime.format
 @Composable
 fun EditTaskBottomSheet(
     modifier: Modifier = Modifier,
-    task: Task, // task to edit
+    task: Task,
     onDismissRequest: () -> Unit,
     onTaskSave: (Task) -> Unit
 ) {
-    ModalBottomSheet(
-        modifier = modifier,
+    EditTaskBottomSheetContent(
+        task = task,
         onDismissRequest = onDismissRequest,
-    ) {
-        EditTaskBottomSheetContent(
-            task = task,
-            onDismissRequest = onDismissRequest,
-            onTaskSave = onTaskSave
-        )
-    }
+        onTaskSave = onTaskSave
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditTaskBottomSheetContent(
-    task: Task, // task to edit
+    task: Task,
     onDismissRequest: () -> Unit,
     onTaskSave: (Task) -> Unit
 ) {
-    // initial timestamp of task (in DB) is in UTC and we save it in UTC, but display in the local timezone
     var taskDate by remember { mutableStateOf(task.timestamp.toLocalDateTime() ) }
     var taskTitle by remember { mutableStateOf(task.text) }
 
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = taskDate.copy(hour = 0, minute = 0, second = 0, nanosecond = 0).timestamp() /* Start of day */)
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = taskDate.copy(hour = 0, minute = 0, second = 0, nanosecond = 0).timestamp())
     var showDatePicker by remember { mutableStateOf(false) }
 
     val timePickerState = rememberTimePickerState(taskDate.hour, taskDate.minute)
@@ -168,20 +162,20 @@ private fun EditTaskBottomSheetContent(
             Text(
                 text = taskDate.format(Format.dateFormat),
                 modifier = Modifier
-                    .background(AppColors.orangeLight, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
                     .padding(10.dp)
                     .clickable { showDatePicker = true },
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = taskDate.format(Format.timeFormat),
                 modifier = Modifier
                     .padding(start = 10.dp)
-                    .background(AppColors.orangeLight, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
                     .padding(10.dp)
                     .clickable { showTimePicker = true },
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge
             )
         }
