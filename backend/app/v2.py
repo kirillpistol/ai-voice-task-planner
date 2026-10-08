@@ -1,8 +1,3 @@
-"""Authenticated PISTOL GENESIS task API.
-
-This is an explicit v2 contract, not a drop-in replacement for the
-legacy Kotlin /api/v1 routes.
-"""
 from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
