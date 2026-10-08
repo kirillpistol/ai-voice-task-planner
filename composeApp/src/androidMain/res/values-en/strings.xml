@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TimeFlame</string>
+    <string name="app_name">PISTOL GENESIS</string>
     <string name="welcome_to">Welcome to</string>
     <string name="log_into_account">Log into your account</string>
     <string name="forgot_password_q">Forgot password?</string>
@@ -8,7 +8,7 @@
     <string name="no_account_q">Don\'t have an account?</string>
     <string name="create">Create</string>
     <string name="account">an account</string>
-    <string name="in_timeflame">in TimeFlame</string>
+    <string name="in_timeflame">in PISTOL GENESIS</string>
     <string name="takes_30_sec">Takes 30 seconds</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
