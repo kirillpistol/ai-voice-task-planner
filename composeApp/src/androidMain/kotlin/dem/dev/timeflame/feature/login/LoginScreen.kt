@@ -122,62 +122,27 @@ private fun LoginScreenView(
 private fun LoginScreenHeader(
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth(0.9f)
-            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(15.dp))
-            .padding(15.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 28.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondary)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(
-                    text = stringResource(R.string.welcome_to),
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Image(
-                    painter = painterResource(R.drawable.down_arrow),
-                    contentDescription = null,
-                    alignment = Alignment.BottomCenter,
-                    modifier = Modifier.padding(top = 15.dp, start = 5.dp)
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Image(
-                    painter = painterResource(R.drawable.down_arrow),
-                    contentDescription = null,
-                    alignment = Alignment.BottomCenter,
-                    modifier = Modifier.padding(top = 28.dp, start = 5.dp)
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    text = stringResource(R.string.log_into_account),
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = stringResource(R.string.log_into_account),
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.welcome_to) + " " + stringResource(R.string.app_name),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
