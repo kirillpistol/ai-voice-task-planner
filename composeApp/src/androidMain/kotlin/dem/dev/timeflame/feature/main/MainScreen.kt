@@ -308,7 +308,6 @@ private fun CalendarSection(
     state: MainScreenState = MainScreenState(),
     onEvent: (MainScreenEvent) -> Unit = {}
 ) {
-    // there are 2 types of calendar view: monthly and weekly
     val calendarDays = when(state.calendarViewState) {
         CalendarViewState.WEEK -> state.currentMonth?.getWeekForDay(state.selectedDay)?.days
         CalendarViewState.MONTH -> state.currentMonth?.days
@@ -377,6 +376,12 @@ private fun CalendarSection(
             }
         }
         
+        CalendarViewSwitcher(
+            modifier = Modifier.padding(top = 16.dp),
+            state = state,
+            onEvent = onEvent
+        )
+
         Calendar(
             modifier = Modifier
                 .padding(top = 15.dp),
@@ -399,7 +404,6 @@ private fun CalendarViewSwitcher(
             .padding(horizontal = 15.dp, vertical = 3.dp)
             .clickable { onEvent(MainScreenEvent.CalendarViewSwitch) }
     ) {
-        // if current calendar view state is month we need to rotate icon to the top and if state is weeek we need to rotate it down
         val iconRotation = when(state.calendarViewState) {
             CalendarViewState.MONTH -> 90f
             CalendarViewState.WEEK -> -90f
