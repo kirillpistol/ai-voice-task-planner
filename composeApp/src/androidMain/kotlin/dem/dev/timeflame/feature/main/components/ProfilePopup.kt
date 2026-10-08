@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -73,7 +74,7 @@ fun ProfilePopup(
                 pressedElevation = 4.dp
             ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.onBackground
+                containerColor = MaterialTheme.colorScheme.surface
             ),
             shape = RoundedCornerShape(15.dp)
         ) {
@@ -85,27 +86,29 @@ fun ProfilePopup(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = if (darkModeEnabled)
-                            painterResource(R.drawable.timeflame_icon_dark)
-                        else
-                            painterResource(R.drawable.timeflame_icon_light),
-                        contentDescription = null,
+                    Box(
                         modifier = Modifier
-                            .size(55.dp)
-                            .padding(5.dp)
-                            .border(width = 0.5.dp, color = MaterialTheme.colorScheme.primary, CircleShape)
-                    )
+                            .size(48.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "P",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                     Column(
                         modifier = Modifier.padding(start = 10.dp)
                     ) {
-                        Text(user.name, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onTertiary)
-                        Text(user.email, modifier = Modifier.padding(top = 3.dp), color = MaterialTheme.colorScheme.onTertiary)
+                        Text(user.name, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                        Text(user.email, modifier = Modifier.padding(top = 3.dp), color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
                 Divider(modifier = Modifier
                     .padding(top = 5.dp),
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -119,13 +122,13 @@ fun ProfilePopup(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Settings icon",
-                            tint = MaterialTheme.colorScheme.onTertiary
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = stringResource(R.string.settings),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(start = 10.dp),
-                            color = MaterialTheme.colorScheme.onTertiary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -135,7 +138,7 @@ fun ProfilePopup(
                         modifier = Modifier
                             .rotate(if (isSettingsOpen) 90f else -90f)
                             .size(16.dp),
-                        tint = MaterialTheme.colorScheme.onTertiary
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -152,13 +155,13 @@ fun ProfilePopup(
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Logout,
                         contentDescription = "Logout icon",
-                        tint = Color.Red
+                        tint = MaterialTheme.colorScheme.error
                     )
                     Text(
                         text = stringResource(R.string.logout),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 10.dp),
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -197,7 +200,7 @@ private fun SettingsSection(
             Text(
                 text = stringResource(R.string.dark_mode),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Switch(
                 checked = isDarkThemeOn,
@@ -215,7 +218,7 @@ private fun SettingsSection(
             Text(
                 text = stringResource(R.string.ui_language),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
