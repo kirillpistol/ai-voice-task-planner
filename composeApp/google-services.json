@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "182105444448",
-    "project_id": "timeflame-9c5f7",
-    "storage_bucket": "timeflame-9c5f7.firebasestorage.app"
+    "project_number": "17306470646",
+    "project_id": "pistol-genesis",
+    "storage_bucket": "pistol-genesis.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:182105444448:android:65ee92852e1a991c3d3305",
+        "mobilesdk_app_id": "1:17306470646:android:246fb30bd08cb13b6204d7",
         "android_client_info": {
-          "package_name": "dem.dev.timeflame"
+          "package_name": "dem.dev.genesis"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAT0puuMJMGb9YQYxSdRhdwpYUZTBsEYkc"
+          "current_key": "AIzaSyBFAIundrt4_OLHQlnasDALVtwgAkedcjw"
         }
       ],
       "services": {
