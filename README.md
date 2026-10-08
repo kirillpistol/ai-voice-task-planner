@@ -1,18 +1,18 @@
 # GENESIS — приложение и проект экранов
 
-[Каталог исходных экранов](screenshots/README.md) · [Manifest](screenshots/manifest.json) · [История переименования](screenshots/original-file-mapping.md)
+[Каталог экранов](screenshots/README.md) · [Manifest](screenshots/manifest.json) · [История переименования](screenshots/original-file-mapping.md)
 
-Исходные макеты организованы по назначению, теме и состоянию. Переработанные русская и английская версии будут добавлены отдельно после получения.
+Исходные макеты организованы по назначению, теме и состоянию. [Русская версия PISTOL GENESIS](screenshots/ru/README.md): 24 проверенных макета. Английская версия ожидается отдельно. Это каталог дизайна; код приложения этим обновлением не менялся.
 
 This is a Kotlin Multiplatform project targeting Android, iOS.
 | | |
 |:-:|:-:|
-| ![Registration light](screenshots/original/auth/register-light.png) | ![Main screen dark](screenshots/original/calendar/weekly-dark.png) |
+| ![Registration light](screenshots/ru/auth/register-light.png) | ![Main screen dark](screenshots/ru/calendar/weekly-dark.png) |
 | *Registration screen (light)* | *Main screen (dark)* |
-| ![Weekly view light](screenshots/original/tasks/weekly-task-actions-light.png) | ![Profile settings dark](screenshots/original/profile/settings-menu-dark.png)|
-| *Weekly task actions (light)* | *Profile settings (dark)* |
-| ![Edit task light](screenshots/original/tasks/task-edit-light.png) | ![Recording finished dark](screenshots/original/tasks/task-created-dark.png) |
-| *Edit task (light)* | *Task successfully added (dark)* |
+| ![Weekly view light](screenshots/ru/tasks/weekly-task-actions-light.png) | ![Profile settings light](screenshots/ru/profile/settings-menu-light.png)|
+| *Weekly task actions (light)* | *Profile settings (light)* |
+| ![Edit task light](screenshots/ru/tasks/task-edit-light.png) | ![Task created light](screenshots/ru/tasks/task-created-light.png) |
+| *Edit task (light)* | *Task successfully added (light)* |
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
   - `commonMain` is for code that’s common for all targets.
