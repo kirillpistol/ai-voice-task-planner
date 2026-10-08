@@ -2,17 +2,17 @@
 
 [Каталог экранов](screenshots/README.md) · [Manifest](screenshots/manifest.json) · [История переименования](screenshots/original-file-mapping.md)
 
-Исходные макеты организованы по назначению, теме и состоянию. [Русская версия PISTOL GENESIS](screenshots/ru/README.md): 27 уникальных проверенных макетов. Английская версия ожидается отдельно. Это каталог дизайна; код приложения этим обновлением не менялся.
+Исходные макеты организованы по назначению, теме и состоянию. [Русская версия PISTOL GENESIS](screenshots/ru/README.md): 27 уникальных проверенных макетов. Английская версия: 28 макетов, добавленных [продолжением в каталог](screenshots/ru/README.md#английская-версия-uk-english). Это каталог дизайна; код приложения этим обновлением не менялся.
 
 This is a Kotlin Multiplatform project targeting Android, iOS.
 | | |
 |:-:|:-:|
-| ![Registration light](screenshots/ru/auth/register-light.png) | ![Main screen dark](screenshots/ru/calendar/weekly-dark.png) |
-| *Registration screen (light)* | *Main screen (dark)* |
-| ![Weekly view light](screenshots/ru/tasks/weekly-task-actions-light.png) | ![Profile settings light](screenshots/ru/profile/settings-menu-light.png)|
-| *Weekly task actions (light)* | *Profile settings (light)* |
-| ![Edit task light](screenshots/ru/tasks/task-edit-light.png) | ![Task created light](screenshots/ru/tasks/task-created-light.png) |
-| *Edit task (light)* | *Task successfully added (light)* |
+| ![Registration light](screenshots/ru/auth/register-light.png) | ![Main screen dark](screenshots/en/calendar/weekly-dark.png) |
+| *Registration screen (light)* | *Main screen (dark, EN)* |
+| ![Weekly view light](screenshots/ru/tasks/weekly-task-actions-light.png) | ![Profile settings light](screenshots/en/profile/settings-menu-light.png)|
+| *Weekly task actions (light)* | *Profile settings (light, EN)* |
+| ![Edit task light](screenshots/ru/tasks/task-edit-light.png) | ![Task created light](screenshots/en/tasks/task-created-light.png) |
+| *Edit task (light)* | *Task successfully added (light, EN)* |
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
   - `commonMain` is for code that’s common for all targets.

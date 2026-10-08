@@ -1,10 +1,10 @@
 {
-  "catalog_version": 2,
+  "catalog_version": 3,
   "stage": "multi-stage",
   "source_brand": "TimeFlame",
   "target_brand": "PISTOL GENESIS",
-  "input_files": 46,
-  "unique_images": 44,
+  "input_files": 74,
+  "unique_images": 72,
   "pixel_content_modified": false,
   "screens": [
     {
@@ -783,6 +783,510 @@
       "height": 1821,
       "sha256": "13a86e00a35265da24db3cc700f4bdcb4020f3fb52e2f7d571d78878bb88f763",
       "git_blob_sha": "b7c5b6ad53896396960644b5f1bda2d2422b4c8f"
+    },
+    {
+      "id": "login-light",
+      "title": "Вход в аккаунт",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "auth",
+      "state": "login",
+      "path": "en/auth/login-light.png",
+      "source_files": [
+        "exec-d155c3ca-5737-44fa-98e5-6ea41340b5f5.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "f75a610f101fb0c1472a5e1a7b307de34bec86f879b8a23a1bcca8777d635317",
+      "git_blob_sha": "31a723c2e3d4990d26d79ba2e7b05f570439a7c0"
+    },
+    {
+      "id": "login-dark",
+      "title": "Вход в аккаунт",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "auth",
+      "state": "login",
+      "path": "en/auth/login-dark.png",
+      "source_files": [
+        "Тёмный экран входа PISTOL GENESIS(1).png"
+      ],
+      "width": 864,
+      "height": 1820,
+      "sha256": "a00677318f84d89601c0e5e6e5e95bba09695c57d78b62494abb9db906ccd658",
+      "git_blob_sha": "20aaa67813457c4cd0e78f316fde8e4e623fc3c7"
+    },
+    {
+      "id": "register-light",
+      "title": "Регистрация аккаунта",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "auth",
+      "state": "register",
+      "path": "en/auth/register-light.png",
+      "source_files": [
+        "exec-6364039c-9809-4478-8727-aaceb1b611eb.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "c18f0f8e37b2a84efb116bc48465b9225e9c29bbc38395b34a3bd7577cd1ad72",
+      "git_blob_sha": "999642012ef368bb7369623762cbf75a6e392c39"
+    },
+    {
+      "id": "register-dark",
+      "title": "Регистрация аккаунта",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "auth",
+      "state": "register",
+      "path": "en/auth/register-dark.png",
+      "source_files": [
+        "Англоязычный экран регистрации PISTOL GENESIS(1).png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "7186975f0e1aae097c80e1fe15bb4cbb3c1ea669541acb97d1ac1c58a951e305",
+      "git_blob_sha": "881c48d4b29cece71a7119323483cf2ceef73979"
+    },
+    {
+      "id": "password-reset-light",
+      "title": "Сброс пароля",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "auth",
+      "state": "password-reset",
+      "path": "en/auth/password-reset-light.png",
+      "source_files": [
+        "exec-da78912d-7625-4d1b-b6ce-fade5d729342.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "51195b430e3fdfa919616097a89483b8ab1d8ddeb75ed6371470866fdedd50d3",
+      "git_blob_sha": "d7d752a68c4f09ed72bd4e713e0a0e27192c9a15"
+    },
+    {
+      "id": "password-reset-dark",
+      "title": "Сброс пароля",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "auth",
+      "state": "password-reset",
+      "path": "en/auth/password-reset-dark.png",
+      "source_files": [
+        "exec-1114b246-40f7-4a46-a85f-df9501b17a9e.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "56ea499a78a6b67313e38918181577c4fc205bddf0b8d6467673785f7a473b50",
+      "git_blob_sha": "3185e06cd57dee5385a83f11364adb5bcce13825"
+    },
+    {
+      "id": "weekly-light",
+      "title": "Недельный календарь и список задач",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "calendar",
+      "state": "weekly",
+      "path": "en/calendar/weekly-light.png",
+      "source_files": [
+        "exec-3990ef26-858f-454c-bb38-70fcb69519bc.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "1fa7ea84fe47d93ac58299d48f733a85ff75538adb9f220643854a7f96db19c0",
+      "git_blob_sha": "b5967149128d81398c4a1679a95025575648093b"
+    },
+    {
+      "id": "weekly-dark",
+      "title": "Недельный календарь и список задач",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "calendar",
+      "state": "weekly",
+      "path": "en/calendar/weekly-dark.png",
+      "source_files": [
+        "exec-ded9a651-6205-4b72-9a9f-952e05bc0ba9.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "f93a5f168c5c4b99afd3080dd0e71bf766e6deb2286461ac6624c5ccf74e9b78",
+      "git_blob_sha": "268dba330f4c2386fd717a3b8dacbcedd473eeb3"
+    },
+    {
+      "id": "monthly-light",
+      "title": "Месячный календарь и список задач",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "calendar",
+      "state": "monthly",
+      "path": "en/calendar/monthly-light.png",
+      "source_files": [
+        "exec-4823a67b-ee6b-4ff5-a8d2-019adfcefa0e.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "255d2ab62295fbc3390b2f4767d62454653e7434e84adf7dcf13f639d2dd769f",
+      "git_blob_sha": "bf5767a2249bafe55619138ca5b2670667bd9065"
+    },
+    {
+      "id": "monthly-dark",
+      "title": "Месячный календарь и список задач",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "calendar",
+      "state": "monthly",
+      "path": "en/calendar/monthly-dark.png",
+      "source_files": [
+        "exec-08fcb82f-effa-4b4a-a23e-79acd353c027.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "c3dffdf568065d87d40878215159ae60549508a894c46622c37ad766c2ed3a37",
+      "git_blob_sha": "154919d8c36aa207374599eb3a66847729c11ae9"
+    },
+    {
+      "id": "weekly-empty-light",
+      "title": "Недельный календарь — выбранный день без задач",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "calendar",
+      "state": "weekly-empty",
+      "path": "en/calendar/weekly-empty-light.png",
+      "source_files": [
+        "exec-10be7792-43c4-4836-93bd-29df38063aa6.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "4855d9eb6bffed6f62b95db92762215ba062962a3c34a8c2caa58ffd27a59468",
+      "git_blob_sha": "9719c6261cd3534ea961a265b249e2ed183ec31c"
+    },
+    {
+      "id": "weekly-empty-dark",
+      "title": "Недельный календарь — выбранный день без задач",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "calendar",
+      "state": "weekly-empty",
+      "path": "en/calendar/weekly-empty-dark.png",
+      "source_files": [
+        "exec-483b3bbf-a894-40d1-abcb-9f04a2fe48dd.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "a47876e9f80881fe2c351f872ba573980de7f43e632265c70953ff70217b75f4",
+      "git_blob_sha": "e42d73bee80b39ec6e2ad839a2b7a44ffcc1192d"
+    },
+    {
+      "id": "weekly-task-actions-light",
+      "title": "Действия над задачей — редактирование и удаление",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "tasks",
+      "state": "weekly-task-actions",
+      "path": "en/tasks/weekly-task-actions-light.png",
+      "source_files": [
+        "exec-b61f93f2-d20f-4a4c-9f69-7a16b1d98c89.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "c0ec7a6f153dbd0a3d260f7e9bf93095b63512a04ebbead6fb5a2ce561b13527",
+      "git_blob_sha": "cd21c57ef23a336c49bf71df5e51b58f78f7bd59"
+    },
+    {
+      "id": "weekly-task-actions-dark",
+      "title": "Действия над задачей — редактирование и удаление",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "tasks",
+      "state": "weekly-task-actions",
+      "path": "en/tasks/weekly-task-actions-dark.png",
+      "source_files": [
+        "exec-1aa73474-1091-427a-9142-7d657458dad7.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "5c5f70ef0dd0c26f5cc2ff3a2c60f612c93a025f6c34b2af654cded9061e0c7d",
+      "git_blob_sha": "cf33217feff4fce7db8c43a9a01107d365d605d4"
+    },
+    {
+      "id": "task-delete-confirmation-light",
+      "title": "Подтверждение удаления задачи",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "tasks",
+      "state": "task-delete-confirmation",
+      "path": "en/tasks/task-delete-confirmation-light.png",
+      "source_files": [
+        "exec-6fa8578c-3a4c-44f9-8a47-6316cef03704.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "0e89868029387b66b6b94e3c53b01d5496fc43f9edd5a2d0cddfd3378dd7cc1a",
+      "git_blob_sha": "2ba3b8e5f3cd3b789011de3668a38f09cd7339b8"
+    },
+    {
+      "id": "task-delete-confirmation-dark",
+      "title": "Подтверждение удаления задачи",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "tasks",
+      "state": "task-delete-confirmation",
+      "path": "en/tasks/task-delete-confirmation-dark.png",
+      "source_files": [
+        "exec-e4fa2353-0a99-44a4-a806-ddbba770c7b8.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "61d2d6ee15b649233a3a6f9cc32e31646a1f2345e656f59182bd11b3d1de012e",
+      "git_blob_sha": "a3690a5aedbc2b5623c12ed5948a9b12c2fc4379"
+    },
+    {
+      "id": "voice-recording-light",
+      "title": "Запись голоса — распознавание запроса",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "voice",
+      "state": "voice-recording",
+      "path": "en/voice/voice-recording-light.png",
+      "source_files": [
+        "exec-c00b69d7-3101-40ac-ba68-78fe444ed5ed.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "1495bfaefacf9c9828cf7f18311d75bd6b4b151024289350e07f7899354eb42e",
+      "git_blob_sha": "ca0e0faf202b9ab59e9036ff6c1b61e53146fb5c"
+    },
+    {
+      "id": "voice-recording-dark",
+      "title": "Запись голоса — распознавание запроса",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "voice",
+      "state": "voice-recording",
+      "path": "en/voice/voice-recording-dark.png",
+      "source_files": [
+        "exec-e3fc8644-18ee-45e4-b8bb-e71e3a55e8a9.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "30d32ca0365bb25f531b8ce5ad94210aac52d358d127a3e10d526d0cf6b83550",
+      "git_blob_sha": "9e2a988b123bb2c3b48fe42e83ca10b95203f543"
+    },
+    {
+      "id": "task-review-light",
+      "title": "Проверка распознанной задачи перед добавлением",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "voice",
+      "state": "task-review",
+      "path": "en/voice/task-review-light.png",
+      "source_files": [
+        "exec-18bc4ff5-9443-451c-b1ae-c5e17669eb9a.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "e2f1d6a3fc09a5a163cb8d564cdf4148a988232750e5adf441e25d290992f10c",
+      "git_blob_sha": "10225420577fc1f192359ad558a18e5dcda874ed"
+    },
+    {
+      "id": "task-review-dark",
+      "title": "Проверка распознанной задачи перед добавлением",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "voice",
+      "state": "task-review",
+      "path": "en/voice/task-review-dark.png",
+      "source_files": [
+        "exec-2d3fd360-c144-4dfe-850d-9629081a0271.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "a756ddb2bb659c978f6a102c8e6ee17128beee508f364bd9ca26fe19e578fe26",
+      "git_blob_sha": "4184e02fe9422b548d26fef5491611dbedbd30a4"
+    },
+    {
+      "id": "task-created-light",
+      "title": "Задача успешно добавлена — подтверждение",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "tasks",
+      "state": "task-created",
+      "path": "en/tasks/task-created-light.png",
+      "source_files": [
+        "exec-06a54a77-1b01-4cfe-9252-6409510d54d8.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "87477df1f3867798cdad60304570fd7b3c3622a0cb724f3df5aee9fca015543c",
+      "git_blob_sha": "3c65dcdee2cb994cd5f849ec87b7699d652d391f"
+    },
+    {
+      "id": "task-created-dark",
+      "title": "Задача успешно добавлена — подтверждение",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "tasks",
+      "state": "task-created",
+      "path": "en/tasks/task-created-dark.png",
+      "source_files": [
+        "exec-83775e77-4718-47f7-b0d7-a0372afb5d3e.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "667c1fbb3ebadbe25ed0e237cb7365090f5eff2730a2610164c46be0102d930d",
+      "git_blob_sha": "5b7647c7db5716632ebfa46f2013cf1f754988f0"
+    },
+    {
+      "id": "task-edit-light",
+      "title": "Редактирование задачи — нижняя панель",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "tasks",
+      "state": "task-edit",
+      "path": "en/tasks/task-edit-light.png",
+      "source_files": [
+        "exec-02c60c3d-d846-4059-9097-f91526cadab8.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "23cb4cf0a5605bab28abef77d0d9db89e1a004f80fac2829bbbba180aaecc52d",
+      "git_blob_sha": "b27c7a1d58c63ed13089a3ed4adb543c40f55a8a"
+    },
+    {
+      "id": "task-edit-dark",
+      "title": "Редактирование задачи — нижняя панель",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "tasks",
+      "state": "task-edit",
+      "path": "en/tasks/task-edit-dark.png",
+      "source_files": [
+        "exec-5f79f427-074a-444e-85a5-95961b289c5a.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "7bab23f678563967e9e8c821574ec5fcdd80af326934c9d1f29e19456cbb90c6",
+      "git_blob_sha": "fa01e3e11e0a4d68917520d313bb4a9f901671aa"
+    },
+    {
+      "id": "profile-menu-light",
+      "title": "Всплывающее меню профиля",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "profile",
+      "state": "profile-menu",
+      "path": "en/profile/profile-menu-light.png",
+      "source_files": [
+        "exec-44e6e95c-d103-4ae3-aebf-0a8511fc3d99.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "cbf27663e66cfa5377869745426f45b6334d6c17e96512f8abe7b62c6314d91d",
+      "git_blob_sha": "d70766cf2852e74350f4fa9c4a0227eb34aa5ab1"
+    },
+    {
+      "id": "profile-menu-dark",
+      "title": "Всплывающее меню профиля",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "profile",
+      "state": "profile-menu",
+      "path": "en/profile/profile-menu-dark.png",
+      "source_files": [
+        "exec-893dbdc1-c715-4e3d-8cf3-0fdef4408d0e.png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "10efd7170604bb514770d1608a0d4dd17fc0a46f45c0dd7eb9b8b5a7c1d456f7",
+      "git_blob_sha": "67a0a76002778e7861555914f5602264ad0b6f11"
+    },
+    {
+      "id": "settings-menu-light",
+      "title": "Меню настроек — тема и язык",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "light",
+      "group": "profile",
+      "state": "settings-menu",
+      "path": "en/profile/settings-menu-light.png",
+      "source_files": [
+        "exec-9535dc65-5397-4a57-b391-1c06ffd3e476.png"
+      ],
+      "width": 863,
+      "height": 1823,
+      "sha256": "4295afa96a4acf2f84dd32d84eb3033b2cf85da311f6931d1c3424c41b1a37fd",
+      "git_blob_sha": "7ac7c5e60117ed30e67603b6cf982394114b6398"
+    },
+    {
+      "id": "settings-menu-dark",
+      "title": "Меню настроек — тема и язык",
+      "stage": "en",
+      "locale": "en-GB",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "profile",
+      "state": "settings-menu",
+      "path": "en/profile/settings-menu-dark.png",
+      "source_files": [
+        "exec-bf4d6207-4668-4efa-b406-92b2cfea7b08.png"
+      ],
+      "width": 863,
+      "height": 1823,
+      "sha256": "6bf5e40602b0260796c22a7385677c733d99709f48c433d40e27ea8ed241fe66",
+      "git_blob_sha": "c006d1624c1744d7735871e527d79ba142243a41"
     }
   ],
   "stages": {
@@ -800,9 +1304,10 @@
       ]
     },
     "en": {
-      "status": "not-received",
-      "input_files": 0,
-      "unique_images": 0
+      "status": "uploaded-approved-mockups",
+      "input_files": 28,
+      "unique_images": 28,
+      "missing_theme_variants": []
     }
   }
 }
