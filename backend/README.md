@@ -49,3 +49,32 @@ in chat or commit them to GitHub. Keep secrets in Secret Manager.
 3. Add automated contract tests and Firebase/Firestore integration tests.
 4. Replace the Android endpoint with the actual HTTPS Cloud Run URL.
 5. Test APK on a phone.
+
+## New authenticated v2 API
+
+The new routes are separate from the **legacy** Android v1 contract:
+
+- `GET /api/v2/session` validates a Firebase Authentication ID token.
+- `POST /api/v2/tasks` creates a task.
+- `GET /api/v2/tasks?limit=50` lists the caller's tasks.
+- `PUT /api/v2/tasks/{task_id}` replaces a task.
+- `DELETE /api/v2/tasks/{task_id}` deletes a task.
+
+All v2 routes require `Authorization: Bearer <Firebase ID token>`. Firebase
+Authentication must be enabled in the Firebase Console and the Android app must
+sign users in to obtain ID tokens; **the existing app does not yet do this**.
+Tasks are stored under Firestore `users/{uid}/tasks/{taskId}`. Each API
+request only accesses the verified token holder's UID.
+
+Before phone testing: validate Firestore IAM, use a dedicated Cloud Run service
+account, and implement compatible Android DTOs and token refresh handling.
+For local tests install dependencies plus pytest:
+
+```sh
+python -m pip install -r backend/requirements.txt pytest
+cd backend
+python -m pytest -q
+```
+
+Tests have not yet been run in a fully provisioned deployment environment.
+The `/api/v1` routes are still intentionally not implemented.
