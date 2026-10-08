@@ -461,12 +461,12 @@ private fun NewTaskRecordSection(
                 FloatingActionButton(
                     onClick = { onEvent(MainScreenEvent.RecordNewTaskBtnClicked) },
                     backgroundColor = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mic,
-                        contentDescription = null,
-                        tint = Color.White
+                        contentDescription = stringResource(R.string.dictate_your_task),
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -477,14 +477,14 @@ private fun NewTaskRecordSection(
                     .fillMaxWidth(0.8f)
                     .padding(bottom = 20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface
                 ),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(16.dp),
             ) {
                 Text(
                     stringResource(R.string.recording),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)
@@ -498,10 +498,10 @@ private fun NewTaskRecordSection(
                     .fillMaxWidth(0.8f)
                     .padding(bottom = 20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface
                 ),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(15.dp),
@@ -513,19 +513,19 @@ private fun NewTaskRecordSection(
                         modifier = Modifier.fillMaxWidth(0.8f),
                         shape = RoundedCornerShape(15.dp),
                         colors = androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors(
-                            backgroundColor = MaterialTheme.colorScheme.onBackground,
-                            textColor = MaterialTheme.colorScheme.onTertiary,
-                            disabledTextColor = MaterialTheme.colorScheme.onTertiary,
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            textColor = MaterialTheme.colorScheme.onSurface,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
                             focusedBorderColor = MaterialTheme.colorScheme.primary
                         )
                     )
                     Button(
                         onClick = { onEvent(MainScreenEvent.CreateNewTaskClicked) },
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = MaterialTheme.colorScheme.onBackground,
-                            disabledBackgroundColor = MaterialTheme.colorScheme.onBackground
+                            backgroundColor = MaterialTheme.colorScheme.primary,
+                            disabledBackgroundColor = MaterialTheme.colorScheme.primary
                         ),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth(0.5f)
                             .padding(top = 20.dp),
@@ -534,7 +534,7 @@ private fun NewTaskRecordSection(
                         Image(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onTertiary)
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
                         )
                     }
                 }
