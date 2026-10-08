@@ -3,8 +3,8 @@
   "stage": "multi-stage",
   "source_brand": "TimeFlame",
   "target_brand": "PISTOL GENESIS",
-  "input_files": 42,
-  "unique_images": 41,
+  "input_files": 46,
+  "unique_images": 44,
   "pixel_content_modified": false,
   "screens": [
     {
@@ -728,6 +728,61 @@
       "height": 1821,
       "sha256": "67b3a9943a8e5e0b36199719740b917340e5bfa5a220d1dcfc0ab0cc8fac2945",
       "git_blob_sha": "f75ae83045426180667a6ddba993691b0de6dd12"
+    },
+    {
+      "id": "settings-menu-dark",
+      "title": "Меню настроек — тема и язык",
+      "stage": "ru",
+      "locale": "ru",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "profile",
+      "state": "settings-menu",
+      "path": "ru/profile/settings-menu-dark.png",
+      "source_files": [
+        "Настройки тёмной темы и языка(1).png"
+      ],
+      "width": 863,
+      "height": 1823,
+      "sha256": "64758b9ac3d38f4955bb2a9f8339f3b0333386e6b46c12d4fa1235015519203a",
+      "git_blob_sha": "b06c5b5db3f16ddc3eba70dd156ec3d8c6c7b408"
+    },
+    {
+      "id": "profile-menu-dark",
+      "title": "Всплывающее меню профиля",
+      "stage": "ru",
+      "locale": "ru",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "profile",
+      "state": "profile-menu",
+      "path": "ru/profile/profile-menu-dark.png",
+      "source_files": [
+        "Профиль PISTOL GENESIS_ календарь и задачи(1).png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "e7b88a3b8c907706ab94503c63635da41bd740781c0a736e9c1e6a3c5156138c",
+      "git_blob_sha": "713e62c1c0292f155791b9c1c608e47c41ff6723"
+    },
+    {
+      "id": "task-edit-dark",
+      "title": "Редактирование задачи — нижняя панель",
+      "stage": "ru",
+      "locale": "ru",
+      "brand": "PISTOL GENESIS",
+      "theme": "dark",
+      "group": "tasks",
+      "state": "task-edit",
+      "path": "ru/tasks/task-edit-dark.png",
+      "source_files": [
+        "Редактирование задачи_ созвон с клиентом(1).png",
+        "Редактирование задачи_ созвон с клиентом(2).png"
+      ],
+      "width": 864,
+      "height": 1821,
+      "sha256": "13a86e00a35265da24db3cc700f4bdcb4020f3fb52e2f7d571d78878bb88f763",
+      "git_blob_sha": "b7c5b6ad53896396960644b5f1bda2d2422b4c8f"
     }
   ],
   "stages": {
@@ -738,13 +793,10 @@
     },
     "ru": {
       "status": "uploaded-current-batch",
-      "input_files": 24,
-      "unique_images": 24,
+      "input_files": 28,
+      "unique_images": 27,
       "missing_theme_variants": [
-        "task-edit-dark",
-        "task-created-dark",
-        "profile-menu-dark",
-        "settings-menu-dark"
+        "task-created-dark"
       ]
     },
     "en": {

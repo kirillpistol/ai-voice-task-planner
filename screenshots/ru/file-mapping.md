@@ -26,3 +26,8 @@
 | Светлый экран проверки задачи.png | [ru/voice/task-review-light.png](voice/task-review-light.png) | Проверка распознанной задачи перед добавлением |
 | Активная запись голоса в календаре.png | [ru/voice/voice-recording-dark.png](voice/voice-recording-dark.png) | Запись голоса — распознавание запроса |
 | Светлый экран записи голоса.png | [ru/voice/voice-recording-light.png](voice/voice-recording-light.png) | Запись голоса — распознавание запроса |
+
+| Настройки тёмной темы и языка(1).png | [ru/profile/settings-menu-dark.png](profile/settings-menu-dark.png) | Меню настроек — тема и язык |
+| Профиль PISTOL GENESIS_ календарь и задачи(1).png | [ru/profile/profile-menu-dark.png](profile/profile-menu-dark.png) | Всплывающее меню профиля |
+| Редактирование задачи_ созвон с клиентом(1).png | [ru/tasks/task-edit-dark.png](tasks/task-edit-dark.png) | Редактирование задачи — нижняя панель |
+| Редактирование задачи_ созвон с клиентом(2).png | [ru/tasks/task-edit-dark.png](tasks/task-edit-dark.png) | Редактирование задачи — нижняя панель |

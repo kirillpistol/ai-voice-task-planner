@@ -2,7 +2,7 @@
 
 [Каталог экранов](screenshots/README.md) · [Manifest](screenshots/manifest.json) · [История переименования](screenshots/original-file-mapping.md)
 
-Исходные макеты организованы по назначению, теме и состоянию. [Русская версия PISTOL GENESIS](screenshots/ru/README.md): 24 проверенных макета. Английская версия ожидается отдельно. Это каталог дизайна; код приложения этим обновлением не менялся.
+Исходные макеты организованы по назначению, теме и состоянию. [Русская версия PISTOL GENESIS](screenshots/ru/README.md): 27 уникальных проверенных макетов. Английская версия ожидается отдельно. Это каталог дизайна; код приложения этим обновлением не менялся.
 
 This is a Kotlin Multiplatform project targeting Android, iOS.
 | | |
