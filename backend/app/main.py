@@ -1,8 +1,3 @@
-"""PISTOL GENESIS API bootstrap.
-
-This intentionally does not implement the legacy /api/v1/auth or /api/v1/tasks
-contracts until the Kotlin request/response models have been verified.
-"""
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -33,17 +28,14 @@ app.include_router(v2_router)
 
 @app.get("/healthz")
 def healthz():
-    """Liveness; never queries external dependencies."""
     return {"status": "ok", "service": "genesis-api"}
 
 
 @app.get("/readyz")
 def readyz():
-    """Readiness requires an authenticated Firestore connection."""
     if app.state.db is None:
         raise HTTPException(status_code=503, detail="Firestore client not initialized")
     try:
-        # An RPC to validate credentials and database connectivity.
         list(app.state.db.collections(page_size=1))
     except Exception:
         logger.exception("Firestore readiness check failed")
