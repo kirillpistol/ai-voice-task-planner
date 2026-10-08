@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from firebase_admin import auth as firebase_auth
 import firebase_admin
 from google.cloud import firestore
@@ -66,9 +66,8 @@ def create_task(task: TaskInput, uid: str = Depends(current_uid), db=Depends(dat
 
 
 @router.get("/tasks", response_model=list[TaskOutput])
-def list_tasks(limit: int = 50, uid: str = Depends(current_uid), db=Depends(database)):
-    if limit < 1 or limit > MAX_PAGE_SIZE:
-        raise HTTPException(status_code=422, detail="limit must be between 1 and 100")
+def list_tasks(limit: int = Query(default=50, ge=1, le=MAX_PAGE_SIZE),
+               uid: str = Depends(current_uid), db=Depends(database)):
     docs = task_collection(uid, db).limit(limit).stream()
     return [TaskOutput(id=doc.id, **{k: v for k, v in doc.to_dict().items()
                                      if k in TaskInput.model_fields}) for doc in docs]
