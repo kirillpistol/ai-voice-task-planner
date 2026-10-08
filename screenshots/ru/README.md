@@ -32,11 +32,8 @@ PNG сохранены без изменения байтов, пикселей 
 | Проверка распознанной задачи перед добавлением | Светлая | <a href="voice/task-review-light.png"><img src="voice/task-review-light.png" width="180" alt="Проверка распознанной задачи перед добавлением — светлая тема"></a> |
 | Запись голоса — распознавание запроса | Тёмная | <a href="voice/voice-recording-dark.png"><img src="voice/voice-recording-dark.png" width="180" alt="Запись голоса — распознавание запроса — тёмная тема"></a> |
 | Запись голоса — распознавание запроса | Светлая | <a href="voice/voice-recording-light.png"><img src="voice/voice-recording-light.png" width="180" alt="Запись голоса — распознавание запроса — светлая тема"></a> |
-
 | Меню настроек — тема и язык | Тёмная | <a href="profile/settings-menu-dark.png"><img src="profile/settings-menu-dark.png" width="180" alt="Меню настроек — тема и язык — тёмная тема"></a> |
-
 | Всплывающее меню профиля | Тёмная | <a href="profile/profile-menu-dark.png"><img src="profile/profile-menu-dark.png" width="180" alt="Всплывающее меню профиля — тёмная тема"></a> |
-
 | Редактирование задачи — нижняя панель | Тёмная | <a href="tasks/task-edit-dark.png"><img src="tasks/task-edit-dark.png" width="180" alt="Редактирование задачи — нижняя панель — тёмная тема"></a> |
 
 ## Соответствие тем
