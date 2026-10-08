@@ -92,6 +92,9 @@ fun TaskItem(
             }
         )
         Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offset.value.roundToInt(), 0) }
@@ -137,7 +140,7 @@ private fun TaskItemContent(
         modifier = modifier
             .fillMaxWidth()
             .height(80.dp)
-            .background(MaterialTheme.colorScheme.onBackground, RoundedCornerShape(topEnd = 15.dp, bottomEnd = 15.dp)),
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val completenessIndicatorColor = if (task.completed) colorResource(R.color.green) else MaterialTheme.colorScheme.primary
@@ -148,12 +151,13 @@ private fun TaskItemContent(
         ) {
             Text(
                 text = task.timestamp.toLocalDateTime().format(Format.dateTimeFormat1(AppLanguage.RUS)),
-                color = MaterialTheme.colorScheme.outline
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = task.text,
                 modifier = Modifier.padding(top = 5.dp, end = 20.dp),
                 maxLines = 2,
+                color = MaterialTheme.colorScheme.onSurface,
                 overflow = TextOverflow.Ellipsis
             )
         }
