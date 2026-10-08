@@ -36,6 +36,11 @@ def plan(root: Path) -> list[tuple[Path, Path, str]]:
     updated = text.replace('namespace = "dem.dev.timeflame"', 'namespace = "dem.dev.genesis"')
     if updated != text:
         changes.append((gradle, gradle, updated))
+    shared_gradle = root / "shared/build.gradle.kts"
+    text = shared_gradle.read_text(encoding="utf-8")
+    updated = text.replace('namespace = "dem.dev.timeflame.shared"', 'namespace = "dem.dev.genesis.shared"')
+    if updated != text:
+        changes.append((shared_gradle, shared_gradle, updated))
     targets = [destination for _, destination, _ in changes]
     if len(set(targets)) != len(targets):
         raise RuntimeError("Two migrated sources would overwrite the same file.")
@@ -67,7 +72,11 @@ def main() -> None:
         for folder in sorted(old_parent.rglob("*"), reverse=True):
             if folder.is_dir() and not any(folder.iterdir()):
                 folder.rmdir()
-    print("Kotlin namespace migration written. Build and inspect git diff before committing.")
+    stale = [str(p.relative_to(root)) for base in KOTLIN_ROOTS for p in (root / base).rglob("*.kt") if OLD_PACKAGE in p.read_text(encoding="utf-8") or str(OLD_PATH) in str(p)]
+    if stale:
+        raise RuntimeError("Legacy Kotlin references remain: " + ", ".join(stale[:10]))
+    print("Kotlin migration complete: no legacy package references or paths in Kotlin sources.")
+    print("Build and inspect git diff before committing.")
     print("Firebase config, applicationId, iOS bundle ID, and backend URL were NOT changed.")
 
 
