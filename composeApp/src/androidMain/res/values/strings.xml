@@ -7,7 +7,7 @@
     <string name="no_account_q">Еще нет аккаунта?</string>
     <string name="create">Создать</string>
     <string name="account">аккаунт</string>
-    <string name="in_timeflame">в PISTOL GENESIS</string>
+    <string name="in_genesis">в PISTOL GENESIS</string>
     <string name="takes_30_sec">Займет 30 секунд</string>
     <string name="email">Email</string>
     <string name="password">Пароль</string>
