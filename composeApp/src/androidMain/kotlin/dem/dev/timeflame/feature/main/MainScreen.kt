@@ -224,24 +224,22 @@ private fun MainScreenView(
                     modifier = Modifier.align(Alignment.TopEnd).padding(5.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    Image(
-                        painter = if (darkModeEnabled)
-                            painterResource(R.drawable.timeflame_icon_dark)
-                        else
-                            painterResource(R.drawable.timeflame_icon_light),
-                        contentDescription = null,
+                    Box(
                         modifier = Modifier
-                            .size(55.dp)
-                            .padding(5.dp)
-                            .border(width = 0.5.dp, color = MaterialTheme.colorScheme.primary, CircleShape)
-                            .clickable (
-                                onClick = {
-                                    onEvent(MainScreenEvent.ProfileContextMenuClicked)
-                                },
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            )
-                    )
+                            .size(48.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                            .clickable {
+                                onEvent(MainScreenEvent.ProfileContextMenuClicked)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "P",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
 
                     if (state.profileContextMenuOpened && state.currentUser != null) {
                         ProfilePopup(
