@@ -1,4 +1,4 @@
-rootProject.name = "TimeFlame"
+rootProject.name = "PISTOL-GENESIS"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
