@@ -1,0 +1,301 @@
+{
+  "catalog_version": 1,
+  "stage": "original",
+  "source_brand": "TimeFlame",
+  "target_brand": "PISTOL GENESIS",
+  "input_files": 18,
+  "unique_images": 17,
+  "pixel_content_modified": false,
+  "screens": [
+    {
+      "id": "login-dark",
+      "title": "Вход в аккаунт",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "auth",
+      "state": "login",
+      "path": "original/auth/login-dark.png",
+      "source_files": [
+        "LoginScreenDark.png"
+      ],
+      "width": 359,
+      "height": 702,
+      "sha256": "7050477c702beb24054c4e0b3c48d1952691363b96e9932590dc1c64c399a29b",
+      "git_blob_sha": "3ee94bfecd462b8b431ae5cb9ed66b5a601ed072"
+    },
+    {
+      "id": "login-light",
+      "title": "Вход в аккаунт",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "auth",
+      "state": "login",
+      "path": "original/auth/login-light.png",
+      "source_files": [
+        "LoginScreenLight.png"
+      ],
+      "width": 359,
+      "height": 702,
+      "sha256": "12af8caa40c987e244927ae456756ea1f6085b3443b0b8ad2e8681ea520a6c20",
+      "git_blob_sha": "14a18c5fce7af32163757b1e300687f78a032453"
+    },
+    {
+      "id": "register-dark",
+      "title": "Регистрация аккаунта",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "auth",
+      "state": "register",
+      "path": "original/auth/register-dark.png",
+      "source_files": [
+        "RegisterScreenDark.png"
+      ],
+      "width": 359,
+      "height": 702,
+      "sha256": "4b1d7823e9a5321a6027cd71c51614d8b3c17cafe31333abf649dbc5835b9463",
+      "git_blob_sha": "0e23930bc7680cfdbaafa0ae5883c4f47277dca5"
+    },
+    {
+      "id": "register-light",
+      "title": "Регистрация аккаунта",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "auth",
+      "state": "register",
+      "path": "original/auth/register-light.png",
+      "source_files": [
+        "RegisterScreenLight.png"
+      ],
+      "width": 359,
+      "height": 702,
+      "sha256": "2a437db8a80368f330de42605cf9f6ec1d30cec8ca6b9c98fe1791c9d42fd7d4",
+      "git_blob_sha": "e117f0451a8781a78d0a0ba02933ce9c4b4f4ab3"
+    },
+    {
+      "id": "password-reset-dark",
+      "title": "Сброс пароля",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "auth",
+      "state": "password-reset",
+      "path": "original/auth/password-reset-dark.png",
+      "source_files": [
+        "PasswordResetDark.png"
+      ],
+      "width": 359,
+      "height": 702,
+      "sha256": "a3b8099fb83d43614f50d09ee496818c323cace317cd48c33084430a82da1a74",
+      "git_blob_sha": "b3068e34d9d2fd0acd74d972369d22e3535cd7b8"
+    },
+    {
+      "id": "password-reset-light",
+      "title": "Сброс пароля",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "auth",
+      "state": "password-reset",
+      "path": "original/auth/password-reset-light.png",
+      "source_files": [
+        "PasswordResetLight.png"
+      ],
+      "width": 359,
+      "height": 702,
+      "sha256": "4db2f0e403cbeaa6a09e9d8664250ce948d4c2f1b4c8dd342da6669f1b295ec5",
+      "git_blob_sha": "f4a739b3b61bab1cb94e24998a0eeacc5b7e8ecb"
+    },
+    {
+      "id": "weekly-dark",
+      "title": "Недельный календарь и список задач",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "calendar",
+      "state": "weekly",
+      "path": "original/calendar/weekly-dark.png",
+      "source_files": [
+        "MainScreenWeeklyDark.png",
+        "MainScreenWeeklyDark-1.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "49562adf5adef6075509ba644d08f3cbc6d9053210776084df9df67245033383",
+      "git_blob_sha": "05f2db9aafb4f719d2776b0f60abdef44887cf1e"
+    },
+    {
+      "id": "weekly-task-actions-light",
+      "title": "Недельный календарь — действия над задачей",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "tasks",
+      "state": "weekly-task-actions",
+      "path": "original/tasks/weekly-task-actions-light.png",
+      "source_files": [
+        "MainScreenWeeklyLight.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "62565a572520fcfb0ba6094c6e508879b47f34bd7dbcf28514888e9cd8cbf8c5",
+      "git_blob_sha": "6c61cd175d5e21a20e78c5049af2231b9988fba9"
+    },
+    {
+      "id": "monthly-dark",
+      "title": "Месячный календарь и список задач",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "calendar",
+      "state": "monthly",
+      "path": "original/calendar/monthly-dark.png",
+      "source_files": [
+        "MainScreenMonthlyDark.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "59d4d6494bb5dabeb2b72580d2d763bf70f75ef0f0ee567b56039739658d4a53",
+      "git_blob_sha": "5fb6a1ef4076f889611b4382a4909dac1d30d703"
+    },
+    {
+      "id": "monthly-light",
+      "title": "Месячный календарь и список задач",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "calendar",
+      "state": "monthly",
+      "path": "original/calendar/monthly-light.png",
+      "source_files": [
+        "MainScreenMonthlyLight.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "41d14d2e38f68decf5fc1e12442bcf5cd77953195541efbeefbe1bf0aea10d6b",
+      "git_blob_sha": "57a4f2a02c3d352cd33667e0754bc19d74217ded"
+    },
+    {
+      "id": "profile-menu-dark",
+      "title": "Всплывающее меню профиля",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "profile",
+      "state": "profile-menu",
+      "path": "original/profile/profile-menu-dark.png",
+      "source_files": [
+        "MainScreenProfilePopupDark.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "59bdfb773ef100f2b7bda06d68220cbe37a103663cf32554be419408a80f0320",
+      "git_blob_sha": "da5262e96d23a597cf6a64267f1e708a59776371"
+    },
+    {
+      "id": "profile-menu-light",
+      "title": "Всплывающее меню профиля",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "profile",
+      "state": "profile-menu",
+      "path": "original/profile/profile-menu-light.png",
+      "source_files": [
+        "MainScreenProfilePopupLight.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "5cecdf752baa81c1280daa7a5f13e16bfb86a902437a7c88594e43362bef274d",
+      "git_blob_sha": "3b46cea240eda8739b22665786a109f2ee2b8225"
+    },
+    {
+      "id": "settings-menu-dark",
+      "title": "Меню настроек темы и языка",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "profile",
+      "state": "settings-menu",
+      "path": "original/profile/settings-menu-dark.png",
+      "source_files": [
+        "MainScreenProfileSettingsDark.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "47624a92a209662253f997d7fc14e815e0b095ca7cdf01b927f1a626c2a10068",
+      "git_blob_sha": "3d3d24645344a3123845da23dce526422ea89d08"
+    },
+    {
+      "id": "settings-menu-light",
+      "title": "Меню настроек темы и языка",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "profile",
+      "state": "settings-menu",
+      "path": "original/profile/settings-menu-light.png",
+      "source_files": [
+        "MainScreenProfileSettingsLight.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "bfe19a71e6e6ce878791e1e9880362b863f1ee55d76f61d44892ddec4040fe40",
+      "git_blob_sha": "a6616086067a9b3bd0d9eddad308d1dfe2bb383f"
+    },
+    {
+      "id": "voice-input-dark",
+      "title": "Голосовой ввод — текст запроса и подтверждение",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "voice",
+      "state": "voice-input",
+      "path": "original/voice/voice-input-dark.png",
+      "source_files": [
+        "MainScreenWeeklyRecordingDark.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "45f7a7512b6ea3e31fad7fec39e1e75bce37e8c5beaf24f3fecc6c6e3f7d99e3",
+      "git_blob_sha": "898c857f411b4a88f7c1008a3a7836ad8cc115b6"
+    },
+    {
+      "id": "task-created-dark",
+      "title": "Задача успешно добавлена",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "dark",
+      "group": "tasks",
+      "state": "task-created",
+      "path": "original/tasks/task-created-dark.png",
+      "source_files": [
+        "MainScreenWeeklyRecordingFinishedDark.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "fee35605392df30351205f961cff18868c4e036906101990b0c259692c8b7f52",
+      "git_blob_sha": "7235b4ee368276ab8b65ca7e058e42dadb24ea35"
+    },
+    {
+      "id": "task-edit-light",
+      "title": "Редактирование задачи — нижняя панель",
+      "stage": "original",
+      "locale": "ru-mixed",
+      "theme": "light",
+      "group": "tasks",
+      "state": "task-edit",
+      "path": "original/tasks/task-edit-light.png",
+      "source_files": [
+        "MainScreenWeeklyTaskEditLight.png"
+      ],
+      "width": 359,
+      "height": 765,
+      "sha256": "a395b8b7954641403f8443e1cc3a51889ce83d6088249b2a484ef91bf98dffa3",
+      "git_blob_sha": "d78db87b1e57dbcc09a8690adb7f5d21348fa7bb"
+    }
+  ]
+}
