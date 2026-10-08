@@ -101,28 +101,21 @@ private fun ResetPasswordScreenView(
 private fun ResetPasswordHeader(
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth(0.9f)
-            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(15.dp))
-            .padding(15.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp,
-            disabledElevation = 8.dp
-        )
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 28.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondary),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = stringResource(R.string.reset_password),
-                color = Color.White,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = stringResource(R.string.reset_password),
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
