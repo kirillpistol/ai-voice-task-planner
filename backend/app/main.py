@@ -8,6 +8,7 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from app.v2 import router as v2_router
 from google.cloud import firestore
 from google.auth.exceptions import DefaultCredentialsError
 
@@ -26,7 +27,8 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="PISTOL GENESIS API", version="0.1.0", lifespan=lifespan, docs_url=None, redoc_url=None)
+app = FastAPI(title="PISTOL GENESIS API", version="0.2.0", lifespan=lifespan, docs_url=None, redoc_url=None)
+app.include_router(v2_router)
 
 
 @app.get("/healthz")
