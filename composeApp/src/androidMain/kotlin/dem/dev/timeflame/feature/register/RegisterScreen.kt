@@ -109,50 +109,27 @@ fun RegisterScreenView(
 private fun RegisterHeader(
     modifier: Modifier = Modifier
 ) {
-    val appIconResId = if (isSystemInDarkTheme()) R.drawable.timeflame_icon_dark else R.drawable.timeflame_icon_light
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth(0.9f)
-            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(15.dp))
-            .padding(vertical = 15.dp, horizontal = 25.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 28.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondary),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Image(
-                painter = painterResource(appIconResId),
-                contentDescription = null,
-                modifier = Modifier.size(100.dp)
-            )
-
-            Column(
-                modifier = Modifier.padding(start = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "${stringResource(R.string.create)}\n${stringResource(R.string.account)}",
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-
-                Text(
-                    text = stringResource(R.string.in_timeflame),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-
-                Text(
-                    text = stringResource(R.string.takes_30_sec),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 20.dp),
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
-            }
-        }
+        Text(
+            text = "PISTOL GENESIS",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = stringResource(R.string.create) + " " + stringResource(R.string.account),
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.in_timeflame),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
