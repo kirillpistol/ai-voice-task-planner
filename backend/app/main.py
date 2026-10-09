@@ -36,7 +36,7 @@ def readyz():
     if app.state.db is None:
         raise HTTPException(status_code=503, detail="Firestore client not initialized")
     try:
-        list(app.state.db.collections(page_size=1))
+        next(app.state.db.collections(), None)
     except Exception:
         logger.exception("Firestore readiness check failed")
         raise HTTPException(status_code=503, detail="Firestore unavailable")
