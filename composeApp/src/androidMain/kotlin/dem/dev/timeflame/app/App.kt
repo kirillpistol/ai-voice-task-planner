@@ -4,8 +4,12 @@ import android.app.Application
 import dem.dev.timeflame.data.di.dataModules
 import dem.dev.timeflame.data.manager.FirebaseLocalAuthManager
 import dem.dev.timeflame.data.repository.FirebaseAuthRepository
+import dem.dev.timeflame.data.repository.GenesisTaskRepository
 import dem.dev.timeflame.domain.manager.LocalAuthManager
 import dem.dev.timeflame.domain.repository.AuthRepository
+import dem.dev.timeflame.domain.repository.TaskRepository
+import io.ktor.client.HttpClient
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import dem.dev.timeflame.data.preferences.nativeAppModule
 import dem.dev.timeflame.di.viewModelModule
@@ -35,6 +39,7 @@ class App: Application() {
             // Android uses Firebase Authentication; register after legacy shared bindings.
             modules(module {
                 factory<AuthRepository> { FirebaseAuthRepository() }
+                factory<TaskRepository> { GenesisTaskRepository(get<HttpClient>(named("HttpClient"))) }
                 factory<LocalAuthManager> { FirebaseLocalAuthManager(get()) }
             })
         }
