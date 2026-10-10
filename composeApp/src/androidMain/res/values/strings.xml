@@ -67,4 +67,6 @@
     <string name="unexpected_error">Произошла ошибка. Попробуйте ещё раз.</string>
     <string name="cancel">Отмена</string>
     <string name="confirm">ОК</string>
+    <string name="previous_month">Предыдущий месяц</string>
+    <string name="next_month">Следующий месяц</string>
 </resources>
