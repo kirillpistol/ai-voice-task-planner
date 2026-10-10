@@ -248,7 +248,7 @@ class MainScreenViewModel(
 
     private fun updateTaskAndGotoMonth(task: Task, month: Month, newTaskDayOfMonth: Int) = viewModelScope.launch(Dispatchers.IO) {
         withContext(Dispatchers.Main) {
-            _state.update { it.copy(screenState = ScreenState.Loading()) }
+            _state.update { it.copy(screenState = ScreenState.Loading(UiMessageCodes.updatingTask)) }
         }
 
         updateTaskUseCase(task)
@@ -271,7 +271,7 @@ class MainScreenViewModel(
 
     private fun createTask(taskRequest: String) {
         localAuthManager.getCurrentUser()?.let { currUser ->
-            _state.update { it.copy(screenState = ScreenState.Loading()) }
+            _state.update { it.copy(screenState = ScreenState.Loading(UiMessageCodes.updatingTask)) }
 
             viewModelScope.launch(Dispatchers.IO) {
                 val dateTime = _state.value.currentMonth?.days?.let { it[_state.value.selectedDayIndex].day.formatToString("dd.MM.yyyy HH:mm") } ?: KDateTime.now().formatToString("dd.MM.yyyy HH:mm")
