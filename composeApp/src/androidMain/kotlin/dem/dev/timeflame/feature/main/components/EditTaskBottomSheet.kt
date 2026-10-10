@@ -5,6 +5,8 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -40,17 +42,24 @@ import dem.dev.timeflame.util.theme.AppColors
 import dem.dev.timeflame.util.theme.AppTheme
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTaskBottomSheet(
     modifier: Modifier = Modifier,
     task: Task,
+    isSaving: Boolean = false,
     onDismissRequest: () -> Unit,
     onTaskSave: (Task) -> Unit
 ) {
     EditTaskBottomSheetContent(
         task = task,
+        isSaving = isSaving,
         onDismissRequest = onDismissRequest,
         onTaskSave = onTaskSave
     )
@@ -60,26 +69,41 @@ fun EditTaskBottomSheet(
 @Composable
 private fun EditTaskBottomSheetContent(
     task: Task,
+    isSaving: Boolean = false,
     onDismissRequest: () -> Unit,
     onTaskSave: (Task) -> Unit
 ) {
-    var taskDate by remember { mutableStateOf(task.timestamp.toLocalDateTime() ) }
-    var taskTitle by remember { mutableStateOf(task.text) }
+    val zone = ZoneId.systemDefault()
+    var taskDate by remember(task.id) {
+        mutableStateOf(Instant.ofEpochMilli(task.timestamp).atZone(zone).toLocalDateTime())
+    }
+    var taskTitle by remember(task.id) { mutableStateOf(task.text) }
 
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = taskDate.copy(hour = 0, minute = 0, second = 0, nanosecond = 0).timestamp())
+    // Material DatePicker uses UTC-midnight calendar dates, not local timestamps.
+    val initialPickerMillis = remember(task.id) {
+        taskDate.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    }
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialPickerMillis)
     var showDatePicker by remember { mutableStateOf(false) }
 
-    val timePickerState = rememberTimePickerState(taskDate.hour, taskDate.minute)
+    val timePickerState = rememberTimePickerState(
+        initialHour = taskDate.hour,
+        initialMinute = taskDate.minute,
+        is24Hour = true
+    )
     var showTimePicker by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
     val onSaveBtnClicked: () -> Unit = {
-        if (taskTitle.isEmpty())
+        if (taskTitle.isBlank())
             error = context.getString(R.string.need_to_set_task_title)
         else {
             // initial timestamp of task (in DB) is in UTC and we save it in UTC, but display in the local timezone
-            val updatedTask = task.copy(text = taskTitle, timestamp = taskDate.timestamp())
+            val updatedTask = task.copy(
+                text = taskTitle.trim(),
+                timestamp = taskDate.atZone(zone).toInstant().toEpochMilli()
+            )
             onTaskSave(updatedTask)
         }
     }
@@ -91,8 +115,9 @@ private fun EditTaskBottomSheetContent(
                 TextButton(
                     onClick = {
                         showDatePicker = false
-                        val selectedDate = (datePickerState.selectedDateMillis?:task.timestamp).toLocalDateTime()
-                        taskDate = taskDate.copy(year = selectedDate.year, month = selectedDate.month, dayOfMonth = selectedDate.dayOfMonth)
+                        val utcMillis = datePickerState.selectedDateMillis ?: initialPickerMillis
+                        val selectedDate = Instant.ofEpochMilli(utcMillis).atZone(ZoneOffset.UTC).toLocalDate()
+                        taskDate = LocalDateTime.of(selectedDate, taskDate.toLocalTime())
                     }
                 ) { Text("OK") }
             },
@@ -117,7 +142,7 @@ private fun EditTaskBottomSheetContent(
                 TextButton(
                     onClick = {
                         showTimePicker = false
-                        taskDate = taskDate.copy(hour = timePickerState.hour, minute = timePickerState.minute)
+                        taskDate = taskDate.withHour(timePickerState.hour).withMinute(timePickerState.minute)
                     }
                 ) { Text("OK") }
             },
@@ -137,7 +162,11 @@ private fun EditTaskBottomSheetContent(
     }
 
     Column(
-        modifier = Modifier.padding(15.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(15.dp)
     ) {
         Row(
             modifier = Modifier
@@ -160,7 +189,7 @@ private fun EditTaskBottomSheetContent(
                 .padding(top = 10.dp)
         ) {
             Text(
-                text = taskDate.format(Format.dateFormat),
+                text = taskDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
                     .padding(10.dp)
@@ -169,7 +198,7 @@ private fun EditTaskBottomSheetContent(
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = taskDate.format(Format.timeFormat),
+                text = taskDate.format(DateTimeFormatter.ofPattern("HH:mm")),
                 modifier = Modifier
                     .padding(start = 10.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
@@ -205,7 +234,7 @@ private fun EditTaskBottomSheetContent(
             value = taskTitle,
             onValueChange = { taskTitle = it },
             placeholder = {
-                Text(stringResource(R.string.task_text))
+                Text(stringResource(R.string.task_text), color = MaterialTheme.colorScheme.onSurfaceVariant)
             },
             modifier = Modifier
                 .padding(top = 15.dp)
@@ -226,6 +255,7 @@ private fun EditTaskBottomSheetContent(
         ) {
             Button(
                 onClick = { onSaveBtnClicked() },
+                enabled = !isSaving,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colorScheme.primary,
                     disabledBackgroundColor = MaterialTheme.colorScheme.onSurface
@@ -236,10 +266,18 @@ private fun EditTaskBottomSheetContent(
                     .padding(top = 25.dp),
                 contentPadding = PaddingValues(vertical = 10.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.save),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+                if (isSaving) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(19.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.save),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
     }
