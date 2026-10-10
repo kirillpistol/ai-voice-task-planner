@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
 import dem.dev.timeflame.domain.manager.LocalAuthManager
+import dem.dev.timeflame.data.preferences.KmpPreference
 import dem.dev.timeflame.domain.model.Task
 import dem.dev.timeflame.domain.repository.UserRepository
 import dem.dev.timeflame.feature.calendar.model.Month
@@ -30,6 +31,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class MainScreenViewModel(
     private val localAuthManager: LocalAuthManager,
@@ -37,11 +43,28 @@ class MainScreenViewModel(
     private val loadCalendarForMonthUseCase: LoadCalendarForMonthUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val updateTaskUseCase: UpdateTaskUseCase
+    private val updateTaskUseCase: UpdateTaskUseCase,
+    private val calendarPreferences: KmpPreference
 ): ViewModel() {
     // Show the local month immediately even before the first network response.
     private val _state = MutableStateFlow(MainScreenState(currentMonth = Month.current()))
     val state = _state.asStateFlow()
+    private var calendarRequestId = 0
+
+    private fun selectionKey(): String = "genesis.calendar.day.${localAuthManager.getCurrentUser()?.id ?: "guest"}"
+
+    private fun rememberDay(date: LocalDate) {
+        calendarPreferences.put(selectionKey(), date.toString())
+    }
+
+    private fun openMonth(month: Month, requestedDay: Int) {
+        if (month.days.isEmpty()) return
+        val index = (requestedDay - 1).coerceIn(0, month.days.lastIndex)
+        val selected = month.days[index]
+        _state.update { it.copy(currentMonth = month, selectedDayIndex = index, selectedDay = selected) }
+        rememberDay(LocalDate.of(month.year, month.number, selected.day.dayOfMonth))
+        loadTasks(month)
+    }
 
     fun onEvent(event: MainScreenEvent) {
         when(event) {
@@ -100,13 +123,13 @@ class MainScreenViewModel(
         _state.update { it.copy(screenState = ScreenState.Idle) }
     }
     private fun onCalendarDayClicked(calendarDayIndex: Int) {
-        _state.update { state ->
-            state.copy(
-                selectedDayIndex = calendarDayIndex,
-                selectedDay = state.currentMonth?.days?.getOrNull(calendarDayIndex) ?: state.selectedDay
-            )
-        }
+        val month = _state.value.currentMonth ?: return
+        val selected = month.days.getOrNull(calendarDayIndex) ?: return
+        _state.update { it.copy(selectedDayIndex = calendarDayIndex, selectedDay = selected) }
+        rememberDay(LocalDate.of(month.year, month.number, selected.day.dayOfMonth))
     }
+
+    
     private fun onCalendarViewSwitched() {
         _state.update { it.copy(calendarViewState = it.calendarViewState.toggle()) }
     }
@@ -117,67 +140,42 @@ class MainScreenViewModel(
         _state.update { it.copy(selectedTaskToEdit = task) }
     }
     private fun onSaveUpdatedTaskBtnClicked(updatedTask: Task) {
-        if (_state.value.selectedTaskToEdit == null)
-            return
-
-        val selectedTaskToEdit = _state.value.selectedTaskToEdit!!
-        _state.update { it.copy(selectedTaskToEdit = null) }
-
-        val currentMonthDaysUpdated = _state.value.copy().currentMonth?.days?.mapIndexed { i, it ->
-            val updatedTaskDateTime = updatedTask.timestamp.toLocalDateTime().convertToZone(TimeZone.UTC, TimeZone.currentSystemDefault())
-            if (it.day.monthNumber != updatedTaskDateTime.monthNumber || it.day.year != updatedTaskDateTime.year) {
-                Month.byNumberAndYear(updatedTaskDateTime.monthNumber, updatedTaskDateTime.year)?.let { month ->
-                    updateTaskAndGotoMonth(updatedTask, month, updatedTaskDateTime.dayOfMonth)
+        if (_state.value.selectedTaskToEdit == null || _state.value.isSavingTask) return
+        _state.update { it.copy(isSavingTask = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = updateTaskUseCase(updatedTask)
+            if (result.isSuccess()) {
+                _state.update { it.copy(isSavingTask = false, selectedTaskToEdit = null) }
+                _state.value.currentMonth?.let { loadTasks(it) }
+            } else {
+                _state.update {
+                    it.copy(
+                        isSavingTask = false,
+                        screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.gotAnErrorWhileCreatingTask)
+                    )
                 }
-                return
             }
-
-            // if in updated task date was changed we need to add this task to another day
-            if (it.day.dayOfMonth == updatedTaskDateTime.dayOfMonth && it.day.dayOfMonth != selectedTaskToEdit.timestamp.toLocalDateTime().convertToZone(
-                    TimeZone.UTC, TimeZone.currentSystemDefault()).dayOfMonth) {
-                _state.update { prevState -> prevState.copy(selectedDayIndex = i) }
-                return@mapIndexed it.copy(tasks = (it.tasks + updatedTask).toMutableList())
-            }
-
-            // if there is no such task in the current day just return current day
-            if (!it.tasks.contains(selectedTaskToEdit)) return@mapIndexed it.copy()
-
-            // if we found task in the current day, but while editing task date was changed and it now is not in the current day
-            if (it.day.dayOfMonth != updatedTaskDateTime.dayOfMonth) {
-                return@mapIndexed it.copy(
-                    tasks = (it.tasks - selectedTaskToEdit).toMutableList()
-                )
-            }
-            val newTasks = (it.tasks - selectedTaskToEdit + updatedTask).toMutableList()
-
-            return@mapIndexed it.copy(tasks = newTasks)
-        } ?: listOf()
-
-        updateTask(updatedTask)
-
-        _state.update {
-            it.copy(currentMonth = it.currentMonth?.copy(days = currentMonthDaysUpdated.toMutableList()), selectedTaskToEdit = null)
         }
     }
+
+    
     private fun onNextMonthClicked() {
-        _state.value.currentMonth?.next()?.let { nextMonth ->
-            _state.update { it.copy(selectedDayIndex = 0) }
-            // loading tasks for the next month (that is already current)
-            loadTasks(nextMonth)
-        } ?: run {
-            _state.update { it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.errorGettingNextMonth)) }
-        }
+        val previousSelection = _state.value.selectedDay.day.dayOfMonth
+        _state.value.currentMonth?.next()?.let { openMonth(it, previousSelection) }
+            ?: _state.update {
+                it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.errorGettingNextMonth))
+            }
     }
-    private fun onPreviousMonthClicked() {
-        _state.value.currentMonth?.previous()?.let { previousMonth ->
-            _state.update { it.copy(selectedDayIndex = 0) }
 
-            // loading tasks for the previous month (that is already current)
-            loadTasks(previousMonth)
-        } ?: run {
-            _state.update { it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.errorGettingPreviousMonth)) }
-        }
+    private fun onPreviousMonthClicked() {
+        val previousSelection = _state.value.selectedDay.day.dayOfMonth
+        _state.value.currentMonth?.previous()?.let { openMonth(it, previousSelection) }
+            ?: _state.update {
+                it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.errorGettingPreviousMonth))
+            }
     }
+
+    
     private fun onTaskStatusChangeClicked(task: Task) {
         val updatedTask = task.copy(completed = !task.completed)
         val currentMonthDaysUpdated = _state.value.copy().currentMonth?.days?.map {
@@ -201,25 +199,53 @@ class MainScreenViewModel(
         _state.update { it.copy(selectedTaskToEdit = null) }
     }
 
-    private fun loadTasks(month: Month) = viewModelScope.launch(Dispatchers.IO) {
-        _state.update { it.copy(screenState = ScreenState.Loading(UiMessageCodes.loadingTasks)) }
-
-        localAuthManager.getCurrentUser()?.let { user ->
+    private fun loadTasks(month: Month) {
+        val requestId = ++calendarRequestId
+        _state.update { it.copy(isCalendarLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = localAuthManager.getCurrentUser()
+            if (user == null) {
+                if (requestId == calendarRequestId) {
+                    _state.update {
+                        it.copy(isCalendarLoading = false, screenState = ScreenState.Result(
+                            ResultType.FAILURE, UiMessageCodes.gotErrorWhenGettingLocalUserId
+                        ))
+                    }
+                }
+                return@launch
+            }
             val result = loadCalendarForMonthUseCase(user.id, month)
+            if (requestId != calendarRequestId) return@launch
 
             if (result.isSuccess()) {
-                result.data?.let { tasks ->
-                    val newMonth = month.sortTasksByDays(tasks)
-                    _state.update { it.copy(screenState = ScreenState.Idle, currentMonth = Month(newMonth.start, newMonth.end, newMonth.days)) }
+                // Rebuild fresh days: loading into the old mutable Month would duplicate tasks.
+                val refreshed = Month.byNumberAndYear(month.number, month.year) ?: month
+                refreshed.sortTasksByDays(result.data.orEmpty())
+                _state.update { old ->
+                    if (old.currentMonth?.year != month.year || old.currentMonth?.number != month.number) {
+                        old.copy(isCalendarLoading = false)
+                    } else {
+                        val chosen = old.selectedDay.day.dayOfMonth.coerceIn(1, refreshed.days.size)
+                        val index = chosen - 1
+                        old.copy(
+                            currentMonth = refreshed,
+                            selectedDayIndex = index,
+                            selectedDay = refreshed.days[index],
+                            isCalendarLoading = false
+                        )
+                    }
                 }
             } else {
-                _state.update { it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.gotErrorLoadingTasks)) }
+                _state.update {
+                    it.copy(isCalendarLoading = false, screenState = ScreenState.Result(
+                        ResultType.FAILURE, UiMessageCodes.gotErrorLoadingTasks
+                    ))
+                }
             }
-        } ?: run {
-            _state.update { it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.gotErrorWhenGettingLocalUserId)) }
         }
     }
 
+    
     private fun deleteTask(task: Task) = viewModelScope.launch(Dispatchers.Main) {
         val selectedDayIndex = _state.value.selectedDayIndex
         val selectedDayTasksCopy = mutableListOf(*(_state.value.currentMonth?.days ?: emptyList())[selectedDayIndex].tasks.toTypedArray())
@@ -242,53 +268,53 @@ class MainScreenViewModel(
         updateTaskUseCase(task)
     }
 
-    private fun updateTask(task: Task) = viewModelScope.launch(Dispatchers.IO) {
-        updateTaskUseCase(task)
+    private fun restoreCalendar() {
+        val today = LocalDate.now(ZoneId.systemDefault())
+        val stored = runCatching {
+            calendarPreferences.getString(selectionKey())?.let { LocalDate.parse(it) }
+        }.getOrNull() ?: today
+        val month = Month.byNumberAndYear(stored.monthValue, stored.year) ?: Month.current() ?: return
+        openMonth(month, stored.dayOfMonth)
     }
 
-    private fun updateTaskAndGotoMonth(task: Task, month: Month, newTaskDayOfMonth: Int) = viewModelScope.launch(Dispatchers.IO) {
-        withContext(Dispatchers.Main) {
-            _state.update { it.copy(screenState = ScreenState.Loading(UiMessageCodes.updatingTask)) }
-        }
-
-        updateTaskUseCase(task)
-        loadTasks(month)
-
-        withContext(Dispatchers.Main) {
-            _state.update { it.copy(
-                selectedDayIndex = newTaskDayOfMonth - 1 // for example day with number 8 is with index 7 in the list
-            ) }
-        }
-    }
-
-    // function to get default day (today) when opening the calendar
-    private fun getCurrentDay() {
-        _state.update { state ->
-            val index = (KDateTime.now().dayOfMonth - 1).coerceIn(0, (state.currentMonth?.days?.size ?: 1) - 1)
-            state.copy(selectedDayIndex = index, selectedDay = state.currentMonth?.days?.getOrNull(index) ?: state.selectedDay)
-        }
-    }
-
+    
     private fun createTask(taskRequest: String) {
-        localAuthManager.getCurrentUser()?.let { currUser ->
-            _state.update { it.copy(screenState = ScreenState.Loading(UiMessageCodes.updatingTask)) }
+        if (_state.value.isCreatingTask) return
+        val selectedDate = _state.value.currentMonth?.days
+            ?.getOrNull(_state.value.selectedDayIndex)?.day ?: KDateTime.now()
+        // Apply the device's actual local clock to the selected calendar date.
+        val now = LocalTime.now(ZoneId.systemDefault())
+        val dateTime = LocalDate.of(
+            selectedDate.year, selectedDate.monthNumber, selectedDate.dayOfMonth
+        ).atTime(now.hour, now.minute).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm", Locale.ROOT))
 
-            viewModelScope.launch(Dispatchers.IO) {
-                val dateTime = _state.value.currentMonth?.days?.let { it[_state.value.selectedDayIndex].day.formatToString("dd.MM.yyyy HH:mm") } ?: KDateTime.now().formatToString("dd.MM.yyyy HH:mm")
-                val result = createTaskUseCase(userId = currUser.id, taskText = taskRequest, dateTime = dateTime)
-
-                if (result.isSuccess()) {
-                    _state.update { it.copy(screenState = ScreenState.Result(ResultType.SUCCESS, UiMessageCodes.taskCreatedSuccessfully), voiceInputState = VoiceInputState()) }
-                    loadCurrentMonthTasks()
-                }
-                else
-                    _state.update { it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.gotAnErrorWhileCreatingTask), voiceInputState = VoiceInputState()) }
-            }
-        } ?: run {
+        val currentUser = localAuthManager.getCurrentUser()
+        if (currentUser == null) {
             _state.update { it.copy(screenState = ScreenState.Result(ResultType.FAILURE, UiMessageCodes.gotErrorWhenGettingLocalUserId)) }
+            return
+        }
+        _state.update { it.copy(isCreatingTask = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = createTaskUseCase(userId = currentUser.id, taskText = taskRequest, dateTime = dateTime)
+            if (result.isSuccess()) {
+                _state.update {
+                    it.copy(isCreatingTask = false, screenState = ScreenState.Result(
+                        ResultType.SUCCESS, UiMessageCodes.taskCreatedSuccessfully
+                    ), voiceInputState = VoiceInputState())
+                }
+                // Refresh exactly the month the user is viewing; never jump to today.
+                _state.value.currentMonth?.let { loadTasks(it) }
+            } else {
+                _state.update {
+                    it.copy(isCreatingTask = false, screenState = ScreenState.Result(
+                        ResultType.FAILURE, UiMessageCodes.gotAnErrorWhileCreatingTask
+                    ))
+                }
+            }
         }
     }
 
+    
     private fun loadCurrentUser() = localAuthManager.getCurrentUser()?.let {
         viewModelScope.launch(Dispatchers.IO) {
             val result = userRepository.getUserById(it.id)
@@ -298,11 +324,10 @@ class MainScreenViewModel(
     }
 
     private fun loadCurrentMonthTasks() {
-        Month.current()?.let { currentMonth ->
-            loadTasks(currentMonth)
-        }
+        _state.value.currentMonth?.let { loadTasks(it) }
     }
 
+    
     private fun updateDeviceToken() {
         localAuthManager.getCurrentUser()?.let { currentUser ->
             FirebaseMessaging.getInstance().token.addOnCompleteListener {
@@ -321,8 +346,7 @@ class MainScreenViewModel(
     }
 
     init {
-        loadCurrentMonthTasks()
-        getCurrentDay()
+        restoreCalendar()
         loadCurrentUser()
         // API v2 has no FCM device-token endpoint yet.
     }
