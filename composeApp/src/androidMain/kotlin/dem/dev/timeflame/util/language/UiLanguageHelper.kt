@@ -25,7 +25,7 @@ object UiLanguageHelper {
     fun getGoogleVoiceRecognitionLanguage(context: Context): String {
         val map = mapOf(
             "ru" to "ru-RU",
-            "en" to "en-EN"
+            "en" to "en-GB"
         )
         return map[context.getSharedPreferences("prefs", Context.MODE_PRIVATE).getString("lang", Locale.getDefault().language) ?: Locale.getDefault().language] ?: "ru-RU"
     }
