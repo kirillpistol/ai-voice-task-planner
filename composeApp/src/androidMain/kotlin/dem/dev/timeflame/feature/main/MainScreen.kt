@@ -193,21 +193,19 @@ private fun MainScreenView(
                     )
 
                     CalendarSection(
-                        modifier = Modifier
-                            .padding(top = 25.dp),
+                        modifier = Modifier.padding(top = 18.dp),
                         state = state,
                         onEvent = onEvent
                     )
 
                     TasksList(
                         modifier = Modifier
-                            .padding(top = 15.dp),
+                            .weight(1f)
+                            .padding(top = 14.dp),
                         currentMonth = state.currentMonth,
                         selectedDayIndex = state.selectedDayIndex,
                         onEvent = onEvent
                     )
-
-                    Spacer(modifier = Modifier.fillMaxHeight().weight(1f))
 
                     state.selectedTaskToEdit?.let {
                         ModalBottomSheet(
@@ -326,25 +324,21 @@ private fun CalendarSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Card(
-                shape = RoundedCornerShape(10.dp),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
-                ),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 modifier = Modifier
+                    .size(44.dp)
                     .clickable { onEvent(MainScreenEvent.PreviousMonthBtnClicked) }
             ) {
-                Image(
-                    imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(35.dp)
-                        .padding(10.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Image(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = stringResource(R.string.previous_month),
+                        modifier = Modifier.size(18.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                    )
+                }
             }
 
             Text(
@@ -354,26 +348,21 @@ private fun CalendarSection(
             )
 
             Card(
-                shape = RoundedCornerShape(10.dp),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
-                ),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 modifier = Modifier
+                    .size(44.dp)
                     .clickable { onEvent(MainScreenEvent.NextMonthBtnClicked) }
             ) {
-                Image(
-                    imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(35.dp)
-                        .padding(10.dp)
-                        .rotate(180f),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Image(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = stringResource(R.string.next_month),
+                        modifier = Modifier.size(18.dp).rotate(180f),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                    )
+                }
             }
         }
         
@@ -450,12 +439,13 @@ private fun TasksList(
 ) {
     if (currentMonth?.days?.isNotEmpty() == true && currentMonth.days.size >= selectedDayIndex+1) {
         LazyColumn(
-            modifier = modifier
-                .fillMaxWidth(0.9f)
+            modifier = modifier.fillMaxWidth(0.9f),
+            contentPadding = PaddingValues(bottom = 112.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(currentMonth.days[selectedDayIndex].tasks) { task ->
+            items(currentMonth.days[selectedDayIndex].tasks, key = { it.id }) { task ->
                 TaskItem(
-                    modifier = Modifier.padding(top = 10.dp),
+                    modifier = Modifier,
                     task = task,
                     onEditClicked = { onEvent(MainScreenEvent.EditTaskClicked(task)) },
                     onDeleteClicked = { onEvent(MainScreenEvent.DeleteTaskClicked(task)) },
