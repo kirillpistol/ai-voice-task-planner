@@ -196,7 +196,9 @@ class MainScreenViewModel(
         updateTaskStatus(updatedTask)
     }
     private fun onEditTaskBottomSheetDismissed() {
-        _state.update { it.copy(selectedTaskToEdit = null) }
+        if (!_state.value.isSavingTask) {
+            _state.update { it.copy(selectedTaskToEdit = null) }
+        }
     }
 
     private fun loadTasks(month: Month) {
