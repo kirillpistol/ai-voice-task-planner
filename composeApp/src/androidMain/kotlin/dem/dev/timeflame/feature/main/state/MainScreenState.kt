@@ -16,6 +16,9 @@ data class MainScreenState(
     val voiceInputState: VoiceInputState = VoiceInputState(),
     val selectedDay: CalendarDay = CalendarDay(KDateTime.now(), mutableListOf()),
     val calendarViewState: CalendarViewState = CalendarViewState.MONTH,
+    val isCalendarLoading: Boolean = false,
+    val isSavingTask: Boolean = false,
+    val isCreatingTask: Boolean = false,
     val selectedTaskToEdit: Task? = null,
     val profileContextMenuOpened: Boolean = false,
     val logoutRequested: Boolean = false
