@@ -10,6 +10,8 @@ class LoadCalendarForMonthUseCase(
     private val taskRepository: TaskRepository
 ) {
     suspend operator fun invoke(userId: String, month: Month): Result<List<Task>> {
-        return taskRepository.getTasksByUserIdInDiapason(userId, month.start.utcTimestamp(), month.end.utcTimestamp())
+        // Month boundaries already represent local calendar instants as UTC epoch milliseconds.
+        // Do not subtract the device offset a second time.
+        return taskRepository.getTasksByUserIdInDiapason(userId, month.start.timestamp(), month.end.timestamp())
     }
 }
