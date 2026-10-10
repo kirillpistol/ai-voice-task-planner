@@ -335,8 +335,8 @@ private fun CalendarSection(
                     defaultElevation = 4.dp
                 ),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onBackground,
-                    disabledContainerColor = MaterialTheme.colorScheme.onBackground
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 modifier = Modifier
                     .clickable { onEvent(MainScreenEvent.PreviousMonthBtnClicked) }
@@ -347,7 +347,7 @@ private fun CalendarSection(
                     modifier = Modifier
                         .size(35.dp)
                         .padding(10.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onTertiary)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
             }
 
@@ -363,8 +363,8 @@ private fun CalendarSection(
                     defaultElevation = 4.dp
                 ),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.onBackground,
-                    disabledContainerColor = MaterialTheme.colorScheme.onBackground
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 modifier = Modifier
                     .clickable { onEvent(MainScreenEvent.NextMonthBtnClicked) }
@@ -376,7 +376,7 @@ private fun CalendarSection(
                         .size(35.dp)
                         .padding(10.dp)
                         .rotate(180f),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onTertiary)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
             }
         }
@@ -405,7 +405,7 @@ private fun CalendarViewSwitcher(
 ) {
     Row(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.onBackground, RoundedCornerShape(15.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(15.dp))
             .padding(horizontal = 15.dp, vertical = 3.dp)
             .clickable { onEvent(MainScreenEvent.CalendarViewSwitch) }
     ) {
@@ -419,7 +419,7 @@ private fun CalendarViewSwitcher(
             modifier = Modifier
                 .size(24.dp)
                 .rotate(iconRotation),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onTertiary)
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
         )
     }
 }
