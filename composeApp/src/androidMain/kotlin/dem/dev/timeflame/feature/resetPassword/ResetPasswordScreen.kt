@@ -26,7 +26,7 @@ import dem.dev.timeflame.feature.resetPassword.ResetPasswordScreenState
 import dem.dev.timeflame.feature.resetPassword.ResetPasswordScreenViewModel
 import dem.dev.timeflame.navigation.Screen
 import dem.dev.timeflame.util.*
-import dem.dev.timeflame.util.components.LoadingDialog
+import dem.dev.timeflame.util.components.GenesisButtonProgress
 import dem.dev.timeflame.util.components.MessageDialog
 import dem.dev.timeflame.util.components.MessageType
 import dem.dev.timeflame.util.components.Screen
@@ -60,12 +60,6 @@ private fun ResetPasswordScreenView(
     state: ResetPasswordScreenState = ResetPasswordScreenState(),
     onEvent: (ResetPasswordScreenEvent) -> Unit = {}
 ) {
-    if (state.screenState is ScreenState.Loading) {
-        LoadingDialog(
-            isLoading = true,
-            message = getMessage(state.screenState.messageCode)
-        )
-    }
     if (state.screenState is ScreenState.Result) {
         MessageDialog(
             dialog = MessageDialog(
@@ -92,6 +86,7 @@ private fun ResetPasswordScreenView(
 
         ResetPasswordFooter(
             modifier = Modifier.padding(bottom = 30.dp),
+            isLoading = state.screenState is ScreenState.Loading,
             onSendBtnClicked = { onEvent(ResetPasswordScreenEvent.SendNewPasswordBtnClicked) }
         )
     }
@@ -162,10 +157,12 @@ private fun FieldsSection(
 @Composable
 private fun ResetPasswordFooter(
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
     onSendBtnClicked: () -> Unit = {}
 ) {
     Button(
         onClick = { onSendBtnClicked() },
+        enabled = !isLoading,
         colors = ButtonDefaults.buttonColors(
             backgroundColor = MaterialTheme.colorScheme.primary,
             disabledBackgroundColor = MaterialTheme.colorScheme.onSurface
@@ -175,10 +172,14 @@ private fun ResetPasswordFooter(
             .fillMaxWidth(0.8f),
         contentPadding = PaddingValues(vertical = 17.dp)
     ) {
-        Text(
-            text = stringResource(R.string.send),
-            color = MaterialTheme.colorScheme.onPrimary
-        )
+        if (isLoading) {
+            GenesisButtonProgress()
+        } else {
+            Text(
+                text = stringResource(R.string.send),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        }
     }
 }
 
