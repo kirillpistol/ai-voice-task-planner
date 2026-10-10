@@ -66,7 +66,7 @@ fun Calendar(
                             }
 
                             CalendarItem(
-                                isSelected = (calendarDays[selectedDayIndex].day == day.day),
+                                isSelected = (calendarDays.getOrNull(selectedDayIndex)?.day == day.day),
                                 onClick = {
                                     val originalIndex = calendarDays.indexOf(day)
                                     if (originalIndex != -1)
@@ -172,7 +172,7 @@ private fun TasksAmountIndicator(
 @Composable
 fun CalendarPreview() {
     val task = Task(
-        id = 1,
+        id = "preview",
         text = "Task text",
         userId = "userId",
         timestamp = 0,
