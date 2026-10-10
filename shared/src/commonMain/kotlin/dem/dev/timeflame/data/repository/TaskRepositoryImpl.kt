@@ -61,7 +61,7 @@ class TaskRepositoryImpl(
         }
     }
 
-    override suspend fun deleteTask(taskId: Int): Result<Unit> {
+    override suspend fun deleteTask(taskId: String): Result<Unit> {
         try {
             val response = httpClient.delete(BackendEndpoints.Task.delete) {
                 parameter("taskId", taskId)
