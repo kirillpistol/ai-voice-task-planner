@@ -6,8 +6,9 @@ object AppColors {
     val white = Color(0xFFFFFFFF)
     val dark = Color(0xFF121212)
 
-    val orange = Color(0xFFF47312)
-    val orangeLight = Color(0xFFFFCDA7)
+    // Legacy color names retained for existing components; values follow GENESIS graphite style.
+    val orange = Color(0xFF222222)
+    val orangeLight = Color(0xFFBDBDBD)
     val darksecondary = Color(0xFF202020)
 
     val lightGray = Color(0xFFF8F8F8)
