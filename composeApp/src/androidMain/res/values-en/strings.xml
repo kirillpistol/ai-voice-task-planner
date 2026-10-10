@@ -68,4 +68,6 @@
     <string name="unexpected_error">Something went wrong. Please try again.</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">OK</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
 </resources>
