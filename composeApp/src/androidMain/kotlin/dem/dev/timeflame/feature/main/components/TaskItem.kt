@@ -174,7 +174,7 @@ fun TaskItemPreview() {
         ) {
             TaskItem(
                 task = Task(
-                    0,
+                    "preview",
                     "Task text asdcasdc asdc asdc asdc asdc asdc asdca sdc asdc asdc asdc adascas asdca",
                     "",
                     123412345656,
