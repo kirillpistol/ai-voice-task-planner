@@ -62,7 +62,10 @@ import dem.dev.timeflame.feature.main.state.RecordingState
 import dem.dev.timeflame.navigation.Screen
 import dem.dev.timeflame.util.androidKoinViewModel
 import dem.dev.timeflame.util.components.Calendar
-import dem.dev.timeflame.util.components.LoadingDialog
+import dem.dev.timeflame.util.components.GenesisButtonProgress
+import dem.dev.timeflame.util.components.GenesisCalendarProgress
+import dem.dev.timeflame.util.components.GenesisTaskSkeleton
+import dem.dev.timeflame.util.components.GenesisVoiceListening
 import dem.dev.timeflame.util.components.MessageDialog
 import dem.dev.timeflame.util.components.MessageType
 import dem.dev.timeflame.util.components.Screen
@@ -204,6 +207,7 @@ private fun MainScreenView(
                             .padding(top = 14.dp),
                         currentMonth = state.currentMonth,
                         selectedDayIndex = state.selectedDayIndex,
+                        isInitialLoading = state.isCalendarLoading && !state.hasLoadedTasks,
                         onEvent = onEvent
                     )
 
@@ -366,12 +370,7 @@ private fun CalendarSection(
             }
         }
         
-        if (state.isCalendarLoading) {
-            androidx.compose.material3.LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp).height(3.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+        GenesisCalendarProgress(loading = state.isCalendarLoading)
 
         CalendarViewSwitcher(
             modifier = Modifier.padding(top = 16.dp),
@@ -435,8 +434,13 @@ private fun TasksList(
     modifier: Modifier = Modifier,
     currentMonth: Month?,
     selectedDayIndex: Int,
+    isInitialLoading: Boolean = false,
     onEvent: (MainScreenEvent) -> Unit = {}
 ) {
+    if (isInitialLoading) {
+        GenesisTaskSkeleton(modifier = modifier.fillMaxWidth(0.9f))
+        return
+    }
     if (currentMonth?.days?.isNotEmpty() == true && currentMonth.days.size >= selectedDayIndex+1) {
         LazyColumn(
             modifier = modifier.fillMaxWidth(0.9f),
@@ -484,46 +488,45 @@ private fun NewTaskRecordSection(
             }
         }
         RecordingState.Recording -> {
-            Card(
-                modifier = modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(bottom = 20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    disabledContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Text(
-                    stringResource(R.string.recording),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                        .padding(15.dp)
-                )
-            }
+            GenesisVoiceListening(
+                modifier = modifier.fillMaxWidth(0.9f).padding(bottom = 20.dp)
+            )
         }
         RecordingState.RecordingFinished -> {
             Card(
                 modifier = modifier
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth(0.9f)
                     .padding(bottom = 20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.surface
                 ),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(18.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(15.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxWidth().padding(18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Text(
+                        text = stringResource(
+                            if (state.isCreatingTask) R.string.voice_saving else R.string.voice_review_title
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.voice_review_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     OutlinedTextField(
                         value = state.voiceInputState.currentRecognizedText,
                         onValueChange = { onEvent(MainScreenEvent.RecognizedTaskTextEdited(it)) },
-                        modifier = Modifier.fillMaxWidth(0.8f),
-                        shape = RoundedCornerShape(15.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isCreatingTask,
+                        shape = RoundedCornerShape(12.dp),
                         colors = androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors(
                             backgroundColor = MaterialTheme.colorScheme.surface,
                             textColor = MaterialTheme.colorScheme.onSurface,
@@ -539,23 +542,16 @@ private fun NewTaskRecordSection(
                             disabledBackgroundColor = MaterialTheme.colorScheme.primary
                         ),
                         shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .fillMaxWidth(0.5f)
-                            .padding(top = 20.dp),
-                        contentPadding = PaddingValues(vertical = 17.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 14.dp)
                     ) {
                         if (state.isCreatingTask) {
-                            androidx.compose.material3.CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
-                            )
+                            GenesisButtonProgress()
                         } else {
-                        Image(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
-                        )
+                            Text(
+                                text = stringResource(R.string.voice_create_task),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
                     }
                 }
