@@ -39,7 +39,8 @@ class MainScreenViewModel(
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase
 ): ViewModel() {
-    private val _state = MutableStateFlow(MainScreenState())
+    // Show the local month immediately even before the first network response.
+    private val _state = MutableStateFlow(MainScreenState(currentMonth = Month.current()))
     val state = _state.asStateFlow()
 
     fun onEvent(event: MainScreenEvent) {
@@ -99,7 +100,12 @@ class MainScreenViewModel(
         _state.update { it.copy(screenState = ScreenState.Idle) }
     }
     private fun onCalendarDayClicked(calendarDayIndex: Int) {
-        _state.update { it.copy(selectedDayIndex = calendarDayIndex) }
+        _state.update { state ->
+            state.copy(
+                selectedDayIndex = calendarDayIndex,
+                selectedDay = state.currentMonth?.days?.getOrNull(calendarDayIndex) ?: state.selectedDay
+            )
+        }
     }
     private fun onCalendarViewSwitched() {
         _state.update { it.copy(calendarViewState = it.calendarViewState.toggle()) }
@@ -257,7 +263,10 @@ class MainScreenViewModel(
 
     // function to get default day (today) when opening the calendar
     private fun getCurrentDay() {
-        _state.update { it.copy(selectedDayIndex = KDateTime.now().dayOfMonth-1) }
+        _state.update { state ->
+            val index = (KDateTime.now().dayOfMonth - 1).coerceIn(0, (state.currentMonth?.days?.size ?: 1) - 1)
+            state.copy(selectedDayIndex = index, selectedDay = state.currentMonth?.days?.getOrNull(index) ?: state.selectedDay)
+        }
     }
 
     private fun createTask(taskRequest: String) {
@@ -315,6 +324,6 @@ class MainScreenViewModel(
         loadCurrentMonthTasks()
         getCurrentDay()
         loadCurrentUser()
-        updateDeviceToken()
+        // API v2 has no FCM device-token endpoint yet.
     }
 }
