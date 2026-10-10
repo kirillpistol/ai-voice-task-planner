@@ -23,6 +23,9 @@ kotlin {
         androidMain.dependencies {
             implementation(project.dependencies.platform(libs.androidx.compose.bom))
             implementation(libs.kotlinx.datetime)
+            // Android's GenesisTaskRepository directly uses Ktor types.
+            implementation(libs.bundles.ktor.common)
+            implementation(libs.ktor.client.android)
 
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
