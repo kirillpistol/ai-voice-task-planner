@@ -56,4 +56,14 @@
     <string name="logout">Log out</string>
 
     <string name="ui_language">Language of UI</string>
+    <string name="loading_tasks">Loading tasks…</string>
+    <string name="error_loading_tasks">Could not load tasks. Check your connection.</string>
+    <string name="error_loading_profile">Could not load your profile. Please sign in again.</string>
+    <string name="error_saving_task">Could not save the task. Please try again.</string>
+    <string name="task_created_successfully">Task created!</string>
+    <string name="error_next_month">Could not open the next month.</string>
+    <string name="error_previous_month">Could not open the previous month.</string>
+    <string name="error_current_month">Could not open the calendar.</string>
+    <string name="updating_task">Saving changes…</string>
+    <string name="unexpected_error">Something went wrong. Please try again.</string>
 </resources>
