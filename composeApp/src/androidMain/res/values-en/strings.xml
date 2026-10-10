@@ -66,4 +66,6 @@
     <string name="error_current_month">Could not open the calendar.</string>
     <string name="updating_task">Saving changes…</string>
     <string name="unexpected_error">Something went wrong. Please try again.</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">OK</string>
 </resources>
