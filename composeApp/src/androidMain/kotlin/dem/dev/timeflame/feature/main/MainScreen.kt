@@ -99,8 +99,15 @@ fun MainScreen(
         ActivityResultContracts.RequestPermission()
     ) {}
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-        notificationsPermissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    // ActivityResult launchers become registered after composition. Launching directly
+    // from the composable body can crash on Android 13+ when Main is first shown.
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationsPermissionRequestLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     LaunchedEffect(state.voiceInputState) {
         if (state.voiceInputState.recordingState == RecordingState.Recording) {
