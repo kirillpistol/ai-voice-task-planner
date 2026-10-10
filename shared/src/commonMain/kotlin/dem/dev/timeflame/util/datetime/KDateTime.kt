@@ -6,14 +6,10 @@ expect class KDateTime {
     val dayOfMonth: Int
     val dayOfWeek: Int
 
-    /**
-     * Get timestamp in millis in local timezone
-     */
+    /** Absolute milliseconds since Unix epoch for this local date/time. */
     fun timestamp(): Long
 
-    /**
-     * Get timestamp in millis in UTC (converted from local to UTC timezone using offset)
-     */
+    /** Alias of timestamp(): an epoch timestamp is already a UTC-based instant. */
     fun utcTimestamp(): Long
 
     /**
@@ -76,9 +72,7 @@ expect fun KDateTime.Companion.now(): KDateTime
  */
 expect fun KDateTime.Companion.fromTimestamp(timestamp: Long): KDateTime
 
-/**
- * Get KDateTime from UTC timezone
- */
+/** Interpret UTC epoch milliseconds as an instant and display in the system local timezone. */
 expect fun KDateTime.Companion.fromUtcTimestamp(timestamp: Long): KDateTime
 
 /**
