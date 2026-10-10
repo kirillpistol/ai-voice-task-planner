@@ -14,7 +14,7 @@ object UiMessageCodes {
 
     const val sendingNewPassword = 10
     const val passwordWasSentToYourEmail = 11
-    const val thereIsNoUserWithThisEmail = 5
+    const val thereIsNoUserWithThisEmail = 23
 
     const val fieldsCannotBeEmpty = 12
     const val passwordStrengthLevel3Needed = 13
