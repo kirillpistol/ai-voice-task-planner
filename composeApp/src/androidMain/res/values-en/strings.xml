@@ -70,4 +70,15 @@
     <string name="confirm">OK</string>
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
+    <string name="voice_listening_hint">Speak now — your task will appear here</string>
+    <string name="voice_processing">Recognising speech…</string>
+    <string name="voice_processing_hint">Preparing your task text</string>
+    <string name="voice_review_title">Review your task</string>
+    <string name="voice_review_hint">Edit the recognised text if needed</string>
+    <string name="voice_create_task">Create task</string>
+    <string name="voice_saving">Saving task…</string>
+    <string name="voice_cancel">Cancel</string>
+    <string name="voice_permission_denied">Allow microphone access in your phone settings to use voice input.</string>
+    <string name="voice_unavailable">No speech recognition service is available on this device.</string>
+    <string name="voice_recognition_failed">Speech could not be recognised. Please try again.</string>
 </resources>
