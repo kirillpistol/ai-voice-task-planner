@@ -209,7 +209,7 @@ class MainScreenViewModel(
             if (user == null) {
                 if (requestId == calendarRequestId) {
                     _state.update {
-                        it.copy(isCalendarLoading = false, screenState = ScreenState.Result(
+                        it.copy(isCalendarLoading = false, hasLoadedTasks = true, screenState = ScreenState.Result(
                             ResultType.FAILURE, UiMessageCodes.gotErrorWhenGettingLocalUserId
                         ))
                     }
@@ -225,7 +225,7 @@ class MainScreenViewModel(
                 refreshed.sortTasksByDays(result.data.orEmpty())
                 _state.update { old ->
                     if (old.currentMonth?.year != month.year || old.currentMonth?.number != month.number) {
-                        old.copy(isCalendarLoading = false)
+                        old.copy(isCalendarLoading = false, hasLoadedTasks = true)
                     } else {
                         val chosen = old.selectedDay.day.dayOfMonth.coerceIn(1, refreshed.days.size)
                         val index = chosen - 1
@@ -233,13 +233,13 @@ class MainScreenViewModel(
                             currentMonth = refreshed,
                             selectedDayIndex = index,
                             selectedDay = refreshed.days[index],
-                            isCalendarLoading = false
+                            isCalendarLoading = false, hasLoadedTasks = true
                         )
                     }
                 }
             } else {
                 _state.update {
-                    it.copy(isCalendarLoading = false, screenState = ScreenState.Result(
+                    it.copy(isCalendarLoading = false, hasLoadedTasks = true, screenState = ScreenState.Result(
                         ResultType.FAILURE, UiMessageCodes.gotErrorLoadingTasks
                     ))
                 }
