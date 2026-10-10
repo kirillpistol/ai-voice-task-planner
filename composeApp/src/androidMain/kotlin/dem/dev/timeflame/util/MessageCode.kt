@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import dem.dev.timeflame.R
 import dem.dev.timeflame.util.state.UiMessageCodes
-import timeflame.composeapp.generated.resources.Res
 
 @Composable
 fun getMessage(messageCode: Int?): String {
