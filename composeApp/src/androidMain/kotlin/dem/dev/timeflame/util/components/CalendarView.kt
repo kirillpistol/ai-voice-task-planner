@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dem.dev.timeflame.R
 import dem.dev.timeflame.domain.model.Task
 import dem.dev.timeflame.feature.calendar.model.CalendarDay
@@ -133,12 +134,22 @@ private fun CalendarDateCell(
         )
         if (taskCount > 0) {
             Row(
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 3.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                repeat(taskCount.coerceAtMost(3)) {
-                    Box(
-                        Modifier.size(4.dp).background(foreground, CircleShape)
+                if (taskCount <= 3) {
+                    repeat(taskCount) {
+                        Box(Modifier.size(4.dp).background(foreground, CircleShape))
+                    }
+                } else {
+                    // More than three tasks are kept on the same day.
+                    // Display the true count instead of misleadingly stopping at three dots.
+                    Text(
+                        text = if (taskCount > 99) "99+" else taskCount.toString(),
+                        color = foreground,
+                        fontSize = 10.sp,
+                        lineHeight = 10.sp
                     )
                 }
             }
