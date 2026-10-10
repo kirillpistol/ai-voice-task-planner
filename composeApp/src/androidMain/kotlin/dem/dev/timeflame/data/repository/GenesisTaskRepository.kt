@@ -50,8 +50,9 @@ class GenesisTaskRepository(
         start: Long,
         end: Long
     ): Result<List<Task>> = try {
+        val bearer = authHeader()
         val response = httpClient.get(baseUrl) {
-            header(HttpHeaders.Authorization, authHeader())
+            header(HttpHeaders.Authorization, bearer)
             url { parameters.append("limit", "100") }
         }
         if (response.status.value != 200) {
@@ -73,8 +74,9 @@ class GenesisTaskRepository(
             createTaskRequestDto.currentDateTimeStr,
             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
         ).atZone(ZoneId.systemDefault()).toInstant().toString()
+        val bearer = authHeader()
         val response = httpClient.post(baseUrl) {
-            header(HttpHeaders.Authorization, authHeader())
+            header(HttpHeaders.Authorization, bearer)
             contentType(ContentType.Application.Json)
             setBody(ApiTaskInput(title = createTaskRequestDto.taskText, dueAt = dueAt))
         }
@@ -89,8 +91,9 @@ class GenesisTaskRepository(
     }
 
     override suspend fun updateTask(task: Task): Result<Unit> = try {
+        val bearer = authHeader()
         val response = httpClient.put("$baseUrl/${task.id}") {
-            header(HttpHeaders.Authorization, authHeader())
+            header(HttpHeaders.Authorization, bearer)
             contentType(ContentType.Application.Json)
             setBody(
                 ApiTaskInput(
@@ -107,8 +110,9 @@ class GenesisTaskRepository(
     }
 
     override suspend fun deleteTask(taskId: String): Result<Unit> = try {
+        val bearer = authHeader()
         val response = httpClient.delete("$baseUrl/$taskId") {
-            header(HttpHeaders.Authorization, authHeader())
+            header(HttpHeaders.Authorization, bearer)
         }
         Result(if (response.status.value == 204) ResponseCode.updated else response.status.value, null)
     } catch (error: Exception) {
