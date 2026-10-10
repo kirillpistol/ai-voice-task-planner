@@ -22,8 +22,9 @@ actual fun KDateTime.Companion.fromTimestamp(timestamp: Long): KDateTime {
 
 // convert from utc timestamp to local kdatetime
 actual fun KDateTime.Companion.fromUtcTimestamp(timestamp: Long): KDateTime {
-    val localTimeZoneOffset = localTimeZone.offsetAt(kotlinx.datetime.Instant.fromEpochMilliseconds(timestamp)).totalSeconds * 1000 // local timezone offset in millis
-    return KDateTime((timestamp + localTimeZoneOffset).toLocalDateTime())
+    // A UTC epoch timestamp is an absolute instant; toLocalDateTime()
+    // already converts it into the phone's local timezone.
+    return KDateTime(timestamp.toLocalDateTime())
 }
 
 actual fun KDateTime.Companion.fromDate(
@@ -63,8 +64,9 @@ actual class KDateTime(private val date: LocalDateTime = LocalDateTime.now()) {
     }
 
     actual fun utcTimestamp(): Long {
-        val localTimeZoneOffset = localTimeZone.offsetAt(kotlinx.datetime.Instant.fromEpochMilliseconds(date.timestamp())).totalSeconds * 1000
-        return date.timestamp() - localTimeZoneOffset
+        // Both functions return the same absolute UTC epoch milliseconds.
+        // LocalDateTime.timestamp() already applies the local timezone.
+        return date.timestamp()
     }
 
     actual fun startOfDay(): KDateTime? {
