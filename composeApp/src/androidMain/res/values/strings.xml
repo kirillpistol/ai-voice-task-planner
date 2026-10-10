@@ -55,4 +55,14 @@
     <string name="logout">Выйти из аккаунта</string>
 
     <string name="ui_language">Язык интерфейса</string>
+    <string name="loading_tasks">Загружаем задачи…</string>
+    <string name="error_loading_tasks">Не удалось загрузить задачи. Проверьте соединение.</string>
+    <string name="error_loading_profile">Не удалось получить данные пользователя. Войдите повторно.</string>
+    <string name="error_saving_task">Не удалось сохранить задачу. Попробуйте ещё раз.</string>
+    <string name="task_created_successfully">Задача создана!</string>
+    <string name="error_next_month">Не удалось перейти к следующему месяцу.</string>
+    <string name="error_previous_month">Не удалось перейти к предыдущему месяцу.</string>
+    <string name="error_current_month">Не удалось открыть календарь.</string>
+    <string name="updating_task">Сохраняем изменения…</string>
+    <string name="unexpected_error">Произошла ошибка. Попробуйте ещё раз.</string>
 </resources>
