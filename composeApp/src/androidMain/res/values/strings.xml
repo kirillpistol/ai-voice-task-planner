@@ -69,4 +69,15 @@
     <string name="confirm">ОК</string>
     <string name="previous_month">Предыдущий месяц</string>
     <string name="next_month">Следующий месяц</string>
+    <string name="voice_listening_hint">Говорите — задача появится здесь</string>
+    <string name="voice_processing">Распознаём речь…</string>
+    <string name="voice_processing_hint">Подготавливаем текст задачи</string>
+    <string name="voice_review_title">Проверьте задачу</string>
+    <string name="voice_review_hint">При необходимости исправьте распознанный текст</string>
+    <string name="voice_create_task">Создать задачу</string>
+    <string name="voice_saving">Сохраняем задачу…</string>
+    <string name="voice_cancel">Отмена</string>
+    <string name="voice_permission_denied">Для голосового ввода разрешите доступ к микрофону в настройках телефона.</string>
+    <string name="voice_unavailable">На устройстве нет доступной службы распознавания речи.</string>
+    <string name="voice_recognition_failed">Не удалось распознать речь. Попробуйте ещё раз.</string>
 </resources>
