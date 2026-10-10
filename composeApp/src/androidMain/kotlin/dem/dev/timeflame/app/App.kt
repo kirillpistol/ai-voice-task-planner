@@ -5,9 +5,11 @@ import dem.dev.timeflame.data.di.dataModules
 import dem.dev.timeflame.data.manager.FirebaseLocalAuthManager
 import dem.dev.timeflame.data.repository.FirebaseAuthRepository
 import dem.dev.timeflame.data.repository.GenesisTaskRepository
+import dem.dev.timeflame.data.repository.FirebaseUserRepository
 import dem.dev.timeflame.domain.manager.LocalAuthManager
 import dem.dev.timeflame.domain.repository.AuthRepository
 import dem.dev.timeflame.domain.repository.TaskRepository
+import dem.dev.timeflame.domain.repository.UserRepository
 import io.ktor.client.HttpClient
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -40,6 +42,7 @@ class App: Application() {
             modules(module {
                 factory<AuthRepository> { FirebaseAuthRepository() }
                 factory<TaskRepository> { GenesisTaskRepository(get<HttpClient>(named("HttpClient"))) }
+                factory<UserRepository> { FirebaseUserRepository() }
                 factory<LocalAuthManager> { FirebaseLocalAuthManager(get()) }
             })
         }
