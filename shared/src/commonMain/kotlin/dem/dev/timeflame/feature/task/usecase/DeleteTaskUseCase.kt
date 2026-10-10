@@ -6,7 +6,7 @@ import dem.dev.timeflame.domain.repository.TaskRepository
 class DeleteTaskUseCase(
     private val taskRepository: TaskRepository
 ) {
-    suspend operator fun invoke(taskId: Int): Result<Unit> {
+    suspend operator fun invoke(taskId: String): Result<Unit> {
         return taskRepository.deleteTask(taskId)
     }
 }
