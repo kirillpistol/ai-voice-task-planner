@@ -31,7 +31,7 @@ import dem.dev.timeflame.feature.register.presentation.RegisterScreenEvent
 import dem.dev.timeflame.feature.register.presentation.RegisterScreenState
 import dem.dev.timeflame.feature.register.presentation.RegisterScreenViewModel
 import dem.dev.timeflame.navigation.Screen
-import dem.dev.timeflame.util.components.LoadingDialog
+import dem.dev.timeflame.util.components.GenesisButtonProgress
 import dem.dev.timeflame.util.components.MessageDialog
 import dem.dev.timeflame.util.components.MessageType
 import dem.dev.timeflame.util.components.Screen
@@ -76,12 +76,6 @@ fun RegisterScreenView(
     state: RegisterScreenState = RegisterScreenState(),
     onEvent: (RegisterScreenEvent) -> Unit = {}
 ) {
-    if (state.screenState is ScreenState.Loading) {
-        LoadingDialog(
-            isLoading = true,
-            message = getMessage((state.screenState as? ScreenState.Loading)?.messageCode)
-        )
-    }
     if (state.screenState is ScreenState.Result && (state.screenState as ScreenState.Result).resultType == ResultType.FAILURE) {
         MessageDialog(
             dialog = MessageDialog(type = MessageType.ERROR, message = getMessage((state.screenState as ScreenState.Result).messageCode)),
@@ -100,6 +94,7 @@ fun RegisterScreenView(
 
         RegisterScreenFooter(
             modifier = Modifier,
+            isLoading = state.screenState is ScreenState.Loading,
             onEvent = onEvent
         )
     }
@@ -219,6 +214,7 @@ private fun FieldsSection(
 @Composable
 private fun RegisterScreenFooter(
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
     onEvent: (RegisterScreenEvent) -> Unit = {}
 ) {
     val alreadyHaveAnAccount = buildAnnotatedString {
@@ -237,6 +233,7 @@ private fun RegisterScreenFooter(
     ) {
         Button(
             onClick = { onEvent(RegisterScreenEvent.RegisterBtnClicked) },
+            enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 disabledContainerColor = MaterialTheme.colorScheme.onSurface
@@ -246,10 +243,14 @@ private fun RegisterScreenFooter(
                 .fillMaxWidth(0.8f),
             contentPadding = PaddingValues(vertical = 17.dp)
         ) {
-            Text(
-                text = stringResource(R.string.register),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            if (isLoading) {
+                GenesisButtonProgress()
+            } else {
+                Text(
+                    text = stringResource(R.string.register),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
         HorizontalDivider(modifier = Modifier.fillMaxWidth(0.6f).padding(top = 15.dp))
