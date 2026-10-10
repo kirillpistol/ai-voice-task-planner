@@ -16,6 +16,8 @@ sealed interface MainScreenEvent {
     data object EditTaskBottomSheetDismissed: MainScreenEvent
     data object RecordNewTaskBtnClicked: MainScreenEvent
     data class NewTaskRecordingFinished(val recognizedRequest: String): MainScreenEvent
+    data object NewTaskRecordingProcessing: MainScreenEvent
+    data class NewTaskRecordingFailed(val messageCode: Int): MainScreenEvent
     data object NewTaskRecordingDismissed: MainScreenEvent
     data class RecognizedTaskTextEdited(val updatedText: String): MainScreenEvent
     data object CreateNewTaskClicked: MainScreenEvent
