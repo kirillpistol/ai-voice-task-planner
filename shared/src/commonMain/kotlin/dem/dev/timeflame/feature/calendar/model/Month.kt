@@ -7,6 +7,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 
 data class Month(
     val start: KDateTime,
@@ -19,14 +20,29 @@ data class Month(
     val year: Int
         get() = start.year
 
-    fun sortTasksByDays(tasks: List<Task>): Month {
-        tasks.forEach { task ->
-            val taskDate = KDateTime.fromUtcTimestamp(task.timestamp)
-            val calendarDay = this.days.find { it.day.formatToString(KDateTimeFormat.dateFormat1) == taskDate.formatToString(KDateTimeFormat.dateFormat1) } ?: return@forEach /* If we didn't find calendar day for this task */
-
-            calendarDay.tasks.add(task)
+    /**
+     * Task timestamps are UTC epoch milliseconds. Convert each instant to the user's
+     * local calendar date exactly once before matching it to a day in the grid.
+     * No extra UTC offset is applied: doing so shifts late tasks into tomorrow.
+     *
+     * Rebuild day contents on refresh rather than appending duplicate tasks.
+     */
+    fun sortTasksByDays(
+        tasks: List<Task>,
+        timeZone: TimeZone = TimeZone.currentSystemDefault()
+    ): Month {
+        val grouped = tasks.groupBy { task ->
+            kotlinx.datetime.Instant.fromEpochMilliseconds(task.timestamp)
+                .toLocalDateTime(timeZone).date
         }
-        return this.copy()
+        days.forEach { day ->
+            val calendarDate = LocalDate(
+                day.day.year, day.day.monthNumber, day.day.dayOfMonth
+            )
+            day.tasks.clear()
+            day.tasks.addAll(grouped[calendarDate].orEmpty())
+        }
+        return this
     }
 
     fun getWeekForDay(calendarDay: CalendarDay): Week? {
