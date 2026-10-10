@@ -80,6 +80,8 @@ class MainScreenViewModel(
             MainScreenEvent.EditTaskBottomSheetDismissed -> onEditTaskBottomSheetDismissed()
             MainScreenEvent.RecordNewTaskBtnClicked -> onRecordNewTaskBtnClicked()
             is MainScreenEvent.NewTaskRecordingFinished -> onNewTaskRecordingFinished(event.recognizedRequest)
+            MainScreenEvent.NewTaskRecordingProcessing -> onNewTaskRecordingProcessing()
+            is MainScreenEvent.NewTaskRecordingFailed -> onNewTaskRecordingFailed(event.messageCode)
             MainScreenEvent.NewTaskRecordingDismissed -> onNewTaskRecordingDismissed()
             is MainScreenEvent.RecognizedTaskTextEdited -> onRecognizedTaskTextEdited(event.updatedText)
             MainScreenEvent.CreateNewTaskClicked -> onCreateNewTaskClicked()
@@ -112,6 +114,21 @@ class MainScreenViewModel(
     }
     private fun onNewTaskRecordingDismissed() {
         _state.update { it.copy(voiceInputState = VoiceInputState(RecordingState.Idle)) }
+    }
+    private fun onNewTaskRecordingProcessing() {
+        _state.update {
+            if (it.voiceInputState.recordingState == RecordingState.Recording)
+                it.copy(voiceInputState = it.voiceInputState.copy(recordingState = RecordingState.Processing))
+            else it
+        }
+    }
+    private fun onNewTaskRecordingFailed(messageCode: Int) {
+        _state.update {
+            it.copy(
+                voiceInputState = VoiceInputState(),
+                screenState = ScreenState.Result(ResultType.FAILURE, messageCode)
+            )
+        }
     }
     private fun onNewTaskRecordingFinished(recognizedRequest: String) {
         _state.update { it.copy(voiceInputState = VoiceInputState(RecordingState.RecordingFinished, recognizedRequest)) }
