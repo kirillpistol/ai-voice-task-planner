@@ -1,7 +1,7 @@
 package dem.dev.timeflame.domain.model
 
 data class Task(
-    val id: Int,
+    val id: String,
     val text: String,
     val userId: String,
     val timestamp: Long,
