@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import dem.dev.timeflame.util.components.LoadingDialog
+import dem.dev.timeflame.util.components.GenesisButtonProgress
 import dem.dev.timeflame.util.components.MessageDialog
 import dem.dev.timeflame.util.components.MessageType
 import dem.dev.timeflame.util.getMessage
@@ -84,12 +84,6 @@ private fun LoginScreenView(
     state: LoginScreenState = LoginScreenState(),
     onEvent: (LoginScreenEvent) -> Unit = {},
 ) {
-    (state.screenState as? ScreenState.Loading)?.let { screenState ->
-        LoadingDialog(
-            isLoading = true,
-            message = getMessage(screenState.messageCode)
-        )
-    }
     (state.screenState as? ScreenState.Result)?.let { result ->
         val messageType = when (result.resultType) {
             ResultType.SUCCESS -> MessageType.SUCCESS
@@ -113,6 +107,7 @@ private fun LoginScreenView(
 
         LoginScreenFooter(
             modifier = Modifier,
+            isLoading = state.screenState is ScreenState.Loading,
             onEvent = onEvent
         )
     }
@@ -212,6 +207,7 @@ private fun FieldsSection(
 @Composable
 private fun LoginScreenFooter(
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
     onEvent: (LoginScreenEvent) -> Unit = {}
 ) {
     val noAccountText = buildAnnotatedString {
@@ -230,6 +226,7 @@ private fun LoginScreenFooter(
     ) {
         Button(
             onClick = { onEvent(LoginScreenEvent.LoginBtnClicked) },
+            enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 disabledBackgroundColor = MaterialTheme.colorScheme.onSurface
@@ -239,10 +236,14 @@ private fun LoginScreenFooter(
                 .fillMaxWidth(0.8f),
             contentPadding = PaddingValues(vertical = 17.dp)
         ) {
-            Text(
-                text = stringResource(R.string.login),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            if (isLoading) {
+                GenesisButtonProgress()
+            } else {
+                Text(
+                    text = stringResource(R.string.login),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
         Divider(modifier = Modifier.fillMaxWidth(0.6f).padding(top = 15.dp))
