@@ -1,23 +1,21 @@
 package dem.dev.timeflame.util.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
+/**
+ * Backward-compatible fallback for screens not migrated to inline button progress yet.
+ * No Dialog, no 130dp spinner and no blocking overlay.
+ */
 @Composable
 fun LoadingDialog(
     modifier: Modifier = Modifier,
@@ -25,53 +23,25 @@ fun LoadingDialog(
     message: String? = null,
     onDismiss: () -> Unit = {}
 ) {
-    if (isLoading) {
-        Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+    if (!isLoading) return
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        tonalElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Dialog(
-                onDismissRequest = onDismiss,
-                properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(17.dp)
-                        )
-                        .border(
-                            width = 0.5.dp,
-                            shape = RoundedCornerShape(17.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        .padding(10.dp)
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(130.dp)
-                                .padding(16.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
-                        message?.let { loadingMsg ->
-                            Text(
-                                text = loadingMsg,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier
-                                    .padding(top = 10.dp),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-
-                }
+            GenesisButtonProgress(color = MaterialTheme.colorScheme.primary)
+            message?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
