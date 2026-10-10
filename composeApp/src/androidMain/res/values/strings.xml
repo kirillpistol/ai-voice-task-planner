@@ -65,4 +65,6 @@
     <string name="error_current_month">Не удалось открыть календарь.</string>
     <string name="updating_task">Сохраняем изменения…</string>
     <string name="unexpected_error">Произошла ошибка. Попробуйте ещё раз.</string>
+    <string name="cancel">Отмена</string>
+    <string name="confirm">ОК</string>
 </resources>
