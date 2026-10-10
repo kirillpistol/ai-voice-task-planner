@@ -30,4 +30,7 @@ object UiMessageCodes {
 
     const val taskCreatedSuccessfully = 21
     const val gotAnErrorWhileCreatingTask = 22
+    const val voicePermissionDenied = 24
+    const val voiceUnavailable = 25
+    const val voiceRecognitionFailed = 26
 }
