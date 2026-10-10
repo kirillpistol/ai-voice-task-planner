@@ -40,7 +40,7 @@ fun LoadingDialog(
                     modifier = Modifier
                         .padding(16.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(17.dp)
                         )
                         .border(
@@ -66,7 +66,7 @@ fun LoadingDialog(
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier
                                     .padding(top = 10.dp),
-                                color = MaterialTheme.colorScheme.onTertiary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
