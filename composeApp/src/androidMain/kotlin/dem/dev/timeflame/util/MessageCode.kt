@@ -31,6 +31,9 @@ fun getMessage(messageCode: Int?): String {
         UiMessageCodes.failedToGetCurrentMonth -> stringResource(R.string.error_current_month)
         UiMessageCodes.taskCreatedSuccessfully -> stringResource(R.string.task_created_successfully)
         UiMessageCodes.gotAnErrorWhileCreatingTask -> stringResource(R.string.error_saving_task)
+        UiMessageCodes.voicePermissionDenied -> stringResource(R.string.voice_permission_denied)
+        UiMessageCodes.voiceUnavailable -> stringResource(R.string.voice_unavailable)
+        UiMessageCodes.voiceRecognitionFailed -> stringResource(R.string.voice_recognition_failed)
         else -> stringResource(R.string.unexpected_error)
     }
 }
