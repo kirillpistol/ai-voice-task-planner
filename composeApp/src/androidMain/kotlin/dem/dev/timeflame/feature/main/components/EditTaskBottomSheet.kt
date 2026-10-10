@@ -249,7 +249,7 @@ private fun EditTaskBottomSheetContent(
 @Composable
 fun EditTaskBottomSheetPreview() {
     val task = Task(
-        id = 1,
+        id = "preview",
         text = "New task to edit",
         userId = "",
         timestamp = 1235345545,
