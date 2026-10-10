@@ -22,6 +22,15 @@ fun getMessage(messageCode: Int?): String {
         UiMessageCodes.thereIsNoUserWithThisEmail -> stringResource(R.string.there_is_no_user)
         UiMessageCodes.fieldsCannotBeEmpty -> stringResource(R.string.fields_cannot_be_empty)
         UiMessageCodes.passwordStrengthLevel3Needed -> stringResource(R.string.password_strength_level_3_needed)
-        else -> ""
+        UiMessageCodes.loadingTasks -> stringResource(R.string.loading_tasks)
+        UiMessageCodes.gotErrorWhenGettingLocalUserId -> stringResource(R.string.error_loading_profile)
+        UiMessageCodes.gotErrorLoadingTasks -> stringResource(R.string.error_loading_tasks)
+        UiMessageCodes.updatingTask -> stringResource(R.string.updating_task)
+        UiMessageCodes.errorGettingNextMonth -> stringResource(R.string.error_next_month)
+        UiMessageCodes.errorGettingPreviousMonth -> stringResource(R.string.error_previous_month)
+        UiMessageCodes.failedToGetCurrentMonth -> stringResource(R.string.error_current_month)
+        UiMessageCodes.taskCreatedSuccessfully -> stringResource(R.string.task_created_successfully)
+        UiMessageCodes.gotAnErrorWhileCreatingTask -> stringResource(R.string.error_saving_task)
+        else -> stringResource(R.string.unexpected_error)
     }
 }
