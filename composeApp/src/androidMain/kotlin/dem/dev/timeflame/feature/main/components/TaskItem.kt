@@ -35,6 +35,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dem.dev.timeflame.R
@@ -79,7 +80,7 @@ fun TaskItem(
                 .onSizeChanged {
                     contextMenuWidth = it.width.toFloat()
                 }
-                .background(completenessIndicatorColor, RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp)),
+                .background(Color(0xFF2F2F2F), RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp)),
             onOptionSelected = {
                 when(it) {
                     ContextMenuOption.ChangeStatus -> onStatusChangeClicked()
