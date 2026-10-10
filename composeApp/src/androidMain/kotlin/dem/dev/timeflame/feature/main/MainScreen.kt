@@ -391,8 +391,14 @@ private fun CalendarSection(
             modifier = Modifier
                 .padding(top = 15.dp),
             calendarDays = calendarDays,
-            selectedDayIndex = state.selectedDayIndex,
-            onDayClicked = { onEvent(MainScreenEvent.CalendarDayClicked(it)) }
+            selectedDayIndex = calendarDays.indexOfFirst { it.day == state.selectedDay.day }.coerceAtLeast(0),
+            onDayClicked = { visibleIndex ->
+                val clickedDay = calendarDays.getOrNull(visibleIndex)
+                val monthIndex = state.currentMonth?.days?.indexOfFirst { it.day == clickedDay?.day } ?: -1
+                if (monthIndex >= 0) {
+                    onEvent(MainScreenEvent.CalendarDayClicked(monthIndex))
+                }
+            }
         )
     }
 }
