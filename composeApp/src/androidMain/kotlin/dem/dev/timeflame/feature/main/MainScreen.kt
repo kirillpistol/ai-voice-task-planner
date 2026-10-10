@@ -151,12 +151,7 @@ private fun MainScreenView(
     val isSystemInDarkMode = isSystemInDarkTheme()
     var darkModeEnabled by remember { mutableStateOf(isDarkModeEnabled ?: isSystemInDarkMode) }
 
-    (state.screenState as? ScreenState.Loading)?.let {
-        LoadingDialog(
-            isLoading = true,
-            message = getMessage(it.messageCode)
-        )
-    }
+    // Non-blocking progress is shown next to the calendar or within the Save button.
     (state.screenState as? ScreenState.Result)?.let {
         val messageType = when (it.resultType) {
             ResultType.SUCCESS -> MessageType.SUCCESS
@@ -221,6 +216,7 @@ private fun MainScreenView(
                         ) {
                             EditTaskBottomSheet(
                                 task = it,
+                                isSaving = state.isSavingTask,
                                 onDismissRequest = { onEvent(MainScreenEvent.EditTaskBottomSheetDismissed) },
                                 onTaskSave = { onEvent(MainScreenEvent.SaveUpdatedTaskBtnClicked(it)) }
                             )
@@ -381,6 +377,13 @@ private fun CalendarSection(
             }
         }
         
+        if (state.isCalendarLoading) {
+            androidx.compose.material3.LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp).height(3.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
         CalendarViewSwitcher(
             modifier = Modifier.padding(top = 16.dp),
             state = state,
@@ -391,10 +394,18 @@ private fun CalendarSection(
             modifier = Modifier
                 .padding(top = 15.dp),
             calendarDays = calendarDays,
-            selectedDayIndex = calendarDays.indexOfFirst { it.day == state.selectedDay.day }.coerceAtLeast(0),
+            selectedDayIndex = calendarDays.indexOfFirst {
+                it.day.year == state.selectedDay.day.year &&
+                    it.day.monthNumber == state.selectedDay.day.monthNumber &&
+                    it.day.dayOfMonth == state.selectedDay.day.dayOfMonth
+            }.coerceAtLeast(0),
             onDayClicked = { visibleIndex ->
                 val clickedDay = calendarDays.getOrNull(visibleIndex)
-                val monthIndex = state.currentMonth?.days?.indexOfFirst { it.day == clickedDay?.day } ?: -1
+                val monthIndex = state.currentMonth?.days?.indexOfFirst {
+                    clickedDay != null && it.day.year == clickedDay.day.year &&
+                        it.day.monthNumber == clickedDay.day.monthNumber &&
+                        it.day.dayOfMonth == clickedDay.day.dayOfMonth
+                } ?: -1
                 if (monthIndex >= 0) {
                     onEvent(MainScreenEvent.CalendarDayClicked(monthIndex))
                 }
@@ -532,6 +543,7 @@ private fun NewTaskRecordSection(
                     )
                     Button(
                         onClick = { onEvent(MainScreenEvent.CreateNewTaskClicked) },
+                        enabled = !state.isCreatingTask,
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = MaterialTheme.colorScheme.primary,
                             disabledBackgroundColor = MaterialTheme.colorScheme.primary
@@ -542,11 +554,19 @@ private fun NewTaskRecordSection(
                             .padding(top = 20.dp),
                         contentPadding = PaddingValues(vertical = 17.dp)
                     ) {
+                        if (state.isCreatingTask) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
                         Image(
                             imageVector = Icons.Default.Check,
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
                         )
+                        }
                     }
                 }
             }
