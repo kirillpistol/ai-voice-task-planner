@@ -2,6 +2,11 @@ package dem.dev.timeflame.app
 
 import android.app.Application
 import dem.dev.timeflame.data.di.dataModules
+import dem.dev.timeflame.data.manager.FirebaseLocalAuthManager
+import dem.dev.timeflame.data.repository.FirebaseAuthRepository
+import dem.dev.timeflame.domain.manager.LocalAuthManager
+import dem.dev.timeflame.domain.repository.AuthRepository
+import org.koin.dsl.module
 import dem.dev.timeflame.data.preferences.nativeAppModule
 import dem.dev.timeflame.di.viewModelModule
 import dem.dev.timeflame.feature.calendar.di.calendarFeatureModule
@@ -27,6 +32,11 @@ class App: Application() {
             modules(taskFeatureModule())
             modules(calendarFeatureModule())
             modules(viewModelModule)
+            // Android uses Firebase Authentication; register after legacy shared bindings.
+            modules(module {
+                factory<AuthRepository> { FirebaseAuthRepository() }
+                factory<LocalAuthManager> { FirebaseLocalAuthManager(get()) }
+            })
         }
     }
 }
