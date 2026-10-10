@@ -2,34 +2,36 @@ package dem.dev.timeflame.util.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dem.dev.timeflame.R
 import dem.dev.timeflame.domain.model.Task
 import dem.dev.timeflame.feature.calendar.model.CalendarDay
-import dem.dev.timeflame.feature.main.MainScreenEvent
 import dem.dev.timeflame.util.datetime.KDateTime
 import dem.dev.timeflame.util.datetime.fromDate
-import dem.dev.timeflame.util.sorted
 import dem.dev.timeflame.util.theme.AppTheme
-import kotlinx.datetime.LocalDate
 
+/**
+ * Stable seven-column calendar for both MONTH and WEEK modes.
+ * Indexes returned to the caller always refer to the original calendarDays list.
+ */
 @Composable
 fun Calendar(
     modifier: Modifier = Modifier,
@@ -37,43 +39,62 @@ fun Calendar(
     selectedDayIndex: Int,
     onDayClicked: (Int) -> Unit = {}
 ) {
-    val daysShortNames = listOf(
-        Pair(1, stringResource(R.string.monday_short)),
-        Pair(2, stringResource(R.string.tuesday_short)),
-        Pair(3, stringResource(R.string.wednesday_short)),
-        Pair(4, stringResource(R.string.thursday_short)),
-        Pair(5, stringResource(R.string.friday_short)),
-        Pair(6, stringResource(R.string.saturday_short)),
-        Pair(7, stringResource(R.string.sunday_short))
+    val weekdayLabels = listOf(
+        stringResource(R.string.monday_short),
+        stringResource(R.string.tuesday_short),
+        stringResource(R.string.wednesday_short),
+        stringResource(R.string.thursday_short),
+        stringResource(R.string.friday_short),
+        stringResource(R.string.saturday_short),
+        stringResource(R.string.sunday_short)
     )
-    LazyRow(
-        modifier = modifier
-    ) {
-        items(daysShortNames) { weekDay ->
-            Column {
-                CalendarItem(
-                    text = weekDay.second,
-                    textColor = MaterialTheme.colorScheme.outline
-                )
 
-                LazyColumn {
-                    itemsIndexed(calendarDays.filter { it.day.dayOfWeek == weekDay.first }.sorted()) { i, day ->
-                        Column {
-                            if (i == 0 && day.day.after(calendarDays.sorted()[0].day)
-                                && day.day.dayOfWeek < calendarDays.sorted()[0].day.dayOfWeek) {
-                                // adding empty cell before
-                                EmptyCell()
-                            }
+    // Keep original indexes while displaying days chronologically.
+    val sortedDays = calendarDays.withIndex().sortedBy { it.value.day.timestamp() }
+    val paddingBefore = sortedDays.firstOrNull()?.value?.day?.dayOfWeek?.minus(1) ?: 0
+    val cells: List<IndexedValue<CalendarDay>?> =
+        List(paddingBefore) { null } + sortedDays
+    val selectedDay = calendarDays.getOrNull(selectedDayIndex)?.day
 
-                            CalendarItem(
-                                isSelected = (calendarDays.getOrNull(selectedDayIndex)?.day == day.day),
-                                onClick = {
-                                    val originalIndex = calendarDays.indexOf(day)
-                                    if (originalIndex != -1)
-                                        onDayClicked(originalIndex)
-                                },
-                                tasksAmount = day.tasks.size,
-                                text = day.day.dayOfMonth.toString()
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            weekdayLabels.forEach { label ->
+                Box(
+                    modifier = Modifier.weight(1f).height(34.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+        cells.chunked(7).forEach { week ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                repeat(7) { column ->
+                    val date = week.getOrNull(column)
+                    Box(
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (date != null) {
+                            val day = date.value.day
+                            val isSelected = selectedDay != null &&
+                                selectedDay.year == day.year &&
+                                selectedDay.monthNumber == day.monthNumber &&
+                                selectedDay.dayOfMonth == day.dayOfMonth
+                            CalendarDateCell(
+                                dayNumber = day.dayOfMonth,
+                                taskCount = date.value.tasks.size,
+                                selected = isSelected,
+                                onClick = { onDayClicked(date.index) }
                             )
                         }
                     }
@@ -84,88 +105,42 @@ fun Calendar(
 }
 
 @Composable
-private fun CalendarItem(
-    modifier: Modifier = Modifier,
-    text: String = "",
-    textColor: Color = MaterialTheme.colorScheme.onTertiary,
-    isSelected: Boolean = false,
-    tasksAmount: Int = 0,
-    onClick: () -> Unit = {}
+private fun CalendarDateCell(
+    dayNumber: Int,
+    taskCount: Int,
+    selected: Boolean,
+    onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+    val background = if (selected) MaterialTheme.colorScheme.primary
+        else androidx.compose.ui.graphics.Color.Transparent
+    val foreground = if (selected) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.onBackground
 
     Box(
-        modifier = modifier
-            .background(backgroundColor, RoundedCornerShape(10.dp))
-            .size(45.dp)
-            .clickable (
-                onClick = {
-                    onClick()
-                },
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ),
+        modifier = Modifier
+            .size(44.dp)
+            .background(background, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = text,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else textColor
-            )
-        }
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TasksAmountIndicator(
-                modifier = Modifier.padding(top = 2.dp),
-                tasksAmount = tasksAmount,
-                isSelected = isSelected
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyCell(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .size(45.dp)
-    )
-}
-
-@Composable
-private fun TasksAmountIndicator(
-    modifier: Modifier = Modifier,
-    tasksAmount: Int = 0,
-    isSelected: Boolean = false,
-) {
-    val indicatorColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
-
-    Row(
-        modifier = modifier.padding(bottom = 3.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        val amount = if (tasksAmount > 3) 3 else tasksAmount
-        for (i in 1..amount) {
-            Box(
-                modifier = Modifier
-                    .size(5.dp)
-                    .background(indicatorColor, CircleShape)
-            )
-            if (i != amount) {
-                Spacer(modifier = Modifier.width(3.dp))
+        Text(
+            text = dayNumber.toString(),
+            style = MaterialTheme.typography.bodyLarge,
+            color = foreground
+        )
+        if (taskCount > 0) {
+            Row(
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                repeat(taskCount.coerceAtMost(3)) {
+                    Box(
+                        Modifier.size(4.dp).background(foreground, CircleShape)
+                    )
+                }
             }
         }
     }
-
 }
 
 @Preview
