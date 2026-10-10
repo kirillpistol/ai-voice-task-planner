@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -120,11 +121,15 @@ fun GenesisTaskSkeleton(modifier: Modifier = Modifier) {
 }
 
 /**
- * Polished visual state behind Android's external speech-recognition activity.
- * It does not claim access to live microphone amplitude.
+ * Native GENESIS in-app listening/recognition UI.
+ * The pulse is a visual state indicator, not a measured audio waveform.
  */
 @Composable
-fun GenesisVoiceListening(modifier: Modifier = Modifier) {
+fun GenesisVoiceListening(
+    modifier: Modifier = Modifier,
+    isProcessing: Boolean = false,
+    onCancel: () -> Unit = {}
+) {
     val transition = rememberInfiniteTransition(label = "genesis-voice")
     val pulse by transition.animateFloat(
         initialValue = 0f,
@@ -161,26 +166,38 @@ fun GenesisVoiceListening(modifier: Modifier = Modifier) {
                     modifier = Modifier.size(36.dp).background(MaterialTheme.colorScheme.primary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    androidx.compose.material3.Icon(
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    if (isProcessing) {
+                        GenesisButtonProgress(color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        androidx.compose.material3.Icon(
+                            imageVector = Icons.Default.Mic,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
-                    text = stringResource(R.string.recording),
+                    text = stringResource(if (isProcessing) R.string.voice_processing else R.string.recording),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = stringResource(R.string.voice_listening_hint),
+                    text = stringResource(if (isProcessing) R.string.voice_processing_hint else R.string.voice_listening_hint),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = onCancel) {
+                Text(
+                    text = stringResource(R.string.voice_cancel),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
         }
