@@ -112,21 +112,21 @@ private fun EditTaskBottomSheetContent(
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(
+                androidx.compose.material3.TextButton(
                     onClick = {
                         showDatePicker = false
                         val utcMillis = datePickerState.selectedDateMillis ?: initialPickerMillis
                         val selectedDate = Instant.ofEpochMilli(utcMillis).atZone(ZoneOffset.UTC).toLocalDate()
                         taskDate = LocalDateTime.of(selectedDate, taskDate.toLocalTime())
                     }
-                ) { Text("OK") }
+                ) { Text(stringResource(R.string.confirm)) }
             },
             dismissButton = {
-                TextButton(
+                androidx.compose.material3.TextButton(
                     onClick = {
                         showDatePicker = false
                     }
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(
@@ -139,19 +139,19 @@ private fun EditTaskBottomSheetContent(
         DatePickerDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
-                TextButton(
+                androidx.compose.material3.TextButton(
                     onClick = {
                         showTimePicker = false
                         taskDate = taskDate.withHour(timePickerState.hour).withMinute(timePickerState.minute)
                     }
-                ) { Text("OK") }
+                ) { Text(stringResource(R.string.confirm)) }
             },
             dismissButton = {
-                TextButton(
+                androidx.compose.material3.TextButton(
                     onClick = {
                         showTimePicker = false
                     }
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             TimePicker(
