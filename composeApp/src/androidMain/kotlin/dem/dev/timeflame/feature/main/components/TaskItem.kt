@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import dem.dev.timeflame.R
 import dem.dev.timeflame.domain.model.AppLanguage
 import dem.dev.timeflame.domain.model.Task
+import dem.dev.timeflame.util.language.UiLanguageHelper
 import dem.dev.timeflame.util.datetime.Format
 import dem.dev.timeflame.util.datetime.convertToZone
 import dem.dev.timeflame.util.datetime.toLocalDateTime
@@ -137,6 +139,11 @@ private fun TaskItemContent(
     modifier: Modifier = Modifier,
     task: Task
 ) {
+    val uiLanguage = if (UiLanguageHelper.getCurrentLanguage(LocalContext.current) == "en") {
+        AppLanguage.EN
+    } else {
+        AppLanguage.RUS
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -151,7 +158,7 @@ private fun TaskItemContent(
             modifier = Modifier.padding(start = 15.dp)
         ) {
             Text(
-                text = task.timestamp.toLocalDateTime().format(Format.dateTimeFormat1(AppLanguage.RUS)),
+                text = task.timestamp.toLocalDateTime().format(Format.dateTimeFormat1(uiLanguage)),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
