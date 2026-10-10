@@ -1,7 +1,7 @@
 package dem.dev.timeflame.feature.main.state
 
 enum class RecordingState {
-    Idle, Recording, RecordingFinished
+    Idle, Recording, Processing, RecordingFinished
 }
 
 data class VoiceInputState(
