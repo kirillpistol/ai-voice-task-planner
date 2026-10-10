@@ -17,6 +17,7 @@ data class MainScreenState(
     val selectedDay: CalendarDay = CalendarDay(KDateTime.now(), mutableListOf()),
     val calendarViewState: CalendarViewState = CalendarViewState.MONTH,
     val isCalendarLoading: Boolean = false,
+    val hasLoadedTasks: Boolean = false,
     val isSavingTask: Boolean = false,
     val isCreatingTask: Boolean = false,
     val selectedTaskToEdit: Task? = null,
