@@ -2,6 +2,9 @@ package dem.dev.timeflame.feature.main
 
 import android.Manifest
 import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.SpeechRecognizer
 import android.content.pm.PackageManager
 import android.os.Build
 import android.speech.RecognizerIntent
@@ -31,6 +34,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,9 +79,9 @@ import dem.dev.timeflame.util.getName
 import dem.dev.timeflame.util.language.UiLanguageHelper
 import dem.dev.timeflame.util.state.ResultType
 import dem.dev.timeflame.util.state.ScreenState
+import dem.dev.timeflame.util.state.UiMessageCodes
 import dem.dev.timeflame.util.theme.AppTheme
 import dem.dev.timeflame.util.theme.DarkModeHelper
-import java.util.ArrayList
 
 
 @Composable
@@ -88,13 +93,69 @@ fun MainScreen(
     val viewModel = androidKoinViewModel<MainScreenViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val newTaskRecordingLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        (result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as? ArrayList<String>)?.let {
-            viewModel.onEvent(MainScreenEvent.NewTaskRecordingFinished(it[0]))
-        } ?: run {
-            viewModel.onEvent(MainScreenEvent.NewTaskRecordingDismissed)
+    val speechRecognizer = remember(context) {
+        if (SpeechRecognizer.isRecognitionAvailable(context)) {
+            runCatching { SpeechRecognizer.createSpeechRecognizer(context) }.getOrNull()
+        } else null
+    }
+    val activeVoiceState by rememberUpdatedState(state.voiceInputState.recordingState)
+
+    val startInAppSpeech: () -> Unit = {
+        if (speechRecognizer == null) {
+            viewModel.onEvent(MainScreenEvent.NewTaskRecordingFailed(UiMessageCodes.voiceUnavailable))
+        } else {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, UiLanguageHelper.getGoogleVoiceRecognitionLanguage(context))
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            }
+            runCatching { speechRecognizer.startListening(intent) }.onFailure {
+                viewModel.onEvent(MainScreenEvent.NewTaskRecordingFailed(UiMessageCodes.voiceRecognitionFailed))
+            }
+        }
+    }
+
+    val microphonePermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) startInAppSpeech()
+        else viewModel.onEvent(MainScreenEvent.NewTaskRecordingFailed(UiMessageCodes.voicePermissionDenied))
+    }
+
+    DisposableEffect(speechRecognizer) {
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) = Unit
+            override fun onBeginningOfSpeech() = Unit
+            override fun onRmsChanged(rmsdB: Float) = Unit
+            override fun onBufferReceived(buffer: ByteArray?) = Unit
+            override fun onEndOfSpeech() {
+                if (activeVoiceState == RecordingState.Recording) {
+                    viewModel.onEvent(MainScreenEvent.NewTaskRecordingProcessing)
+                }
+            }
+            override fun onError(error: Int) {
+                if (activeVoiceState == RecordingState.Recording ||
+                    activeVoiceState == RecordingState.Processing) {
+                    viewModel.onEvent(MainScreenEvent.NewTaskRecordingFailed(UiMessageCodes.voiceRecognitionFailed))
+                }
+            }
+            override fun onResults(results: Bundle?) {
+                if (activeVoiceState != RecordingState.Recording &&
+                    activeVoiceState != RecordingState.Processing) return
+                val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    ?.firstOrNull()?.trim()
+                if (text.isNullOrEmpty()) {
+                    viewModel.onEvent(MainScreenEvent.NewTaskRecordingFailed(UiMessageCodes.voiceRecognitionFailed))
+                } else {
+                    viewModel.onEvent(MainScreenEvent.NewTaskRecordingFinished(text))
+                }
+            }
+            override fun onPartialResults(partialResults: Bundle?) = Unit
+            override fun onEvent(eventType: Int, params: Bundle?) = Unit
+        })
+        onDispose {
+            speechRecognizer?.cancel()
+            speechRecognizer?.destroy()
         }
     }
 
@@ -112,19 +173,18 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(state.voiceInputState) {
-        if (state.voiceInputState.recordingState == RecordingState.Recording) {
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-            intent.putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            intent.putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE,
-                UiLanguageHelper.getGoogleVoiceRecognitionLanguage(context)
-            )
-            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.dictate_your_task))
-            newTaskRecordingLauncher.launch(intent)
+    LaunchedEffect(state.voiceInputState.recordingState) {
+        when (state.voiceInputState.recordingState) {
+            RecordingState.Recording -> {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                    startInAppSpeech()
+                } else {
+                    microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+            RecordingState.Idle -> speechRecognizer?.cancel()
+            else -> Unit // Keep the recognizer alive while it processes captured audio.
         }
     }
 
@@ -487,9 +547,11 @@ private fun NewTaskRecordSection(
                 }
             }
         }
-        RecordingState.Recording -> {
+        RecordingState.Recording, RecordingState.Processing -> {
             GenesisVoiceListening(
-                modifier = modifier.fillMaxWidth(0.9f).padding(bottom = 20.dp)
+                modifier = modifier.fillMaxWidth(0.9f).padding(bottom = 20.dp),
+                isProcessing = state.voiceInputState.recordingState == RecordingState.Processing,
+                onCancel = { onEvent(MainScreenEvent.NewTaskRecordingDismissed) }
             )
         }
         RecordingState.RecordingFinished -> {
