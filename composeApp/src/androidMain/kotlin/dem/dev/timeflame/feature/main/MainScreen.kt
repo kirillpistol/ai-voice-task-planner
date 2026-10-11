@@ -300,7 +300,7 @@ private fun MainScreenView(
                                 painter = painterResource(R.drawable.ic_genesis_mark),
                                 contentDescription = stringResource(R.string.settings),
                                 tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier.size(26.dp)
                             )
                         }
                         if (state.profileContextMenuOpened && state.currentUser != null) {
