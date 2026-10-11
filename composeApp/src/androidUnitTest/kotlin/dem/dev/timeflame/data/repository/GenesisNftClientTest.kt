@@ -5,6 +5,18 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class GenesisNftClientTest {
+    @Test fun catalogIncludesFirstAndLastFiles() {
+        assertEquals(1, GenesisNftClient.catalogId(0))
+        assertEquals(10000, GenesisNftClient.catalogId(9999))
+        assertThrows(IllegalArgumentException::class.java) { GenesisNftClient.catalogId(10000) }
+    }
+
+    @Test fun imageUsesMetadataFileNameOnOwnerServer() {
+        assertEquals("https://api.pistolgenesis.ru/nft/images/1766.svg",
+            GenesisNftClient.serverImage("ipfs://CID/1766.svg"))
+        assertThrows(IllegalArgumentException::class.java) { GenesisNftClient.serverImage("ipfs://CID/other.svg") }
+    }
+
     @Test fun readsRarityWithoutUsingCoinName() {
         val metadata = kotlinx.serialization.json.Json.parseToJsonElement(
             """{"name":"PISTOL #1766","attributes":[{"trait_type":"Metal","value":"Gold"},{"trait_type":"Rarity","value":"Epic"}]}"""

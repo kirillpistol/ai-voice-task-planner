@@ -243,7 +243,7 @@ private fun GenesisCoinCard(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                stringResource(R.string.genesis_nft_token_id, tokenId),
+                stringResource(R.string.genesis_nft_token_id, coin?.tokenId ?: (tokenId + 1)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
