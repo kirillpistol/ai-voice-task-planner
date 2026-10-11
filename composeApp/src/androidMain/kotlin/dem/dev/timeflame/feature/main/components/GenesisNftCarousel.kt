@@ -6,6 +6,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -120,6 +123,7 @@ private class GenesisCoinPreloader(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GenesisNftCarousel(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -233,17 +237,28 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
                 )
             }
             if (ready.isNotEmpty()) {
-                LazyRow(
-                    state = listState,
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(ready, key = { it.index }) { item ->
-                        GenesisCoinCard(
-                            item = item,
-                            selected = selected == item.index,
-                            onSelected = { selected = item.index }
-                        )
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val sidePadding = ((maxWidth - 164.dp) / 2).coerceAtLeast(0.dp)
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = listState,
+                        contentPadding = PaddingValues(horizontal = sidePadding),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        flingBehavior = rememberSnapFlingBehavior(listState)
+                    ) {
+                        items(ready, key = { it.index }) { item ->
+                            GenesisCoinCard(
+                                item = item,
+                                selected = selected == item.index,
+                                onSelected = {
+                                    selected = item.index
+                                    scope.launch {
+                                        val position = ready.indexOfFirst { it.index == item.index }
+                                        if (position >= 0) listState.animateScrollToItem(position)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             } else if (initialLoading) {
