@@ -146,4 +146,5 @@
     <string name="genesis_nft_retry">Retry</string>
     <string name="genesis_nft_token_id">Token #%1$d</string>
     <string name="genesis_nft_random">Random coin</string>
+    <string name="genesis_nft_preparing">Preparing coin…</string>
 </resources>
