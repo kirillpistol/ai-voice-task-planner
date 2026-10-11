@@ -363,7 +363,6 @@ private fun formatGenesisDate(raw: String?): String {
 
 @Composable
 fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -381,42 +380,7 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_services_crypto_desc),
             stringResource(R.string.workspace_coming_soon)
         )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text("PISTOL GENESIS NFT", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    stringResource(R.string.genesis_nft_collection_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text("Polygon", style = MaterialTheme.typography.labelMedium)
-                Button(
-                    onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://thirdweb.com/polygon/0x7A5eD4eCe6A085c532F52517957aFf220B48609B")
-                        )
-                        try {
-                            context.startActivity(intent)
-                        } catch (_: android.content.ActivityNotFoundException) {
-                            android.widget.Toast.makeText(
-                                context, R.string.genesis_nft_browser_unavailable,
-                                android.widget.Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) { Text(stringResource(R.string.genesis_nft_open_collection)) }
-            }
-        }
+        GenesisNftCarousel()
         WorkspaceModuleCard(
             Icons.Default.Description,
             stringResource(R.string.workspace_services_documents),

@@ -26,6 +26,8 @@ kotlin {
             // Android's GenesisTaskRepository directly uses Ktor types.
             implementation(libs.bundles.ktor.common)
             implementation(libs.ktor.client.android)
+            implementation("io.coil-kt:coil-compose:2.7.0")
+            implementation("io.coil-kt:coil-svg:2.7.0")
 
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -42,6 +44,9 @@ kotlin {
             implementation(libs.firebase.auth)
 
             implementation(libs.androidx.work.runtime.ktx)
+        }
+        androidUnitTest.dependencies {
+            implementation(libs.junit)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

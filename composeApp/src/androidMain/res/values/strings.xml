@@ -140,4 +140,9 @@
     <string name="genesis_nft_collection_description">Коллекция монет PISTOL GENESIS. Откройте страницу коллекции в thirdweb.</string>
     <string name="genesis_nft_open_collection">Открыть коллекцию</string>
     <string name="genesis_nft_browser_unavailable">Не найдено приложение для открытия ссылки.</string>
+    <string name="genesis_nft_carousel_count">Polygon · %1$d монет</string>
+    <string name="genesis_nft_load_failed">Не удалось загрузить коллекцию. Проверьте интернет и повторите попытку.</string>
+    <string name="genesis_nft_retry">Повторить</string>
+    <string name="genesis_nft_token_id">Токен #%1$d</string>
+    <string name="genesis_nft_random">Случайная монета</string>
 </resources>
