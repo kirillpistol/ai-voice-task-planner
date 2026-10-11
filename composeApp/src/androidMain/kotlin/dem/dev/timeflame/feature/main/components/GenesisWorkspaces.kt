@@ -11,6 +11,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.ui.graphics.Color
+import dem.dev.timeflame.domain.model.Task
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,7 +61,7 @@ import dem.dev.timeflame.feature.main.MainScreenEvent
 import dem.dev.timeflame.feature.main.state.MainScreenState
 import dem.dev.timeflame.util.components.GenesisTaskSkeleton
 
-/** Read-only SQL task copies. Calendar is the only editor and source of tasks. */
+/** Calendar task controls and separate SQL copies for personal analysis. */
 @Composable
 fun GenesisTasksWorkspace(
     state: MainScreenState,
@@ -66,19 +69,21 @@ fun GenesisTasksWorkspace(
     modifier: Modifier = Modifier
 ) {
     val model = state.genesisWorkspace
+    val calendarTasks = state.currentMonth?.days.orEmpty().flatMap { it.tasks }.distinctBy { it.id }.sortedBy { it.timestamp }
     val context = LocalContext.current
     var consent by remember { mutableStateOf(false) }
     var confirmImport by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
+    var confirmCalendarDelete by remember { mutableStateOf<Task?>(null) }
 
     Column(
         modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         WorkspaceTitle(
-            stringResource(R.string.genesis_sql_tasks_title),
-            stringResource(R.string.genesis_sql_tasks_subtitle)
+            stringResource(R.string.workspace_tasks_title),
+            stringResource(R.string.workspace_tasks_subtitle)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
             Text(
@@ -91,6 +96,10 @@ fun GenesisTasksWorkspace(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(stringResource(R.string.workspace_tasks_total, calendarTasks.size))
+            Text(stringResource(R.string.workspace_tasks_completed, calendarTasks.count { it.completed }))
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         if (model.loading) {
@@ -116,10 +125,10 @@ fun GenesisTasksWorkspace(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        if (model.tasks.isEmpty()) {
+        if (calendarTasks.isEmpty() && model.tasks.isEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = stringResource(R.string.genesis_sql_empty),
+                    text = stringResource(R.string.workspace_tasks_empty),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -130,7 +139,48 @@ fun GenesisTasksWorkspace(
                 contentPadding = PaddingValues(bottom = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(model.tasks, key = { it.sourceTaskId }) { task ->
+                items(calendarTasks, key = { "calendar:" + it.id }) { task ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = task.completed,
+                                onCheckedChange = { onEvent(MainScreenEvent.TaskStatusChangeClicked(task)) },
+                                enabled = !state.isSavingTask,
+                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF2E7D32))
+                            )
+                            Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                                Text(task.text, style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    java.time.Instant.ofEpochMilli(task.timestamp)
+                                        .atZone(ZoneId.systemDefault())
+                                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                TextButton(
+                                    onClick = { onEvent(MainScreenEvent.EditTaskClicked(task)) },
+                                    enabled = !state.isSavingTask
+                                ) { Text(stringResource(R.string.edit_task)) }
+                            }
+                            IconButton(
+                                onClick = { confirmCalendarDelete = task },
+                                enabled = !state.isSavingTask
+                            ) {
+                                Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.workspace_delete_task))
+                            }
+                        }
+                    }
+                }
+                if (model.tasks.isNotEmpty()) {
+                    item(key = "sql-heading") {
+                        Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                items(model.tasks, key = { "sql:" + it.sourceTaskId }) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -186,13 +236,13 @@ fun GenesisTasksWorkspace(
             Checkbox(
                 checked = consent,
                 onCheckedChange = { consent = it },
-                enabled = policy?.importAvailable == true && !model.busy
+                enabled = !model.busy
             )
             Text(
                 text = stringResource(R.string.genesis_sql_consent),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable(enabled = policy?.importAvailable == true && !model.busy) {
+                modifier = Modifier.clickable(enabled = !model.busy) {
                     consent = !consent
                 }
             )
@@ -216,7 +266,28 @@ fun GenesisTasksWorkspace(
                 Text(stringResource(R.string.genesis_sql_clear))
             }
         }
+        OutlinedButton(
+            onClick = { onEvent(MainScreenEvent.GenesisWorkspaceRefresh) },
+            enabled = !model.busy && !model.loading,
+            modifier = Modifier.fillMaxWidth()
+        ) { Text(stringResource(R.string.workspace_check_connection)) }
         Spacer(Modifier.height(8.dp))
+    }
+    confirmCalendarDelete?.let { task ->
+        AlertDialog(
+            onDismissRequest = { confirmCalendarDelete = null },
+            title = { Text(stringResource(R.string.workspace_delete_task)) },
+            text = { Text(stringResource(R.string.workspace_delete_task_warning)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmCalendarDelete = null
+                    onEvent(MainScreenEvent.DeleteTaskClicked(task))
+                }) { Text(stringResource(R.string.workspace_delete_task)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmCalendarDelete = null }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
     }
     if (confirmImport) {
         AlertDialog(
@@ -369,7 +440,7 @@ fun GenesisReportsWorkspace(
 @Composable
 private fun WorkspaceTitle(title: String, subtitle: String) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 26.dp, bottom = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 26.dp, bottom = 8.dp, end = 48.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
