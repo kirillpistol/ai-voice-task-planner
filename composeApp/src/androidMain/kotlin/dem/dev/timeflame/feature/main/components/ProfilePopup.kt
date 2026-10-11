@@ -107,7 +107,7 @@ fun ProfilePopup(
                             painter = painterResource(R.drawable.ic_genesis_mark),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                     Column(
