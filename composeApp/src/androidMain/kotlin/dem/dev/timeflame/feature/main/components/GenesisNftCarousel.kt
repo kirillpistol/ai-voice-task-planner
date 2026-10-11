@@ -291,11 +291,12 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
                             try {
                                 // Keep the current gallery visible until the chosen image and
                                 // its immediate neighbours have all finished decoding.
-                                val loaded = preloader.batch(target..minOf(target + 3, total - 1))
+                                val start = maxOf(0, target - 3)
+                                val loaded = preloader.batch(start..minOf(target + 3, total - 1))
                                 ready = loaded
                                 selected = target
                                 failed = false
-                                listState.scrollToItem(0)
+                                listState.scrollToItem(target - start)
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (_: Exception) {
