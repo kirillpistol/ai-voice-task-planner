@@ -1,5 +1,6 @@
 package dem.dev.timeflame.data.repository
 
+import android.content.Context
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
@@ -16,6 +17,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -23,10 +25,11 @@ import kotlinx.serialization.json.putJsonArray
 import java.math.BigInteger
 import java.util.LinkedHashMap
 
-data class GenesisCoin(val tokenId: Int, val name: String, val imageUri: String)
+data class GenesisCoin(val tokenId: Int, val name: String, val imageUri: String, val rarity: String? = null)
 
 /** Read-only collection browsing. No wallet, signing, payment or mint calls. */
-class GenesisNftClient {
+class GenesisNftClient(context: Context? = null) {
+    private val saved = context?.getSharedPreferences("genesis_nft_metadata_v1", Context.MODE_PRIVATE)
     companion object {
         const val CONTRACT = "0x7A5eD4eCe6A085c532F52517957aFf220B48609B"
         const val COLLECTION_URL = "https://thirdweb.com/polygon/$CONTRACT"
@@ -49,6 +52,15 @@ class GenesisNftClient {
             require(uri.startsWith("https://")) { "Unsupported NFT media URL" }
             return uri
         }
+
+        internal fun rarity(metadata: JsonObject): String? =
+            runCatching {
+                metadata["attributes"]?.jsonArray?.firstOrNull {
+                    it.jsonObject["trait_type"]?.jsonPrimitive?.contentOrNull
+                        ?.equals("Rarity", ignoreCase = true) == true
+                }?.jsonObject?.get("value")?.jsonPrimitive?.contentOrNull
+                    ?.trim()?.takeIf { it.isNotEmpty() }
+            }.getOrNull()
 
         /** Decode the offset, byte length and UTF-8 bytes of a Solidity string. */
         internal fun decodeString(encoded: String): String {
@@ -83,9 +95,18 @@ class GenesisNftClient {
 
     suspend fun collectionSize(): Int {
         // nextTokenIdToMint(): includes the collection's published lazy-minted NFTs.
-        val result = rpc("0x3b1475a7")
+        val cached = saved?.getInt("collection_size", 0) ?: 0
+        val age = System.currentTimeMillis() - (saved?.getLong("collection_checked", 0L) ?: 0L)
+        if (cached in 1..200000 && age in 0..86_400_000L) return cached
+        val result = try { rpc("0x3b1475a7") } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (cached in 1..200000) return cached
+            throw e
+        }
         return BigInteger(result.removePrefix("0x"), 16).intValueExact().also {
             require(it in 1..200000) { "Collection has no published NFTs" }
+            saved?.edit()?.putInt("collection_size", it)?.putLong("collection_checked", System.currentTimeMillis())?.apply()
         }
     }
 
@@ -95,8 +116,14 @@ class GenesisNftClient {
             synchronized(cache) { cache[tokenId] }?.let { return@withPermit it }
             require(tokenId >= 0)
             // tokenURI(uint256); use actual on-chain URI, never guess metadata paths.
-            val uri = decodeString(rpc("0xc87b56dd" + tokenId.toString(16).padStart(64, '0')))
-            val metadata = metadata(uri)
+            val key = "token_$tokenId"
+            val cachedMetadata = saved?.getString(key, null)?.let {
+                runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull()
+            }
+            val metadata = cachedMetadata ?: run {
+                val uri = decodeString(rpc("0xc87b56dd" + tokenId.toString(16).padStart(64, '0')))
+                metadata(uri)
+            }
             val image = metadata["image"]?.jsonPrimitive?.contentOrNull
                 ?: metadata["image_url"]?.jsonPrimitive?.contentOrNull
                 ?: error("NFT image is missing")
@@ -105,8 +132,12 @@ class GenesisNftClient {
                 tokenId,
                 metadata["name"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
                     ?: "PISTOL #$tokenId",
-                image
-            ).also { synchronized(cache) { cache[tokenId] = it } }
+                image,
+                rarity(metadata)
+            ).also {
+                synchronized(cache) { cache[tokenId] = it }
+                if (cachedMetadata == null) saved?.edit()?.putString(key, metadata.toString())?.apply()
+            }
         }
     }
 

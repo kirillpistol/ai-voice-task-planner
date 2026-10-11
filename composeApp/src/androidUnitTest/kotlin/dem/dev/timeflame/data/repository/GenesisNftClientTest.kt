@@ -5,6 +5,17 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class GenesisNftClientTest {
+    @Test fun readsRarityWithoutUsingCoinName() {
+        val metadata = kotlinx.serialization.json.Json.parseToJsonElement(
+            """{"name":"PISTOL #1766","attributes":[{"trait_type":"Metal","value":"Gold"},{"trait_type":"Rarity","value":"Epic"}]}"""
+        ) as kotlinx.serialization.json.JsonObject
+        assertEquals("Epic", GenesisNftClient.rarity(metadata))
+    }
+
+    @Test fun missingRarityIsNotInvented() {
+        assertEquals(null, GenesisNftClient.rarity(kotlinx.serialization.json.JsonObject(emptyMap())))
+    }
+
     @Test fun decodesActualContractTokenUri() {
         val encoded = "0x" + "20".padStart(64, '0') + "37".padStart(64, '0') +
             "697066733a2f2f516d644d64726632764c4c7542657a753174335a733244597456674c6e395836626445695036654b546e634275782f30" +

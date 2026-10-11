@@ -59,7 +59,7 @@ import kotlin.random.Random
 @Composable
 fun GenesisNftCarousel(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val client = remember { GenesisNftClient() }
+    val client = remember { GenesisNftClient(context.applicationContext) }
     val imageLoader = remember(context) {
         ImageLoader.Builder(context.applicationContext)
             .components { add(SvgDecoder.Factory()) }
@@ -237,7 +237,7 @@ private fun GenesisCoinCard(
                 }
             }
             Text(
-                coin?.name ?: stringResource(R.string.genesis_nft_token_id, tokenId),
+                coin?.rarity ?: "—",
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
