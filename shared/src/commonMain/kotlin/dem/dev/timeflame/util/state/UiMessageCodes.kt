@@ -34,4 +34,10 @@ object UiMessageCodes {
     const val voiceUnavailable = 25
     const val voiceRecognitionFailed = 26
     const val gotErrorDeletingTask = 27
+    const val voiceNetworkFailed = 28
+    const val voiceNoSpeech = 29
+    const val voiceBusy = 30
+    const val voiceLanguageUnavailable = 31
+    const val voiceAudioFailed = 32
+    const val voiceTimedOut = 33
 }

@@ -27,6 +27,7 @@ import dem.dev.timeflame.util.datetime.toLocalDateTime
 import dem.dev.timeflame.util.state.ResultType
 import dem.dev.timeflame.util.state.ScreenState
 import dem.dev.timeflame.util.state.UiMessageCodes
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -222,8 +223,8 @@ class MainScreenViewModel(
     private fun onCreateNewTaskClicked() {
         val recordingText = _state.value.voiceInputState.currentRecognizedText
 
-        if (_state.value.voiceInputState.recordingState == RecordingState.RecordingFinished && recordingText.isNotEmpty()) {
-            createTask(recordingText)
+        if (_state.value.voiceInputState.recordingState == RecordingState.RecordingFinished && recordingText.isNotBlank()) {
+            createTask(recordingText.trim())
         } else
             _state.update { it.copy(voiceInputState = VoiceInputState()) }
     }
@@ -443,26 +444,39 @@ class MainScreenViewModel(
         }
         _state.update { it.copy(isCreatingTask = true) }
         viewModelScope.launch(Dispatchers.IO) {
-            val result = createTaskUseCase(userId = currentUser.id, taskText = taskRequest, dateTime = dateTime)
-            if (result.isSuccess()) {
-                _state.update {
-                    it.copy(isCreatingTask = false, screenState = ScreenState.Result(
-                        ResultType.SUCCESS, UiMessageCodes.taskCreatedSuccessfully
-                    ), voiceInputState = VoiceInputState())
+            try {
+                val result = createTaskUseCase(userId = currentUser.id, taskText = taskRequest, dateTime = dateTime)
+                if (result.isSuccess()) {
+                    _state.update {
+                        it.copy(screenState = ScreenState.Result(
+                            ResultType.SUCCESS, UiMessageCodes.taskCreatedSuccessfully
+                        ), voiceInputState = VoiceInputState())
+                    }
+                    _state.value.currentMonth?.let { loadTasks(it) }
+                } else {
+                    _state.update {
+                        it.copy(screenState = ScreenState.Result(
+                            ResultType.FAILURE, UiMessageCodes.gotAnErrorWhileCreatingTask
+                        ))
+                    }
                 }
-                // Refresh exactly the month the user is viewing; never jump to today.
-                _state.value.currentMonth?.let { loadTasks(it) }
-            } else {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("GenesisVoice", "Task save failed: ${e.javaClass.simpleName}")
+                // Keep the reviewed text available for a manual retry.
                 _state.update {
-                    it.copy(isCreatingTask = false, screenState = ScreenState.Result(
+                    it.copy(screenState = ScreenState.Result(
                         ResultType.FAILURE, UiMessageCodes.gotAnErrorWhileCreatingTask
                     ))
                 }
+            } finally {
+                _state.update { it.copy(isCreatingTask = false) }
             }
         }
     }
 
-    
+
     private fun loadCurrentUser() = localAuthManager.getCurrentUser()?.let {
         viewModelScope.launch(Dispatchers.IO) {
             val result = userRepository.getUserById(it.id)

@@ -35,6 +35,12 @@ fun getMessage(messageCode: Int?): String {
         UiMessageCodes.voiceUnavailable -> stringResource(R.string.voice_unavailable)
         UiMessageCodes.voiceRecognitionFailed -> stringResource(R.string.voice_recognition_failed)
         UiMessageCodes.gotErrorDeletingTask -> stringResource(R.string.error_deleting_task)
+        UiMessageCodes.voiceNetworkFailed -> stringResource(R.string.voice_network_failed)
+        UiMessageCodes.voiceNoSpeech -> stringResource(R.string.voice_no_speech)
+        UiMessageCodes.voiceBusy -> stringResource(R.string.voice_busy)
+        UiMessageCodes.voiceLanguageUnavailable -> stringResource(R.string.voice_language_unavailable)
+        UiMessageCodes.voiceAudioFailed -> stringResource(R.string.voice_audio_failed)
+        UiMessageCodes.voiceTimedOut -> stringResource(R.string.voice_timed_out)
         else -> stringResource(R.string.unexpected_error)
     }
 }

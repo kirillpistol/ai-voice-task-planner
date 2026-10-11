@@ -146,4 +146,10 @@
     <string name="genesis_nft_token_id">Токен #%1$d</string>
     <string name="genesis_nft_random">Случайная монета</string>
     <string name="genesis_nft_preparing">Готовим монету…</string>
+    <string name="voice_network_failed">Служба распознавания недоступна или нет соединения. Проверьте интернет и повторите запись.</string>
+    <string name="voice_no_speech">Не удалось разобрать речь. Нажмите микрофон и повторите запись.</string>
+    <string name="voice_busy">Служба распознавания занята. Подождите немного и повторите запись.</string>
+    <string name="voice_language_unavailable">Выбранный язык недоступен для распознавания. Проверьте языки в настройках службы распознавания телефона.</string>
+    <string name="voice_audio_failed">Не удалось записать звук. Закройте другие приложения, использующие микрофон, и повторите запись.</string>
+    <string name="voice_timed_out">Распознавание не завершилось вовремя. Нажмите микрофон и повторите запись.</string>
 </resources>
