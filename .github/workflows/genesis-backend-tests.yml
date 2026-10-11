@@ -1,0 +1,31 @@
+name: GENESIS backend tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/genesis-backend-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt pytest
+      - name: Check private Postgres deployment script syntax
+        run: bash -n backend/deploy/bootstrap-postgres.sh
+      - name: Run backend tests
+        working-directory: backend
+        run: python -m pytest -q

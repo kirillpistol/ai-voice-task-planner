@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "17306470646",
+    "project_id": "pistol-genesis",
+    "storage_bucket": "pistol-genesis.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17306470646:android:246fb30bd08cb13b6204d7",
+        "android_client_info": {
+          "package_name": "dem.dev.genesis"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFAIundrt4_OLHQlnasDALVtwgAkedcjw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

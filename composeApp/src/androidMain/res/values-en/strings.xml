@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PISTOL GENESIS</string>
+    <string name="welcome_to">Welcome to</string>
+    <string name="log_into_account">Log into your account</string>
+    <string name="forgot_password_q">Forgot password?</string>
+    <string name="login">Log in</string>
+    <string name="no_account_q">Don\'t have an account?</string>
+    <string name="create">Create</string>
+    <string name="account">an account</string>
+    <string name="in_genesis">in PISTOL GENESIS</string>
+    <string name="takes_30_sec">Takes 30 seconds</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="logging_in">Logging into your account</string>
+    <string name="error_logging_in_check_your_cred">Login error. Check your credentials</string>
+    <string name="name">Name</string>
+    <string name="already_have_an_account_q">Already have an account?</string>
+    <string name="register">Register</string>
+
+    <string name="creating_your_account">Creating your account..</string>
+    <string name="got_error_while_creating_account">An error occurred while creating the account.</string>
+    <string name="add_at_least_six_symbols">Password must be at least 6 characters long</string>
+    <string name="password_needs_to_contain_both_small_and_large">Password must contain both uppercase and lowercase letters</string>
+    <string name="add_special_letters">Add special characters</string>
+    <string name="all_good">You have a strong password!</string>
+    <string name="start_typing_your_password">Start typing your password</string>
+
+    <string name="reset_password">Reset password</string>
+    <string name="set_your_email">Enter your email</string>
+    <string name="will_send_new_password">We will send a new password to it</string>
+    <string name="send">Send</string>
+
+    <string name="sending_new_password">Sending you a new password..</string>
+    <string name="password_was_sent">The password was sent to your email</string>
+    <string name="there_is_no_user">No user exists with this email</string>
+
+    <string name="your">Your</string>
+    <string name="tasks">Tasks</string>
+
+    <string name="fields_cannot_be_empty">Input fields cannot be empty</string>
+    <string name="password_strength_level_3_needed">Password strength level must be at least 3</string>
+    <string name="edit_task">Edit task</string>
+
+    <string name="task_text">Task</string>
+    <string name="save">Save</string>
+    <string name="need_to_set_task_title">Task name is required</string>
+
+    <string name="add_new_task">Add a new task</string>
+    <string name="dictate_your_task">Dictate your task..</string>
+    <string name="recording">Listening to you..</string>
+
+    <string name="settings">Settings</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="interface_language">Interface language</string>
+    <string name="logout">Log out</string>
+
+    <string name="ui_language">Language of UI</string>
+    <string name="loading_tasks">Loading tasks…</string>
+    <string name="error_loading_tasks">Could not load tasks. Check your connection.</string>
+    <string name="error_loading_profile">Could not load your profile. Please sign in again.</string>
+    <string name="error_saving_task">Could not save the task. Please try again.</string>
+    <string name="task_created_successfully">Task created!</string>
+    <string name="error_next_month">Could not open the next month.</string>
+    <string name="error_previous_month">Could not open the previous month.</string>
+    <string name="error_current_month">Could not open the calendar.</string>
+    <string name="updating_task">Saving changes…</string>
+    <string name="unexpected_error">Something went wrong. Please try again.</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">OK</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="voice_listening_hint">Speak now — your task will appear here</string>
+    <string name="voice_processing">Recognising speech…</string>
+    <string name="voice_processing_hint">Preparing your task text</string>
+    <string name="voice_review_title">Review your task</string>
+    <string name="voice_review_hint">Edit the recognised text if needed</string>
+    <string name="voice_create_task">Create task</string>
+    <string name="voice_saving">Saving task…</string>
+    <string name="voice_cancel">Cancel</string>
+    <string name="voice_permission_denied">Allow microphone access in your phone settings to use voice input.</string>
+    <string name="voice_unavailable">No speech recognition service is available on this device.</string>
+    <string name="voice_recognition_failed">Speech could not be recognised. Please try again.</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_english">English</string>
+    <string name="tab_calendar">Calendar</string>
+    <string name="tab_tasks">Tasks</string>
+    <string name="tab_services">Services</string>
+    <string name="tab_genesis">Genesis</string>
+    <string name="workspace_tasks_title">Monthly tasks</string>
+    <string name="workspace_tasks_subtitle">Tasks in the open month</string>
+    <string name="workspace_tasks_total">Total: %1$d</string>
+    <string name="workspace_tasks_pending">Open: %1$d</string>
+    <string name="workspace_tasks_completed">Done: %1$d</string>
+    <string name="workspace_tasks_empty">No tasks in this month yet</string>
+    <string name="workspace_services_title">Services</string>
+    <string name="workspace_services_subtitle">Additional PISTOL GENESIS tools</string>
+    <string name="workspace_services_crypto">Crypto</string>
+    <string name="workspace_services_crypto_desc">Wallets and transactions</string>
+    <string name="workspace_services_nft">NFT</string>
+    <string name="workspace_services_nft_desc">Collections and digital assets</string>
+    <string name="workspace_services_documents">Documents</string>
+    <string name="workspace_services_documents_desc">Agreements and files</string>
+    <string name="workspace_coming_soon">Not connected yet</string>
+    <string name="workspace_genesis_title">GENESIS</string>
+    <string name="workspace_genesis_subtitle">Reports and recommendations from connected data</string>
+    <string name="workspace_genesis_reports">Daily reports</string>
+    <string name="workspace_genesis_reports_desc">Reports will appear once the analytics service is connected.</string>
+    <string name="workspace_genesis_sources">Data sources</string>
+    <string name="workspace_genesis_sources_desc">Source connections and permissions are coming later.</string>
+    <string name="workspace_genesis_recommendations">Recommendations</string>
+    <string name="workspace_genesis_recommendations_desc">No recommendations have been generated yet.</string>
+    <string name="workspace_task_core">Core jobs</string>
+    <string name="workspace_task_core_desc">The core job queue is not connected yet.</string>
+    <string name="error_deleting_task">Could not delete the task. Please try again.</string>
+    <string name="genesis_sql_tasks_title">GENESIS tasks</string>
+    <string name="genesis_sql_tasks_subtitle">Personal model data. Create and edit tasks in Calendar only</string>
+    <string name="genesis_sql_count">In database: %1$d</string>
+    <string name="genesis_recommendations_count">Recommendations: %1$d</string>
+    <string name="genesis_sql_empty">Your GENESIS database is empty. Import tasks from Calendar to begin.</string>
+    <string name="genesis_sql_unavailable">The SQL service is unavailable. Check the server connection.</string>
+    <string name="genesis_sql_imported">Calendar tasks have been imported into GENESIS.</string>
+    <string name="genesis_sql_cleared">SQL tasks cleared. Calendar tasks and recommendations were kept.</string>
+    <string name="genesis_sql_deleted">The task copy was deleted from GENESIS.</string>
+    <string name="genesis_sql_policy_link">Read the data processing policy on the website ↗</string>
+    <string name="genesis_sql_policy_missing">Import is unavailable until the website policy is published and SQL is connected.</string>
+    <string name="genesis_sql_consent">I agree to copy tasks for personal GENESIS analysis, not general AI model training.</string>
+    <string name="genesis_sql_import">Import tasks from Calendar</string>
+    <string name="genesis_sql_import_warning">GENESIS will copy your existing Calendar tasks into a separate SQL database for personal analysis. Your Calendar tasks will remain. This does not authorise general AI model training.</string>
+    <string name="genesis_sql_clear">Clear GENESIS database</string>
+    <string name="genesis_sql_clear_warning">Delete all GENESIS SQL task copies? Your Calendar tasks and recommendations will remain. You can import from Calendar again. Backup deletion may take additional time.</string>
+    <string name="genesis_sql_delete_one">Delete from GENESIS</string>
+    <string name="genesis_sql_delete_one_warning">Delete only this SQL task copy? The original Calendar task will remain.</string>
+    <string name="genesis_recommendation_title">Recommendation</string>
+</resources>

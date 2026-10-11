@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- PISTOL GENESIS angular G; fills the small navigation-icon viewport. -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M6,20 L32,5 L54,16 L47,22 L32,15 L15,25 L15,46 L30,55 L30,59 L6,47 Z" />
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M30,29 L57,29 L57,46 L33,59 L33,51 L48,43 L48,37 L30,37 Z" />
+</vector>

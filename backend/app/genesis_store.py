@@ -1,0 +1,78 @@
+"""Separate SQL workspace for GENESIS; calendar tasks stay in Firestore."""
+import os
+from datetime import datetime, timezone
+from typing import Optional
+
+from fastapi import HTTPException
+from sqlalchemy import Boolean, DateTime, Index, String, Text, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class GenesisTask(Base):
+    __tablename__ = "genesis_tasks"
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    source_task_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    due_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    imported_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    __table_args__ = (Index("ix_genesis_tasks_user_imported", "user_id", "imported_at"),)
+
+
+class GenesisConsent(Base):
+    __tablename__ = "genesis_consents"
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    policy_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    accepted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class GenesisRecommendation(Base):
+    __tablename__ = "genesis_recommendations"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+def configured_policy_url() -> Optional[str]:
+    url = os.environ.get("GENESIS_PRIVACY_URL", "").strip()
+    return url if url.startswith("https://") else None
+
+
+def policy_version() -> str:
+    return os.environ.get("GENESIS_POLICY_VERSION", "").strip()
+
+
+def configured_database_url() -> str:
+    """Load SQL credentials from a container-mounted secret or environment.
+
+    Mounting a file avoids exposing passwords through docker inspect .Config.Env.
+    """
+    secret_path = os.environ.get("GENESIS_DATABASE_URL_FILE", "").strip()
+    if secret_path:
+        with open(secret_path, "r", encoding="utf-8") as secret_file:
+            return secret_file.read().strip()
+    return os.environ.get("GENESIS_DATABASE_URL", "").strip()
+
+
+def make_session_factory(database_url: str):
+    engine = create_engine(database_url, pool_pre_ping=True)
+    Base.metadata.create_all(engine)  # Initial bootstrap; use migrations for upgrades.
+    return sessionmaker(bind=engine, expire_on_commit=False)
+
+
+def require_sql_session():
+    from app.main import app
+    factory = getattr(app.state, "genesis_sql_factory", None)
+    if factory is None:
+        raise HTTPException(status_code=503, detail="GENESIS SQL storage is not configured")
+    with factory() as session:
+        yield session
