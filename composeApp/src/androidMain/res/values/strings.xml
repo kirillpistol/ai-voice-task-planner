@@ -137,4 +137,7 @@
     <string name="workspace_connection_not_ready">Сервер доступен. Импорт ещё не включён: необходимы подключение SQL и опубликованная политика.</string>
     <string name="workspace_connection_ready">Соединение проверено. Импорт доступен.</string>
     <string name="workspace_connection_failed">Проверка не завершилась успешно. Повторите попытку позже.</string>
+    <string name="genesis_nft_collection_description">Коллекция монет PISTOL GENESIS. Откройте страницу коллекции в thirdweb.</string>
+    <string name="genesis_nft_open_collection">Открыть коллекцию</string>
+    <string name="genesis_nft_browser_unavailable">Не найдено приложение для открытия ссылки.</string>
 </resources>

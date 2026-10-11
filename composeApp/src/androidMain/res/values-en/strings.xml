@@ -138,4 +138,7 @@
     <string name="workspace_connection_not_ready">Server is reachable. Import is not enabled yet: SQL and a published policy are required.</string>
     <string name="workspace_connection_ready">Connection checked. Import is available.</string>
     <string name="workspace_connection_failed">Connection check failed. Please try again later.</string>
+    <string name="genesis_nft_collection_description">The PISTOL GENESIS coin collection. Open the collection page on thirdweb.</string>
+    <string name="genesis_nft_open_collection">Open collection</string>
+    <string name="genesis_nft_browser_unavailable">No app is available to open this link.</string>
 </resources>
