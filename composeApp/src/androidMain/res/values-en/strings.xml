@@ -132,4 +132,7 @@
     <string name="genesis_sql_delete_one">Delete from GENESIS</string>
     <string name="genesis_sql_delete_one_warning">Delete only this SQL task copy? The original Calendar task will remain.</string>
     <string name="genesis_recommendation_title">Recommendation</string>
+    <string name="workspace_delete_task">Delete task</string>
+    <string name="workspace_delete_task_warning">Delete this task from Calendar?</string>
+    <string name="workspace_check_connection">Check connection</string>
 </resources>
