@@ -131,4 +131,7 @@
     <string name="genesis_sql_delete_one">Удалить из GENESIS</string>
     <string name="genesis_sql_delete_one_warning">Удалить только SQL-копию задачи? Исходная задача в календаре останется.</string>
     <string name="genesis_recommendation_title">Рекомендация</string>
+    <string name="workspace_delete_task">Удалить задачу</string>
+    <string name="workspace_delete_task_warning">Удалить задачу из календаря?</string>
+    <string name="workspace_check_connection">Проверить подключение</string>
 </resources>
