@@ -114,6 +114,12 @@ fun GenesisTasksWorkspace(
         }
         if (model.notice != GenesisWorkspaceNotice.NONE) {
             val message = when (model.notice) {
+                GenesisWorkspaceNotice.CONNECTION_CHECKED -> when {
+                    model.policy == null -> R.string.workspace_connection_failed
+                    model.policy.importAvailable != true -> R.string.workspace_connection_not_ready
+                    model.failed -> R.string.workspace_connection_failed
+                    else -> R.string.workspace_connection_ready
+                }
                 GenesisWorkspaceNotice.IMPORTED -> R.string.genesis_sql_imported
                 GenesisWorkspaceNotice.CLEARED -> R.string.genesis_sql_cleared
                 GenesisWorkspaceNotice.TASK_DELETED -> R.string.genesis_sql_deleted

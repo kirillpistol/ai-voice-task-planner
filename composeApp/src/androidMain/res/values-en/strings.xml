@@ -135,4 +135,7 @@
     <string name="workspace_delete_task">Delete task</string>
     <string name="workspace_delete_task_warning">Delete this task from Calendar?</string>
     <string name="workspace_check_connection">Check connection</string>
+    <string name="workspace_connection_not_ready">Server is reachable. Import is not enabled yet: SQL and a published policy are required.</string>
+    <string name="workspace_connection_ready">Connection checked. Import is available.</string>
+    <string name="workspace_connection_failed">Connection check failed. Please try again later.</string>
 </resources>

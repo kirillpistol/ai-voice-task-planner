@@ -15,4 +15,4 @@ data class GenesisWorkspaceState(
     val notice: GenesisWorkspaceNotice = GenesisWorkspaceNotice.NONE
 )
 
-enum class GenesisWorkspaceNotice { NONE, IMPORTED, CLEARED, TASK_DELETED }
+enum class GenesisWorkspaceNotice { NONE, CONNECTION_CHECKED, IMPORTED, CLEARED, TASK_DELETED }

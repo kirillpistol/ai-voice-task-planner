@@ -4,8 +4,11 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <!-- PISTOL GENESIS angular G; centered in the adaptive icon safe area. -->
+    <group android:scaleX="0.75" android:scaleY="0.75"
+        android:pivotX="54" android:pivotY="54">
     <path android:fillColor="#FFFFFFFF"
         android:pathData="M25,39 L55,22 L80,35 L72,42 L55,33 L35,45 L35,69 L52,79 L52,84 L25,70 Z" />
     <path android:fillColor="#FFFFFFFF"
         android:pathData="M52,50 L83,50 L83,69 L55,84 L55,75 L73,66 L73,59 L52,59 Z" />
+    </group>
 </vector>

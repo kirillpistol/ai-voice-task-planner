@@ -134,4 +134,7 @@
     <string name="workspace_delete_task">Удалить задачу</string>
     <string name="workspace_delete_task_warning">Удалить задачу из календаря?</string>
     <string name="workspace_check_connection">Проверить подключение</string>
+    <string name="workspace_connection_not_ready">Сервер доступен. Импорт ещё не включён: необходимы подключение SQL и опубликованная политика.</string>
+    <string name="workspace_connection_ready">Соединение проверено. Импорт доступен.</string>
+    <string name="workspace_connection_failed">Проверка не завершилась успешно. Повторите попытку позже.</string>
 </resources>

@@ -119,6 +119,7 @@ class MainScreenViewModel(
 
     /** All operations below use only the authenticated user's SQL namespace. */
     private fun loadGenesisWorkspace() {
+        if (_state.value.genesisWorkspace.loading || _state.value.genesisWorkspace.busy) return
         _state.update { it.copy(genesisWorkspace = it.genesisWorkspace.copy(
             loading = true, failed = false, notice = GenesisWorkspaceNotice.NONE
         )) }
@@ -134,13 +135,15 @@ class MainScreenViewModel(
                         tasks = tasks,
                         recommendations = recommendations,
                         loading = false,
-                        failed = false
+                        failed = false,
+                        notice = GenesisWorkspaceNotice.CONNECTION_CHECKED
                     ))
                 } else {
                     old.copy(genesisWorkspace = current.copy(
                         policy = config,
                         loading = false,
-                        failed = true
+                        failed = true,
+                        notice = GenesisWorkspaceNotice.CONNECTION_CHECKED
                     ))
                 }
             }
