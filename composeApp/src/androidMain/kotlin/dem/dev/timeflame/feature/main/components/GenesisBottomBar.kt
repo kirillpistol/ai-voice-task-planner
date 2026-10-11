@@ -2,6 +2,7 @@ package dem.dev.timeflame.feature.main.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.GridView
@@ -51,6 +52,7 @@ fun GenesisBottomBar(
                         // Angular G from the GENESIS brand lockup, not a generic text glyph.
                         Icon(
                             painter = painterResource(R.drawable.ic_genesis_mark),
+                            modifier = Modifier.size(24.dp),
                             contentDescription = null
                         )
                     } else {
