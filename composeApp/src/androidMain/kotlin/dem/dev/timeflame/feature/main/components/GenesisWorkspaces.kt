@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -71,7 +72,10 @@ fun GenesisTasksWorkspace(
     val model = state.genesisWorkspace
     val calendarTasks = state.currentMonth?.days.orEmpty().flatMap { it.tasks }.distinctBy { it.id }.sortedBy { it.timestamp }
     val context = LocalContext.current
-    var consent by remember { mutableStateOf(false) }
+    val policy = model.policy
+    val consentAccepted = !policy?.policyVersion.isNullOrBlank() &&
+        model.acceptedPolicyVersion == policy?.policyVersion
+    var consent by remember(policy?.policyVersion) { mutableStateOf(false) }
     var confirmImport by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
@@ -221,62 +225,75 @@ fun GenesisTasksWorkspace(
             }
         }
 
-        val policy = model.policy
+        if (!consentAccepted) {
+            if (policy?.policyUrl.isNullOrBlank()) {
+                Text(
+                    text = stringResource(R.string.genesis_sql_policy_missing),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = consent,
+                    onCheckedChange = { consent = it },
+                    enabled = !model.busy && !model.loading
+                )
+                Text(
+                    text = stringResource(R.string.genesis_sql_consent),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f).clickable(
+                        enabled = !model.busy && !model.loading
+                    ) { consent = !consent }
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    if (consentAccepted) onEvent(MainScreenEvent.GenesisImportTasks)
+                    else confirmImport = true
+                },
+                enabled = (consentAccepted || consent) &&
+                    policy?.importAvailable == true && !model.busy && !model.loading,
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (model.busy) GenesisButtonProgress()
+                else Text(stringResource(R.string.genesis_sql_import_short))
+            }
+            OutlinedButton(
+                onClick = { confirmClear = true },
+                enabled = model.tasks.isNotEmpty() && !model.busy && !model.loading,
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) { Text(stringResource(R.string.genesis_sql_clear_short)) }
+            IconButton(
+                onClick = { onEvent(MainScreenEvent.GenesisWorkspaceRefresh) },
+                enabled = !model.busy && !model.loading
+            ) {
+                Icon(Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.workspace_check_connection))
+            }
+        }
         if (!policy?.policyUrl.isNullOrBlank()) {
             TextButton(
                 onClick = {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(policy!!.policyUrl)))
                 },
-                modifier = Modifier.fillMaxWidth()
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
             ) {
-                Text(text = stringResource(R.string.genesis_sql_policy_link))
-            }
-        } else {
-            Text(
-                text = stringResource(R.string.genesis_sql_policy_missing),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                checked = consent,
-                onCheckedChange = { consent = it },
-                enabled = !model.busy
-            )
-            Text(
-                text = stringResource(R.string.genesis_sql_consent),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.clickable(enabled = !model.busy) {
-                    consent = !consent
-                }
-            )
-        }
-        Button(
-            onClick = { confirmImport = true },
-            enabled = consent && policy?.importAvailable == true && !model.busy && !model.loading,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            if (model.busy) GenesisButtonProgress()
-            else Text(stringResource(R.string.genesis_sql_import))
-        }
-        if (model.tasks.isNotEmpty()) {
-            OutlinedButton(
-                onClick = { confirmClear = true },
-                enabled = !model.busy,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.genesis_sql_clear))
+                Text(stringResource(R.string.genesis_sql_policy_short),
+                    style = MaterialTheme.typography.labelSmall)
             }
         }
-        OutlinedButton(
-            onClick = { onEvent(MainScreenEvent.GenesisWorkspaceRefresh) },
-            enabled = !model.busy && !model.loading,
-            modifier = Modifier.fillMaxWidth()
-        ) { Text(stringResource(R.string.workspace_check_connection)) }
         Spacer(Modifier.height(8.dp))
     }
     confirmCalendarDelete?.let { task ->
@@ -303,7 +320,6 @@ fun GenesisTasksWorkspace(
             confirmButton = {
                 TextButton(onClick = {
                     confirmImport = false
-                    consent = false
                     onEvent(MainScreenEvent.GenesisImportTasks)
                 }) { Text(stringResource(R.string.confirm)) }
             },

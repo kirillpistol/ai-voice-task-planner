@@ -7,6 +7,7 @@ import dem.dev.timeflame.data.repository.GenesisSqlTask
 /** The SQL workspace is independent of calendar tasks in Firestore. */
 data class GenesisWorkspaceState(
     val policy: GenesisPolicyConfig? = null,
+    val acceptedPolicyVersion: String? = null,
     val tasks: List<GenesisSqlTask> = emptyList(),
     val recommendations: List<GenesisRecommendation> = emptyList(),
     val loading: Boolean = false,

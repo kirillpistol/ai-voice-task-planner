@@ -58,6 +58,10 @@ class MainScreenViewModel(
 
     private fun selectionKey(): String = "genesis.calendar.day.${localAuthManager.getCurrentUser()?.id ?: "guest"}"
 
+    private fun consentKey(): String? = localAuthManager.getCurrentUser()?.id?.let {
+        "genesis.personal-analysis.consent.$it"
+    }
+
     private fun rememberDay(date: LocalDate) {
         calendarPreferences.put(selectionKey(), date.toString())
     }
@@ -124,8 +128,10 @@ class MainScreenViewModel(
         _state.update { it.copy(genesisWorkspace = it.genesisWorkspace.copy(
             loading = true, failed = false, notice = GenesisWorkspaceNotice.NONE
         )) }
+        val accountConsentKey = consentKey()
         viewModelScope.launch(Dispatchers.IO) {
             val config = runCatching { genesisClient.config() }.getOrNull()
+            val acceptedVersion = accountConsentKey?.let { calendarPreferences.getString(it) }
             val results = runCatching { genesisClient.tasks() to genesisClient.recommendations() }
             _state.update { old ->
                 val current = old.genesisWorkspace
@@ -133,6 +139,7 @@ class MainScreenViewModel(
                     val (tasks, recommendations) = results.getOrThrow()
                     old.copy(genesisWorkspace = current.copy(
                         policy = config,
+                        acceptedPolicyVersion = acceptedVersion,
                         tasks = tasks,
                         recommendations = recommendations,
                         loading = false,
@@ -142,6 +149,7 @@ class MainScreenViewModel(
                 } else {
                     old.copy(genesisWorkspace = current.copy(
                         policy = config,
+                        acceptedPolicyVersion = acceptedVersion,
                         loading = false,
                         failed = true,
                         notice = GenesisWorkspaceNotice.CONNECTION_CHECKED
@@ -152,6 +160,7 @@ class MainScreenViewModel(
     }
 
     private fun importGenesisTasks() {
+        val accountConsentKey = consentKey() ?: return
         val config = _state.value.genesisWorkspace.policy ?: return
         if (!config.importAvailable || config.policyVersion.isBlank() ||
             _state.value.genesisWorkspace.busy) return
@@ -161,6 +170,11 @@ class MainScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = runCatching {
                 genesisClient.importCalendarTasks(config.policyVersion)
+                // Persist only after the server accepts this account and policy version.
+                calendarPreferences.put(accountConsentKey, config.policyVersion)
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    acceptedPolicyVersion = config.policyVersion
+                )) }
                 genesisClient.tasks()
             }
             _state.update { old ->

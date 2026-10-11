@@ -153,4 +153,7 @@
     <string name="voice_language_unavailable">The selected speech language is unavailable. Check the language settings of your phone’s recognition service.</string>
     <string name="voice_audio_failed">Audio could not be recorded. Close other apps using the microphone and try again.</string>
     <string name="voice_timed_out">Speech recognition timed out. Tap the microphone and try again.</string>
+    <string name="genesis_sql_import_short">Import</string>
+    <string name="genesis_sql_clear_short">Clear</string>
+    <string name="genesis_sql_policy_short">Analysis terms ↗</string>
 </resources>
