@@ -4,6 +4,8 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
+import dem.dev.timeflame.feature.main.state.GenesisModuleOutput
 import dem.dev.timeflame.feature.main.state.GenesisWorkspaceNotice
 import dem.dev.timeflame.util.components.GenesisButtonProgress
 import java.time.OffsetDateTime
@@ -419,6 +422,18 @@ fun GenesisReportsWorkspace(
     state: MainScreenState,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val account = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+    val preferences = remember(context) {
+        context.getSharedPreferences("genesis_sectors", Context.MODE_PRIVATE)
+    }
+    var selectedSector by rememberSaveable(account) {
+        mutableStateOf(preferences.getString(account, null))
+    }
+    val sector = GenesisSector.values().firstOrNull { it.name == selectedSector }
+    // Sector output is independent of SQL recommendations and other modules.
+    val output = sector?.let { state.genesisWorkspace.moduleOutputs[it.name] }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -430,35 +445,98 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.workspace_genesis_title),
             stringResource(R.string.workspace_genesis_subtitle)
         )
-        GenesisSectorSelector()
-        if (state.genesisWorkspace.recommendations.isNotEmpty()) {
-            state.genesisWorkspace.recommendations.take(20).forEach { recommendation ->
-                WorkspaceModuleCard(
-                    Icons.Default.AutoAwesome,
-                    stringResource(R.string.genesis_recommendation_title),
-                    recommendation.summary
+        GenesisSectorSelector(selectedSector) { name ->
+            selectedSector = name
+            preferences.edit().putString(account, name).apply()
+        }
+        GenesisOutputWindow(
+            output = output,
+            selected = sector != null,
+            sectorTitle = sector?.let { stringResource(it.titleRes) }
+        )
+        GenesisOutputDetail(
+            stringResource(R.string.genesis_output_source),
+            output?.source,
+            stringResource(R.string.genesis_output_source_empty)
+        )
+        GenesisOutputDetail(
+            stringResource(R.string.genesis_output_connector),
+            output?.connectionResource,
+            stringResource(R.string.genesis_output_connector_empty)
+        )
+        GenesisOutputDetail(
+            stringResource(R.string.genesis_output_security),
+            output?.securitySystem,
+            stringResource(R.string.genesis_output_security_empty)
+        )
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun GenesisOutputWindow(
+    output: GenesisModuleOutput?,
+    selected: Boolean,
+    sectorTitle: String?
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().animateContentSize(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                sectorTitle ?: stringResource(R.string.genesis_output_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Box(
+                modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp),
+                contentAlignment = if (output?.text.isNullOrBlank())
+                    Alignment.Center else Alignment.TopStart
+            ) {
+                SelectionContainer {
+                    Text(
+                        text = output?.text?.takeIf { it.isNotBlank() }
+                            ?: stringResource(if (selected)
+                                R.string.genesis_output_waiting else R.string.genesis_output_choose),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (output?.text.isNullOrBlank())
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GenesisOutputDetail(title: String, value: String?, emptyText: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth().animateContentSize(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(title, style = MaterialTheme.typography.labelLarge)
+            SelectionContainer {
+                Text(
+                    value?.takeIf { it.isNotBlank() } ?: emptyText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
-        WorkspaceModuleCard(
-            Icons.Default.Description,
-            stringResource(R.string.workspace_genesis_reports),
-            stringResource(R.string.workspace_genesis_reports_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
-        WorkspaceModuleCard(
-            Icons.Default.GridView,
-            stringResource(R.string.workspace_genesis_sources),
-            stringResource(R.string.workspace_genesis_sources_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
-        WorkspaceModuleCard(
-            Icons.Default.AutoAwesome,
-            stringResource(R.string.workspace_genesis_recommendations),
-            stringResource(R.string.workspace_genesis_recommendations_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
-        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -473,15 +551,10 @@ private enum class GenesisSector(val titleRes: Int) {
 
 /** Sector selection only; processing is connected separately on the server. */
 @Composable
-private fun GenesisSectorSelector() {
-    val context = LocalContext.current
-    val account = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
-    val preferences = remember(context) {
-        context.getSharedPreferences("genesis_sectors", Context.MODE_PRIVATE)
-    }
-    var selectedSector by rememberSaveable(account) {
-        mutableStateOf(preferences.getString(account, null))
-    }
+private fun GenesisSectorSelector(
+    selectedSector: String?,
+    onSelected: (String) -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             stringResource(R.string.genesis_sector_prompt),
@@ -495,10 +568,7 @@ private fun GenesisSectorSelector() {
                 sectors.forEach { sector ->
                     val isSelected = selectedSector == sector.name
                     OutlinedButton(
-                        onClick = {
-                            selectedSector = sector.name
-                            preferences.edit().putString(account, sector.name).apply()
-                        },
+                        onClick = { onSelected(sector.name) },
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp)
                             .semantics { selected = isSelected },
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),

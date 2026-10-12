@@ -103,7 +103,7 @@
     <string name="workspace_services_documents_desc">Agreements and files</string>
     <string name="workspace_coming_soon">Not connected yet</string>
     <string name="workspace_genesis_title">GENESIS</string>
-    <string name="workspace_genesis_subtitle">Reports and recommendations from connected data</string>
+    <string name="workspace_genesis_subtitle">Processing results for the selected module</string>
     <string name="workspace_genesis_reports">Daily reports</string>
     <string name="workspace_genesis_reports_desc">Reports will appear once the analytics service is connected.</string>
     <string name="workspace_genesis_sources">Data sources</string>
@@ -163,4 +163,13 @@
     <string name="genesis_sector_government">Government</string>
     <string name="genesis_sector_logistics">Logistics</string>
     <string name="genesis_sector_prompt">Select a sector</string>
+    <string name="genesis_output_title">GENESIS output</string>
+    <string name="genesis_output_choose">Select a sector. Result text will appear here.</string>
+    <string name="genesis_output_waiting">Waiting for a server result.</string>
+    <string name="genesis_output_source">Source · website or link</string>
+    <string name="genesis_output_source_empty">No source received yet.</string>
+    <string name="genesis_output_connector">Connection resource or tool</string>
+    <string name="genesis_output_connector_empty">No connection resource or tool identified yet.</string>
+    <string name="genesis_output_security">Selected security system</string>
+    <string name="genesis_output_security_empty">Not selected. The module is not running.</string>
 </resources>

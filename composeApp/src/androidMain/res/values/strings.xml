@@ -102,7 +102,7 @@
     <string name="workspace_services_documents_desc">Соглашения и файлы</string>
     <string name="workspace_coming_soon">Пока не подключено</string>
     <string name="workspace_genesis_title">GENESIS</string>
-    <string name="workspace_genesis_subtitle">Отчёты и рекомендации на основе подключённых данных</string>
+    <string name="workspace_genesis_subtitle">Результаты обработки выбранного модуля</string>
     <string name="workspace_genesis_reports">Отчёты за день</string>
     <string name="workspace_genesis_reports_desc">Отчёты появятся после подключения сервера аналитики.</string>
     <string name="workspace_genesis_sources">Источники данных</string>
@@ -162,4 +162,13 @@
     <string name="genesis_sector_government">Правительство</string>
     <string name="genesis_sector_logistics">Логистика</string>
     <string name="genesis_sector_prompt">Выберите раздел</string>
+    <string name="genesis_output_title">Результат GENESIS</string>
+    <string name="genesis_output_choose">Выберите раздел. Здесь появится текст результата.</string>
+    <string name="genesis_output_waiting">Ожидание результата с сервера.</string>
+    <string name="genesis_output_source">Источник · сайт или ссылка</string>
+    <string name="genesis_output_source_empty">Источник ещё не получен.</string>
+    <string name="genesis_output_connector">Ресурс или инструмент подключения</string>
+    <string name="genesis_output_connector_empty">Ресурс или инструмент ещё не определён.</string>
+    <string name="genesis_output_security">Выбранная система безопасности</string>
+    <string name="genesis_output_security_empty">Не выбрана. Модуль не запущен.</string>
 </resources>
