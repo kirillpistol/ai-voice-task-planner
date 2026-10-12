@@ -1,5 +1,7 @@
 package dem.dev.timeflame.feature.main.components
 
+import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -472,7 +474,14 @@ private enum class GenesisSector(val titleRes: Int) {
 /** Sector selection only; processing is connected separately on the server. */
 @Composable
 private fun GenesisSectorSelector() {
-    var selectedSector by rememberSaveable { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val account = FirebaseAuth.getInstance().currentUser?.uid ?: "guest"
+    val preferences = remember(context) {
+        context.getSharedPreferences("genesis_sectors", Context.MODE_PRIVATE)
+    }
+    var selectedSector by rememberSaveable(account) {
+        mutableStateOf(preferences.getString(account, null))
+    }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             stringResource(R.string.genesis_sector_prompt),
@@ -486,7 +495,10 @@ private fun GenesisSectorSelector() {
                 sectors.forEach { sector ->
                     val isSelected = selectedSector == sector.name
                     OutlinedButton(
-                        onClick = { selectedSector = sector.name },
+                        onClick = {
+                            selectedSector = sector.name
+                            preferences.edit().putString(account, sector.name).apply()
+                        },
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp)
                             .semantics { selected = isSelected },
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
