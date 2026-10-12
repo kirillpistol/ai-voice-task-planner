@@ -155,4 +155,11 @@
     <string name="genesis_sql_import_short">Выгрузить</string>
     <string name="genesis_sql_clear_short">Очистить</string>
     <string name="genesis_sql_policy_short">Условия анализа ↗</string>
+    <string name="genesis_sector_finance">Финансы</string>
+    <string name="genesis_sector_medicine">Медицина</string>
+    <string name="genesis_sector_manufacturing">Производство</string>
+    <string name="genesis_sector_military">Военная</string>
+    <string name="genesis_sector_government">Правительство</string>
+    <string name="genesis_sector_logistics">Логистика</string>
+    <string name="genesis_sector_prompt">Выберите раздел</string>
 </resources>

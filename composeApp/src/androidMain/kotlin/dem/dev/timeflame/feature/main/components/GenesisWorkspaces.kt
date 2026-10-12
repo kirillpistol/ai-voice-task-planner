@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Checkbox
@@ -34,6 +35,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -53,6 +55,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -423,6 +428,7 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.workspace_genesis_title),
             stringResource(R.string.workspace_genesis_subtitle)
         )
+        GenesisSectorSelector()
         if (state.genesisWorkspace.recommendations.isNotEmpty()) {
             state.genesisWorkspace.recommendations.take(20).forEach { recommendation ->
                 WorkspaceModuleCard(
@@ -451,6 +457,57 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.workspace_coming_soon)
         )
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+private enum class GenesisSector(val titleRes: Int) {
+    FINANCE(R.string.genesis_sector_finance),
+    MEDICINE(R.string.genesis_sector_medicine),
+    MANUFACTURING(R.string.genesis_sector_manufacturing),
+    MILITARY(R.string.genesis_sector_military),
+    GOVERNMENT(R.string.genesis_sector_government),
+    LOGISTICS(R.string.genesis_sector_logistics)
+}
+
+/** Sector selection only; processing is connected separately on the server. */
+@Composable
+private fun GenesisSectorSelector() {
+    var selectedSector by rememberSaveable { mutableStateOf<String?>(null) }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            stringResource(R.string.genesis_sector_prompt),
+            style = MaterialTheme.typography.titleSmall
+        )
+        GenesisSector.values().toList().chunked(2).forEach { sectors ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                sectors.forEach { sector ->
+                    val isSelected = selectedSector == sector.name
+                    OutlinedButton(
+                        onClick = { selectedSector = sector.name },
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                            .semantics { selected = isSelected },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (isSelected)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surface,
+                            contentColor = if (isSelected)
+                                MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Text(
+                            stringResource(sector.titleRes),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

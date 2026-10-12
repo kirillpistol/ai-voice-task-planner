@@ -156,4 +156,11 @@
     <string name="genesis_sql_import_short">Import</string>
     <string name="genesis_sql_clear_short">Clear</string>
     <string name="genesis_sql_policy_short">Analysis terms ↗</string>
+    <string name="genesis_sector_finance">Finance</string>
+    <string name="genesis_sector_medicine">Medicine</string>
+    <string name="genesis_sector_manufacturing">Manufacturing</string>
+    <string name="genesis_sector_military">Military</string>
+    <string name="genesis_sector_government">Government</string>
+    <string name="genesis_sector_logistics">Logistics</string>
+    <string name="genesis_sector_prompt">Select a sector</string>
 </resources>
