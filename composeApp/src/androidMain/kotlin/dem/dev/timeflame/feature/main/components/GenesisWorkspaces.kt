@@ -59,6 +59,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.semantics.semantics
@@ -420,6 +424,7 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
 @Composable
 fun GenesisReportsWorkspace(
     state: MainScreenState,
+    onEvent: (MainScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -431,6 +436,10 @@ fun GenesisReportsWorkspace(
         mutableStateOf(preferences.getString(account, null))
     }
     val sector = GenesisSector.values().firstOrNull { it.name == selectedSector }
+    val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
+    LaunchedEffect(account, selectedSector, language) {
+        sector?.let { onEvent(MainScreenEvent.GenesisMemoryRefresh(it.name, language)) }
+    }
     // Sector output is independent of SQL recommendations and other modules.
     val output = sector?.let { state.genesisWorkspace.moduleOutputs[it.name] }
 
@@ -454,6 +463,9 @@ fun GenesisReportsWorkspace(
             selected = sector != null,
             sectorTitle = sector?.let { stringResource(it.titleRes) }
         )
+        sector?.let {
+            GenesisCommentComposer(state, it.name, language, onEvent)
+        }
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_source),
             output?.source,
@@ -470,6 +482,140 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun GenesisCommentComposer(
+    state: MainScreenState,
+    sector: String,
+    language: String,
+    onEvent: (MainScreenEvent) -> Unit
+) {
+    val model = state.genesisWorkspace
+    val context = LocalContext.current
+    val policy = model.memoryPolicy
+    val busy = model.memoryBusySector != null
+    val pending = model.pendingRules[sector]
+    val rules = model.memoryRules[sector].orEmpty()
+    val kind = model.commentKinds[sector] ?: "constraint"
+    val draft = model.commentDrafts[sector].orEmpty()
+    var consent by remember(sector, policy?.policyVersion) { mutableStateOf(false) }
+    var showRules by rememberSaveable(sector) { mutableStateOf(false) }
+    var forgetId by remember(sector) { mutableStateOf<String?>(null) }
+    val kinds = listOf(
+        "goal" to R.string.genesis_memory_goal,
+        "constraint" to R.string.genesis_memory_constraint,
+        "preference" to R.string.genesis_memory_preference,
+        "correction" to R.string.genesis_memory_correction
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.genesis_memory_comment),
+                modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+            IconButton(
+                onClick = { onEvent(MainScreenEvent.GenesisMemoryRefresh(sector, language)) },
+                enabled = !busy
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workspace_check_connection))
+            }
+        }
+        kinds.chunked(2).forEach { pair ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { (key, label) ->
+                    OutlinedButton(
+                        onClick = { onEvent(MainScreenEvent.GenesisCommentKindSelected(sector, key)) },
+                        modifier = Modifier.weight(1f).semantics { selected = kind == key },
+                        enabled = model.memoryBusySector != sector,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (kind == key) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                            contentColor = if (kind == key) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        )
+                    ) { Text(stringResource(label), style = MaterialTheme.typography.labelMedium) }
+                }
+            }
+        }
+        OutlinedTextField(
+            value = draft,
+            onValueChange = { onEvent(MainScreenEvent.GenesisCommentEdited(sector, it)) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = model.memoryBusySector != sector,
+            minLines = 3, maxLines = 6,
+            label = { Text(stringResource(R.string.genesis_memory_comment)) },
+            supportingText = { Text(stringResource(R.string.genesis_memory_limit, draft.length)) }
+        )
+        if (model.memoryFailedSector == sector) {
+            Text(stringResource(R.string.genesis_memory_failed),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        } else if (policy?.available != true && !busy) {
+            Text(stringResource(R.string.genesis_memory_unavailable),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (pending == null) {
+            Button(
+                onClick = { onEvent(MainScreenEvent.GenesisCommentPreview(sector, language)) },
+                enabled = policy?.available == true && draft.isNotBlank() && !busy
+            ) {
+                if (model.memoryBusySector == sector) GenesisButtonProgress()
+                else Text(stringResource(R.string.genesis_memory_preview))
+            }
+        } else {
+            if (!policy?.policyUrl.isNullOrBlank()) {
+                TextButton(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(policy!!.policyUrl)))
+                }) { Text(stringResource(R.string.genesis_memory_terms)) }
+            }
+            if (!model.memoryConsentAccepted) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = consent, onCheckedChange = { consent = it }, enabled = !busy)
+                    Text(stringResource(R.string.genesis_memory_consent),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f).clickable(enabled = !busy) { consent = !consent })
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = { onEvent(MainScreenEvent.GenesisCommentConfirmed(sector, consent)) },
+                    enabled = !busy && policy?.available == true && (consent || model.memoryConsentAccepted)
+                ) {
+                    if (model.memoryBusySector == sector) GenesisButtonProgress()
+                    else Text(stringResource(R.string.genesis_memory_confirm))
+                }
+                TextButton(
+                    onClick = { onEvent(MainScreenEvent.GenesisCommentDiscarded(sector, language)) },
+                    enabled = !busy
+                ) { Text(stringResource(R.string.genesis_memory_discard)) }
+            }
+        }
+        TextButton(onClick = { showRules = !showRules }) {
+            Text(stringResource(R.string.genesis_memory_rules, rules.size))
+        }
+        if (showRules) {
+            rules.forEach { rule ->
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(rule.text, modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                    IconButton(onClick = { forgetId = rule.id }, enabled = !busy) {
+                        Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.genesis_memory_forget))
+                    }
+                }
+            }
+        }
+    }
+    forgetId?.let { id ->
+        AlertDialog(
+            onDismissRequest = { forgetId = null },
+            title = { Text(stringResource(R.string.genesis_memory_forget)) },
+            text = { Text(stringResource(R.string.genesis_memory_forget_warning)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    forgetId = null
+                    onEvent(MainScreenEvent.GenesisRuleForgotten(sector, id, language))
+                }) { Text(stringResource(R.string.genesis_memory_forget)) }
+            },
+            dismissButton = { TextButton(onClick = { forgetId = null }) { Text(stringResource(R.string.cancel)) } }
+        )
     }
 }
 
@@ -659,3 +805,4 @@ private fun WorkspaceModuleCard(
         }
     }
 }
+

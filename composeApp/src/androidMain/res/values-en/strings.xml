@@ -172,4 +172,21 @@
     <string name="genesis_output_connector_empty">No connection resource or tool identified yet.</string>
     <string name="genesis_output_security">Selected security system</string>
     <string name="genesis_output_security_empty">Not selected. The module is not running.</string>
+    <string name="genesis_memory_comment">Comment for GENESIS</string>
+    <string name="genesis_memory_goal">Goal</string>
+    <string name="genesis_memory_constraint">Constraint</string>
+    <string name="genesis_memory_preference">Preference</string>
+    <string name="genesis_memory_correction">Correction</string>
+    <string name="genesis_memory_limit">%1$d / 2000 characters</string>
+    <string name="genesis_memory_failed">Request failed. Check the connection and server update. If memory is full, remove unused rules.</string>
+    <string name="genesis_memory_unavailable">Memory is not connected yet or its storage terms are not published.</string>
+    <string name="genesis_memory_preview">Preview rule</string>
+    <string name="genesis_memory_terms">Personal memory terms ↗</string>
+    <string name="genesis_memory_consent">I agree to store confirmed rules for my account. This does not authorize general model training.</string>
+    <string name="genesis_memory_confirm">Confirm rule</string>
+    <string name="genesis_memory_discard">Discard</string>
+    <string name="genesis_memory_rules">Sector memory: %1$d</string>
+    <string name="genesis_memory_forget">Forget rule</string>
+    <string name="genesis_memory_forget_warning">Delete this rule from personal memory? It will no longer be included in the context of future requests. Calendar tasks will remain unchanged.</string>
 </resources>
+

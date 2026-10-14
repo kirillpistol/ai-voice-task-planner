@@ -10,6 +10,13 @@ sealed interface MainScreenEvent {
     data object GenesisImportTasks: MainScreenEvent
     data object GenesisClearTasks: MainScreenEvent
     data class GenesisDeleteTask(val sourceTaskId: String): MainScreenEvent
+    data class GenesisCommentEdited(val sector: String, val text: String): MainScreenEvent
+    data class GenesisCommentKindSelected(val sector: String, val kind: String): MainScreenEvent
+    data class GenesisMemoryRefresh(val sector: String, val language: String): MainScreenEvent
+    data class GenesisCommentPreview(val sector: String, val language: String): MainScreenEvent
+    data class GenesisCommentConfirmed(val sector: String, val consent: Boolean): MainScreenEvent
+    data class GenesisCommentDiscarded(val sector: String, val language: String): MainScreenEvent
+    data class GenesisRuleForgotten(val sector: String, val ruleId: String, val language: String): MainScreenEvent
     data object NextMonthBtnClicked: MainScreenEvent
     data object PreviousMonthBtnClicked: MainScreenEvent
     data object CalendarViewSwitch: MainScreenEvent

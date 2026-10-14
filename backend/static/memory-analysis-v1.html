@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PISTOL GENESIS — персональная память правил</title>
+<style>body{margin:0;background:#111;color:#eee;font:17px/1.65 system-ui,sans-serif}main{max-width:760px;margin:auto;padding:48px 24px}h1{font-size:32px;line-height:1.2}h2{font-size:22px;margin-top:32px}p{color:#ccc}small{color:#999}</style></head>
+<body><main><h1>PISTOL GENESIS<br>Персональная память правил</h1>
+<small>Версия: memory-analysis-v1 · 14 октября 2026</small>
+<h2>Предварительный просмотр</h2>
+<p>Нажимая «Подготовить правило», вы отправляете комментарий, выбранную сферу и категорию на сервер. Сервер формирует текст предложения и контекст из ранее подтверждённых правил. Предварительный просмотр не сохраняет новый комментарий в базе памяти.</p>
+<h2>Подтверждение и согласие</h2>
+<p>После согласия на хранение и нажатия «Подтвердить правило» текст правила, его категория, сфера и время добавления сохраняются в серверной SQL-базе и связываются с вашим аккаунтом. Сервер нормализует пробелы; повторная отправка одинакового правила не создаёт копию. На сферу предусмотрено до 50 правил длиной до 2000 символов каждое.</p>
+<h2>Назначение и ограничения</h2>
+<p>Подтверждённые правила включаются в контекст следующих запросов того же аккаунта и сферы. Система не проверяет истинность правила: это указание пользователя. Функция готовит контекст, но не запускает алгоритмы трёх уровней GENESIS, не обучает параметры модели и не отправляет текст внешним ИИ-провайдерам. Это согласие не разрешает обучение общей модели на ваших данных.</p>
+<h2>Доступ и удаление</h2>
+<p>Пользовательский API требует авторизации и ограничивает доступ аккаунтом и сферой. Работа серверной инфраструктуры требует технического доступа администратора. Кнопка «Забыть правило» удаляет его из рабочей базы; оно перестаёт входить в новые контексты. Удаление не меняет календарь и не стирает ранее показанные результаты или ранее созданные резервные копии. Правила сохраняются до удаления пользователем; автоматическая очистка копий задач не распространяется на память правил.</p>
+<h2>Personal rule memory — English</h2>
+<p>Preview sends your comment, sector and category to the server to prepare a proposal using previously confirmed rules. It does not save the new comment in the memory database.</p>
+<p>After storage consent and confirmation, the rule text, category, sector and creation time are stored in SQL under your account. Whitespace is normalized; identical retries do not create copies. Each sector supports up to 50 rules of up to 2000 characters.</p>
+<p>Confirmed rules enter the context of subsequent requests for the same account and sector. They are user instructions, not verified facts. This feature prepares context; it does not execute the three-level pipeline, train model parameters or send text to external AI providers. Consent does not authorize general model training.</p>
+<p>Authenticated user API access is account- and sector-scoped; infrastructure administration requires technical access. Forgetting a rule removes it from the live database and future contexts, while calendar data, earlier displayed results and existing backups remain unaffected. Rules remain until user deletion; calendar-copy cleanup does not erase rule memory.</p>
+</main></body></html>

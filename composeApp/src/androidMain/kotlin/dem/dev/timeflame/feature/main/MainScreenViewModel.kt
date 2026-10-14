@@ -7,6 +7,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 import dem.dev.timeflame.domain.manager.LocalAuthManager
 import dem.dev.timeflame.data.preferences.KmpPreference
 import dem.dev.timeflame.data.repository.GenesisWorkspaceClient
+import dem.dev.timeflame.data.repository.GenesisMemoryResponse
+import dem.dev.timeflame.feature.main.state.GenesisModuleOutput
+import dem.dev.timeflame.feature.main.state.GenesisPendingRule
 import dem.dev.timeflame.domain.model.Task
 import dem.dev.timeflame.domain.repository.UserRepository
 import dem.dev.timeflame.feature.calendar.model.Month
@@ -77,6 +80,37 @@ class MainScreenViewModel(
 
     fun onEvent(event: MainScreenEvent) {
         when(event) {
+            is MainScreenEvent.GenesisCommentEdited -> _state.update { old ->
+                old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    commentDrafts = old.genesisWorkspace.commentDrafts + (event.sector to event.text.take(2000)),
+                    pendingRules = old.genesisWorkspace.pendingRules - event.sector
+                ))
+            }
+            is MainScreenEvent.GenesisCommentKindSelected -> _state.update { old ->
+                old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    commentKinds = old.genesisWorkspace.commentKinds + (event.sector to event.kind),
+                    pendingRules = old.genesisWorkspace.pendingRules - event.sector
+                ))
+            }
+            is MainScreenEvent.GenesisMemoryRefresh -> refreshMemory(event.sector, event.language)
+            is MainScreenEvent.GenesisCommentPreview -> previewComment(event.sector, event.language)
+            is MainScreenEvent.GenesisCommentConfirmed -> confirmComment(event.sector, event.consent)
+            is MainScreenEvent.GenesisCommentDiscarded -> {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    pendingRules = old.genesisWorkspace.pendingRules - event.sector,
+                    moduleOutputs = old.genesisWorkspace.moduleOutputs - event.sector
+                )) }
+                refreshMemory(event.sector, event.language)
+            }
+            is MainScreenEvent.GenesisRuleForgotten -> memoryRequest(event.sector) {
+                genesisClient.forgetRule(event.sector, event.ruleId)
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    memoryRules = old.genesisWorkspace.memoryRules + (event.sector to
+                        old.genesisWorkspace.memoryRules[event.sector].orEmpty().filterNot { it.id == event.ruleId }),
+                    moduleOutputs = old.genesisWorkspace.moduleOutputs - event.sector
+                )) }
+                genesisClient.memory(event.sector, event.language)
+            }
             MainScreenEvent.GenesisWorkspaceRefresh -> loadGenesisWorkspace()
             MainScreenEvent.GenesisImportTasks -> importGenesisTasks()
             MainScreenEvent.GenesisClearTasks -> clearGenesisTasks()
@@ -123,6 +157,70 @@ class MainScreenViewModel(
     }
 
     /** All operations below use only the authenticated user's SQL namespace. */
+    private fun memoryRequest(sector: String, proposal: GenesisPendingRule? = null,
+                              action: suspend () -> GenesisMemoryResponse) {
+        if (_state.value.genesisWorkspace.memoryBusySector != null) return
+        val account = localAuthManager.getCurrentUser()?.id ?: return
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+            memoryBusySector = sector, memoryFailedSector = null
+        )) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = action()
+                if (localAuthManager.getCurrentUser()?.id != account) return@launch
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    moduleOutputs = old.genesisWorkspace.moduleOutputs + (sector to GenesisModuleOutput(
+                        response.text, response.source, response.connectionResource, response.securitySystem)),
+                    memoryRules = old.genesisWorkspace.memoryRules + (sector to response.rules),
+                    memoryConsentAccepted = response.consentAccepted,
+                    pendingRules = if (proposal != null) old.genesisWorkspace.pendingRules + (sector to proposal)
+                        else old.genesisWorkspace.pendingRules - sector,
+                    commentDrafts = if (response.status == "confirmed") old.genesisWorkspace.commentDrafts - sector
+                        else old.genesisWorkspace.commentDrafts
+                )) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (localAuthManager.getCurrentUser()?.id == account) {
+                    _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                        memoryFailedSector = sector
+                    )) }
+                }
+            } finally {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(memoryBusySector = null)) }
+            }
+        }
+    }
+
+    private fun refreshMemory(sector: String, language: String) = memoryRequest(sector) {
+        val policy = genesisClient.memoryPolicy()
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(memoryPolicy = policy)) }
+        genesisClient.memory(sector, language)
+    }
+
+    private fun previewComment(sector: String, language: String) {
+        val model = _state.value.genesisWorkspace
+        if (model.memoryPolicy?.available != true) return
+        val comment = model.commentDrafts[sector].orEmpty().trim()
+        if (comment.isEmpty()) return
+        val kind = model.commentKinds[sector] ?: "constraint"
+        val proposal = GenesisPendingRule(comment, kind, language)
+        memoryRequest(sector, proposal) {
+            genesisClient.previewComment(sector, kind, comment, language)
+        }
+    }
+
+    private fun confirmComment(sector: String, consent: Boolean) {
+        val model = _state.value.genesisWorkspace
+        val policy = model.memoryPolicy ?: return
+        if (!policy.available || (!model.memoryConsentAccepted && !consent)) return
+        val proposal = model.pendingRules[sector] ?: return
+        memoryRequest(sector) {
+            genesisClient.confirmComment(sector, proposal.kind, proposal.comment, proposal.language,
+                policy.policyVersion, consent)
+        }
+    }
+
     private fun loadGenesisWorkspace() {
         if (_state.value.genesisWorkspace.loading || _state.value.genesisWorkspace.busy) return
         _state.update { it.copy(genesisWorkspace = it.genesisWorkspace.copy(

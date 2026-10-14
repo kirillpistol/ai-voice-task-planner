@@ -54,6 +54,37 @@ private data class GenesisImportConsent(
     @SerialName("policy_version") val policyVersion: String
 )
 
+@Serializable
+data class GenesisMemoryPolicy(
+    @SerialName("policy_url") val policyUrl: String? = null,
+    @SerialName("policy_version") val policyVersion: String = "",
+    val available: Boolean = false
+)
+
+@Serializable
+data class GenesisMemoryRule(val id: String, val kind: String, val text: String)
+
+@Serializable
+data class GenesisMemoryResponse(
+    val status: String,
+    val text: String,
+    val rules: List<GenesisMemoryRule> = emptyList(),
+    @SerialName("consent_accepted") val consentAccepted: Boolean = false,
+    val source: String? = null,
+    @SerialName("connection_resource") val connectionResource: String? = null,
+    @SerialName("security_system") val securitySystem: String? = null
+)
+
+@Serializable
+private data class MemoryComment(val sector: String, val kind: String, val comment: String, val language: String)
+
+@Serializable
+private data class MemoryConfirmation(
+    val sector: String, val kind: String, val comment: String, val language: String,
+    @SerialName("policy_version") val policyVersion: String,
+    @SerialName("consent_to_store") val consentToStore: Boolean
+)
+
 class GenesisWorkspaceClient(
     private val httpClient: HttpClient,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -68,6 +99,52 @@ class GenesisWorkspaceClient(
 
     private fun checkStatus(code: Int, expected: Int) {
         if (code != expected) error("GENESIS API unavailable ($code)")
+    }
+
+    suspend fun memoryPolicy(): GenesisMemoryPolicy {
+        val response = httpClient.get("$baseUrl/memory/config")
+        checkStatus(response.status.value, 200)
+        return response.body()
+    }
+
+    suspend fun memory(sector: String, language: String): GenesisMemoryResponse {
+        val authorization = bearer()
+        val response = httpClient.get("$baseUrl/memory/$sector?language=$language") {
+            header(HttpHeaders.Authorization, authorization)
+        }
+        checkStatus(response.status.value, 200)
+        return response.body()
+    }
+
+    suspend fun previewComment(sector: String, kind: String, comment: String, language: String): GenesisMemoryResponse {
+        val authorization = bearer()
+        val response = httpClient.post("$baseUrl/memory/preview") {
+            header(HttpHeaders.Authorization, authorization)
+            contentType(ContentType.Application.Json)
+            setBody(MemoryComment(sector, kind, comment, language))
+        }
+        checkStatus(response.status.value, 200)
+        return response.body()
+    }
+
+    suspend fun confirmComment(sector: String, kind: String, comment: String, language: String,
+                               policyVersion: String, consent: Boolean): GenesisMemoryResponse {
+        val authorization = bearer()
+        val response = httpClient.post("$baseUrl/memory/confirm") {
+            header(HttpHeaders.Authorization, authorization)
+            contentType(ContentType.Application.Json)
+            setBody(MemoryConfirmation(sector, kind, comment, language, policyVersion, consent))
+        }
+        checkStatus(response.status.value, 200)
+        return response.body()
+    }
+
+    suspend fun forgetRule(sector: String, ruleId: String) {
+        val authorization = bearer()
+        val response = httpClient.delete("$baseUrl/memory/$sector/$ruleId") {
+            header(HttpHeaders.Authorization, authorization)
+        }
+        checkStatus(response.status.value, 204)
     }
 
     suspend fun config(): GenesisPolicyConfig {
@@ -134,3 +211,4 @@ private suspend fun <T> GoogleTask<T>.awaitToken(): T =
             )
         }
     }
+

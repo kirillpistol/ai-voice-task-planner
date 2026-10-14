@@ -171,4 +171,20 @@
     <string name="genesis_output_connector_empty">Ресурс или инструмент ещё не определён.</string>
     <string name="genesis_output_security">Выбранная система безопасности</string>
     <string name="genesis_output_security_empty">Не выбрана. Модуль не запущен.</string>
+    <string name="genesis_memory_comment">Комментарий для GENESIS</string>
+    <string name="genesis_memory_goal">Цель</string>
+    <string name="genesis_memory_constraint">Ограничение</string>
+    <string name="genesis_memory_preference">Предпочтение</string>
+    <string name="genesis_memory_correction">Исправление</string>
+    <string name="genesis_memory_limit">%1$d / 2000 символов</string>
+    <string name="genesis_memory_failed">Не удалось выполнить запрос. Проверьте подключение и обновление сервера. При заполненной памяти удалите ненужные правила.</string>
+    <string name="genesis_memory_unavailable">Модуль памяти ещё не подключён или условия хранения не опубликованы.</string>
+    <string name="genesis_memory_preview">Подготовить правило</string>
+    <string name="genesis_memory_terms">Условия персональной памяти ↗</string>
+    <string name="genesis_memory_consent">Разрешаю хранить подтверждённые правила для моего аккаунта. Это не согласие на обучение общей модели.</string>
+    <string name="genesis_memory_confirm">Подтвердить правило</string>
+    <string name="genesis_memory_discard">Отклонить</string>
+    <string name="genesis_memory_rules">Память раздела: %1$d</string>
+    <string name="genesis_memory_forget">Забыть правило</string>
+    <string name="genesis_memory_forget_warning">Удалить правило из персональной памяти? Оно больше не войдёт в контекст следующих запросов. Календарь останется без изменений.</string>
 </resources>

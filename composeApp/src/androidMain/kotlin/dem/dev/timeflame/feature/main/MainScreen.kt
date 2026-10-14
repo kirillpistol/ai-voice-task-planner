@@ -249,6 +249,7 @@ private fun MainScreenView(
                             )
                             MainSection.GENESIS -> GenesisReportsWorkspace(
                                 state = state,
+                                onEvent = onEvent,
                                 modifier = Modifier.weight(1f)
                             )
                         }
