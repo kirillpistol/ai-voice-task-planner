@@ -5,6 +5,7 @@ import dem.dev.timeflame.data.repository.GenesisRecommendation
 import dem.dev.timeflame.data.repository.GenesisSqlTask
 import dem.dev.timeflame.data.repository.GenesisMemoryPolicy
 import dem.dev.timeflame.data.repository.GenesisMemoryRule
+import dem.dev.timeflame.data.repository.GenesisCoreStatus
 
 /** The SQL workspace is independent of calendar tasks in Firestore. */
 data class GenesisWorkspaceState(
@@ -13,6 +14,9 @@ data class GenesisWorkspaceState(
     val tasks: List<GenesisSqlTask> = emptyList(),
     val recommendations: List<GenesisRecommendation> = emptyList(),
     val moduleOutputs: Map<String, GenesisModuleOutput> = emptyMap(),
+    val coreStatus: GenesisCoreStatus? = null,
+    val coreLoading: Boolean = false,
+    val coreFailed: Boolean = false,
     val memoryPolicy: GenesisMemoryPolicy? = null,
     val memoryConsentAccepted: Boolean = false,
     val memoryBusySector: String? = null,

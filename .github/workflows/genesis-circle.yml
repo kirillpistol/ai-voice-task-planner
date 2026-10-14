@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - 'infra/genesis-circle/**'
+      - 'backend/app/genesis_core_status.py'
+      - 'backend/deploy/connect-core-api.py'
       - '.github/workflows/genesis-circle.yml'
 
 permissions:
@@ -45,6 +47,11 @@ jobs:
           python -m unittest discover -s .circle-sources/core/tests -p test_bound_e2e.py -v
       - name: Docker deployment and circle check
         run: sudo bash infra/genesis-circle/bootstrap.sh "$RUNNER_TEMP/genesis-circle-ci"
+      - name: Real Docker API-to-core mTLS gateway
+        run: |
+          docker build -t genesis-api-core-status-ci backend
+          sudo python3 backend/deploy/connect-core-api.py --probe-only \
+            --circle "$RUNNER_TEMP/genesis-circle-ci" --image genesis-api-core-status-ci
       - name: Stop only this test circle
         if: always()
         run: |

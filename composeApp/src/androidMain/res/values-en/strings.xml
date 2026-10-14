@@ -188,5 +188,17 @@
     <string name="genesis_memory_rules">Sector memory: %1$d</string>
     <string name="genesis_memory_forget">Forget rule</string>
     <string name="genesis_memory_forget_warning">Delete this rule from personal memory? It will no longer be included in the context of future requests. Calendar tasks will remain unchanged.</string>
+    <string name="genesis_core_title">GENESIS core · API</string>
+    <string name="genesis_core_loading">Checking connection…</string>
+    <string name="genesis_core_connected">Both node connections verified with mTLS.</string>
+    <string name="genesis_core_partial">One of the two nodes is reachable.</string>
+    <string name="genesis_core_not_configured">Core connection is not configured yet.</string>
+    <string name="genesis_core_unavailable">Core status unavailable. Check the server and certificate expiry.</string>
+    <string name="genesis_core_node">Node %1$s: %2$s</string>
+    <string name="genesis_core_node_offline">unavailable</string>
+    <string name="genesis_core_node_paused">paused after handoff</string>
+    <string name="genesis_core_node_ready">ready</string>
+    <string name="genesis_core_node_waiting">waiting for a service</string>
+    <string name="genesis_core_execution_closed">Status access only. Service execution is still closed.</string>
 </resources>
 

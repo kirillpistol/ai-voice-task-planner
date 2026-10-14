@@ -65,6 +65,17 @@ data class GenesisMemoryPolicy(
 data class GenesisMemoryRule(val id: String, val kind: String, val text: String)
 
 @Serializable
+data class GenesisCoreNode(val name: String, val reachable: Boolean, val mode: String, val ready: Boolean)
+
+@Serializable
+data class GenesisCoreStatus(
+    val status: String,
+    val nodes: List<GenesisCoreNode> = emptyList(),
+    @SerialName("checked_at") val checkedAt: String = "",
+    @SerialName("execution_allowed") val executionAllowed: Boolean = false
+)
+
+@Serializable
 data class GenesisMemoryResponse(
     val status: String,
     val text: String,
@@ -103,6 +114,15 @@ class GenesisWorkspaceClient(
 
     suspend fun memoryPolicy(): GenesisMemoryPolicy {
         val response = httpClient.get("$baseUrl/memory/config")
+        checkStatus(response.status.value, 200)
+        return response.body()
+    }
+
+    suspend fun coreStatus(): GenesisCoreStatus {
+        val authorization = bearer()
+        val response = httpClient.get("$baseUrl/core/status") {
+            header(HttpHeaders.Authorization, authorization)
+        }
         checkStatus(response.status.value, 200)
         return response.body()
     }

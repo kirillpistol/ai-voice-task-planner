@@ -187,4 +187,16 @@
     <string name="genesis_memory_rules">Память раздела: %1$d</string>
     <string name="genesis_memory_forget">Забыть правило</string>
     <string name="genesis_memory_forget_warning">Удалить правило из персональной памяти? Оно больше не войдёт в контекст следующих запросов. Календарь останется без изменений.</string>
+    <string name="genesis_core_title">Ядро GENESIS · API</string>
+    <string name="genesis_core_loading">Проверяем соединение…</string>
+    <string name="genesis_core_connected">Соединение с обоими узлами подтверждено по mTLS.</string>
+    <string name="genesis_core_partial">Доступен один из двух узлов.</string>
+    <string name="genesis_core_not_configured">Подключение ядра ещё не настроено.</string>
+    <string name="genesis_core_unavailable">Статус ядра недоступен. Проверьте сервер и срок сертификатов.</string>
+    <string name="genesis_core_node">Узел %1$s: %2$s</string>
+    <string name="genesis_core_node_offline">недоступен</string>
+    <string name="genesis_core_node_paused">приостановлен после переноса</string>
+    <string name="genesis_core_node_ready">готов</string>
+    <string name="genesis_core_node_waiting">ожидает подключения сервиса</string>
+    <string name="genesis_core_execution_closed">Чтение статуса. Запуск сервисов пока закрыт.</string>
 </resources>

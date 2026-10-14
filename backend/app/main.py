@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from app.v2 import router as v2_router
 from app.genesis_api import router as genesis_router
 from app.genesis_memory import router as memory_router
+from app.genesis_core_status import router as core_status_router
 from app.genesis_store import make_session_factory, configured_database_url
 from google.cloud import firestore
 from google.auth.exceptions import DefaultCredentialsError
@@ -47,6 +48,7 @@ app = FastAPI(title="PISTOL GENESIS API", version="0.2.0", lifespan=lifespan, do
 app.include_router(v2_router)
 app.include_router(genesis_router)
 app.include_router(memory_router)
+app.include_router(core_status_router)
 
 
 @app.get("/healthz")

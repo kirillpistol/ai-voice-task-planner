@@ -80,6 +80,7 @@ class MainScreenViewModel(
 
     fun onEvent(event: MainScreenEvent) {
         when(event) {
+            MainScreenEvent.GenesisCoreStatusRefresh -> refreshCoreStatus()
             is MainScreenEvent.GenesisCommentEdited -> _state.update { old ->
                 old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                     commentDrafts = old.genesisWorkspace.commentDrafts + (event.sector to event.text.take(2000)),
@@ -157,6 +158,30 @@ class MainScreenViewModel(
     }
 
     /** All operations below use only the authenticated user's SQL namespace. */
+    private fun refreshCoreStatus() {
+        if (_state.value.genesisWorkspace.coreLoading) return
+        val account = localAuthManager.getCurrentUser()?.id ?: return
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+            coreLoading = true, coreFailed = false
+        )) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = genesisClient.coreStatus()
+                if (localAuthManager.getCurrentUser()?.id == account) {
+                    _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(coreStatus = result)) }
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    coreStatus = null, coreFailed = true
+                )) }
+            } finally {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(coreLoading = false)) }
+            }
+        }
+    }
+
     private fun memoryRequest(sector: String, proposal: GenesisPendingRule? = null,
                               action: suspend () -> GenesisMemoryResponse) {
         if (_state.value.genesisWorkspace.memoryBusySector != null) return

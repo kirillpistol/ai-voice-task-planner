@@ -7,6 +7,7 @@ import dem.dev.timeflame.feature.calendar.model.CalendarDay
 sealed interface MainScreenEvent {
     data class MainSectionSelected(val section: MainSection): MainScreenEvent
     data object GenesisWorkspaceRefresh: MainScreenEvent
+    data object GenesisCoreStatusRefresh: MainScreenEvent
     data object GenesisImportTasks: MainScreenEvent
     data object GenesisClearTasks: MainScreenEvent
     data class GenesisDeleteTask(val sourceTaskId: String): MainScreenEvent
