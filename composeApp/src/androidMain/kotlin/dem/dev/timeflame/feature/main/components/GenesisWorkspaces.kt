@@ -478,7 +478,7 @@ fun GenesisReportsWorkspace(
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_security),
-            output?.securitySystem,
+            sector?.securityProfileRes?.let { stringResource(it) },
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
@@ -686,8 +686,8 @@ private fun GenesisOutputDetail(title: String, value: String?, emptyText: String
     }
 }
 
-private enum class GenesisSector(val titleRes: Int) {
-    FINANCE(R.string.genesis_sector_finance),
+private enum class GenesisSector(val titleRes: Int, val securityProfileRes: Int? = null) {
+    FINANCE(R.string.genesis_sector_finance, R.string.genesis_security_finance),
     MEDICINE(R.string.genesis_sector_medicine),
     MANUFACTURING(R.string.genesis_sector_manufacturing),
     MILITARY(R.string.genesis_sector_military),

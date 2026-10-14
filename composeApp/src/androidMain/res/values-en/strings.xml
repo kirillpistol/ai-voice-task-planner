@@ -200,5 +200,6 @@
     <string name="genesis_core_node_ready">ready</string>
     <string name="genesis_core_node_waiting">waiting for a service</string>
     <string name="genesis_core_execution_closed">Status access only. Service execution is still closed.</string>
+    <string name="genesis_security_finance">Finance profile\nInbound VPN → VM → temporary Docker container with cleanup → outbound VPN\nProfile defined; deployment will be connected separately.</string>
 </resources>
 

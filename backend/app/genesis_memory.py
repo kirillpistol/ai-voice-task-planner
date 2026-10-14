@@ -10,6 +10,7 @@ from sqlalchemy import DateTime, String, Text, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from app.genesis_store import Base, require_sql_session
+from app.genesis_security_profiles import selected_profile, profile_text
 from app.v2 import current_uid
 
 router = APIRouter(prefix="/api/v2/genesis/memory", tags=["genesis-memory"])
@@ -99,8 +100,8 @@ def workspace(session, uid, sector, language, proposal=None, status="context"):
         "consent_accepted": bool(version and consent and consent.policy_version == version),
         "source": "Ваш комментарий и подтверждённые правила" if ru else "Your comment and confirmed rules",
         "connection_resource": "Персональная память правил · версия 1" if ru else "Personal rule memory · version 1",
-        "security_system": "Авторизация Firebase; память аккаунта. Подключение L1–L2 закрыто."
-                           if ru else "Firebase authentication; account-scoped memory. L1–L2 connection is closed.",
+        "security_profile": selected_profile(sector),
+        "security_system": profile_text(sector, language),
         "execution_allowed": False,
     }
 
