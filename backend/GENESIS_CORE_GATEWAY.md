@@ -43,7 +43,10 @@ Certificate expiry makes the gateway unavailable; validation is never disabled.
 For a new circle, repeat the helper with its new workspace. Test certificates are
 short-lived (two days), not the final key lifecycle design.
 
-Update Android after deploying. GENESIS polls once when opened and offers manual
-refresh. It displays A paused after handoff and B ready for the current numeric
-test; it always labels service execution as closed. No changes to L2 services or
-the safety approval workflow are performed at this stage.
+API lifespan starts a background monitor that probes the cores every 10 seconds,
+independently of mobile activity. It shuts down with the API and keeps a bounded
+age snapshot; snapshots older than 30 seconds are not returned as current status.
+The diagnostic authenticated endpoint remains, but the Android status card and
+its automatic request on opening GENESIS are removed. No changes to L2 services
+or execution permissions are performed. Request content processing is not yet
+connected to the kernel; authentication/schema checks stay at the API boundary.

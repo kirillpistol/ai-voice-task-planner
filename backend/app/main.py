@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -6,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 from app.v2 import router as v2_router
 from app.genesis_api import router as genesis_router
 from app.genesis_memory import router as memory_router
-from app.genesis_core_status import router as core_status_router
+from app.genesis_core_status import router as core_status_router, monitor as core_monitor
 from app.genesis_store import make_session_factory, configured_database_url
 from google.cloud import firestore
 from google.auth.exceptions import DefaultCredentialsError
@@ -41,7 +42,11 @@ async def lifespan(app: FastAPI):
             logger.exception("GENESIS SQL unavailable; Calendar API remains active")
     else:
         logger.warning("GENESIS SQL is not configured (workspace endpoints will return 503)")
-    yield
+    core_monitor.start()
+    try:
+        yield
+    finally:
+        await asyncio.to_thread(core_monitor.stop)
 
 
 app = FastAPI(title="PISTOL GENESIS API", version="0.2.0", lifespan=lifespan, docs_url=None, redoc_url=None)

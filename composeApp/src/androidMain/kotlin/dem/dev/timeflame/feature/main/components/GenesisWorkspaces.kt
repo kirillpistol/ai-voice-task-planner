@@ -436,7 +436,6 @@ fun GenesisReportsWorkspace(
         mutableStateOf(preferences.getString(account, null))
     }
     val sector = GenesisSector.values().firstOrNull { it.name == selectedSector }
-    LaunchedEffect(account) { onEvent(MainScreenEvent.GenesisCoreStatusRefresh) }
     val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
     LaunchedEffect(account, selectedSector, language) {
         sector?.let { onEvent(MainScreenEvent.GenesisMemoryRefresh(it.name, language)) }
@@ -459,7 +458,6 @@ fun GenesisReportsWorkspace(
             selectedSector = name
             preferences.edit().putString(account, name).apply()
         }
-        GenesisCoreStatusCard(state, onEvent)
         GenesisOutputWindow(
             output = output,
             selected = sector != null,
@@ -484,48 +482,6 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun GenesisCoreStatusCard(state: MainScreenState, onEvent: (MainScreenEvent) -> Unit) {
-    val model = state.genesisWorkspace
-    val status = model.coreStatus
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.genesis_core_title), modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleSmall)
-                IconButton(onClick = { onEvent(MainScreenEvent.GenesisCoreStatusRefresh) }, enabled = !model.coreLoading) {
-                    Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workspace_check_connection))
-                }
-            }
-            val label = when {
-                model.coreLoading -> R.string.genesis_core_loading
-                model.coreFailed -> R.string.genesis_core_unavailable
-                status?.status == "connected" -> R.string.genesis_core_connected
-                status?.status == "partial" -> R.string.genesis_core_partial
-                status?.status == "not_configured" || status == null -> R.string.genesis_core_not_configured
-                else -> R.string.genesis_core_unavailable
-            }
-            Text(stringResource(label), style = MaterialTheme.typography.bodySmall)
-            status?.nodes?.forEach { node ->
-                val mode = when {
-                    !node.reachable -> R.string.genesis_core_node_offline
-                    node.mode == "paused" -> R.string.genesis_core_node_paused
-                    node.ready -> R.string.genesis_core_node_ready
-                    else -> R.string.genesis_core_node_waiting
-                }
-                Text(stringResource(R.string.genesis_core_node, node.name, stringResource(mode)),
-                    style = MaterialTheme.typography.bodySmall)
-            }
-            Text(stringResource(R.string.genesis_core_execution_closed),
-                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
     }
 }
 

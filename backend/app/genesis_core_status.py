@@ -1,4 +1,6 @@
 """Authenticated read-only status gateway. No task/control forwarding."""
+import copy
+import time
 import concurrent.futures
 import hashlib
 import http.client
@@ -101,6 +103,48 @@ def collect_status():
         slots.release()
 
 
+class CoreMonitor:
+    """Keep observing the private cores independently of mobile app lifecycle."""
+    def __init__(self, interval=10):
+        self.interval = interval
+        self.stop_event = threading.Event()
+        self.lock = threading.Lock()
+        self.thread = None
+        self.latest = None
+        self.updated = 0.0
+
+    def start(self):
+        if self.thread is not None and self.thread.is_alive():
+            return
+        self.stop_event.clear()
+        self.thread = threading.Thread(target=self.run, name="genesis-core-monitor", daemon=True)
+        self.thread.start()
+
+    def run(self):
+        while not self.stop_event.is_set():
+            result = collect_status()
+            with self.lock:
+                self.latest = result
+                self.updated = time.monotonic()
+            self.stop_event.wait(self.interval)
+
+    def snapshot(self):
+        with self.lock:
+            if self.latest is None or time.monotonic() - self.updated > 30:
+                return None
+            return copy.deepcopy(self.latest)
+
+    def stop(self):
+        self.stop_event.set()
+        if self.thread is not None:
+            self.thread.join(timeout=10)
+        with self.lock:
+            self.latest = None
+
+
+monitor = CoreMonitor()
+
+
 @router.get("/status")
 def status(uid: str = Depends(current_uid)):
-    return collect_status()
+    return monitor.snapshot() or collect_status()
