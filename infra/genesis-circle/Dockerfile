@@ -1,6 +1,9 @@
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/sources/core:/sources/level2:/sources/level3:/circle
-RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/* \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get -o Acquire::Retries=1 -o Acquire::https::Timeout=20 -o APT::Update::Error-Mode=any update \
+    && apt-get -o Acquire::Retries=1 -o Acquire::https::Timeout=20 install -y --no-install-recommends openssl \
+    && rm -rf /var/lib/apt/lists/* \
     && groupadd -g 10001 genesis && useradd -u 10001 -g 10001 -M genesis
 COPY --chown=10001:10001 sources/core /sources/core
 COPY --chown=10001:10001 sources/level2 /sources/level2
