@@ -1,0 +1,48 @@
+x-runtime: &runtime
+  image: ${GENESIS_CIRCLE_IMAGE:?Set GENESIS_CIRCLE_IMAGE}
+  user: "10001:10001"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 64
+  mem_limit: 128m
+  cpus: 0.5
+  tmpfs: ["/tmp:rw,nosuid,nodev,size=16m"]
+  networks: [private]
+  logging:
+    driver: json-file
+    options: {max-size: "5m", max-file: "2"}
+
+services:
+  core-a:
+    <<: *runtime
+    build: {context: ./build}
+    restart: unless-stopped
+    volumes: [./state/core-a:/run/genesis:ro]
+    command: [python, -m, level1_core.server, --host, 0.0.0.0, --port, "8443", --tls-config, /run/genesis/server.json, --algorithm-module, level2_algorithms.bindings_demo, --binding-policy, /run/genesis/policy.json, --worker-id, worker-a]
+  core-b:
+    <<: *runtime
+    restart: unless-stopped
+    volumes: [./state/core-b:/run/genesis:ro]
+    command: [python, -m, level1_core.server, --host, 0.0.0.0, --port, "8443", --tls-config, /run/genesis/server.json, --algorithm-module, level2_algorithms.bindings_demo, --binding-policy, /run/genesis/policy.json, --worker-id, worker-b]
+  source-a:
+    <<: *runtime
+    restart: unless-stopped
+    mem_limit: 64m
+    volumes: [./state/source-a:/run/genesis:ro]
+    command: [python, -m, level3_data.serve_parts, --host, 0.0.0.0, --port, "9443", --manifest, /run/genesis/manifest.json, --source-id, source-0, --parts-dir, /run/genesis, --tls-config, /run/genesis/server.json]
+  source-b:
+    <<: *runtime
+    restart: unless-stopped
+    mem_limit: 64m
+    volumes: [./state/source-b:/run/genesis:ro]
+    command: [python, -m, level3_data.serve_parts, --host, 0.0.0.0, --port, "9443", --manifest, /run/genesis/manifest.json, --source-id, source-1, --parts-dir, /run/genesis, --tls-config, /run/genesis/server.json]
+  checker:
+    <<: *runtime
+    profiles: [check]
+    volumes: [./state/checker:/run/genesis:ro]
+    command: [python, /circle/check.py]
+
+networks:
+  private:
+    internal: true

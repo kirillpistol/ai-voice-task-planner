@@ -1,0 +1,14 @@
+{
+  "core": {
+    "repository": "kirillpistol/pistol-genesis-ai",
+    "commit": "2f28ec1aeea61aebc1bd722f68a35588bc5de23f"
+  },
+  "level2": {
+    "repository": "kirillpistol/genesis-level-2",
+    "commit": "db67a01e5983479079f7691ecf31a0ab0c15d390"
+  },
+  "level3": {
+    "repository": "kirillpistol/genesis-level-3",
+    "commit": "8bfc7c708bca49e5d109b4eacb35246e7813bf21"
+  }
+}

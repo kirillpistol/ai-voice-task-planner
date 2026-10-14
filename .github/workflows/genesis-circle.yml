@@ -1,0 +1,53 @@
+name: GENESIS three-level test circle
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/genesis-circle/**'
+      - '.github/workflows/genesis-circle.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  circle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch exact reviewed L1/L2/L3 commits
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          versions = json.loads(Path('infra/genesis-circle/versions.json').read_text())
+          for name, item in versions.items():
+              target = '.circle-sources/' + name
+              subprocess.run(['git', 'init', '-q', target], check=True)
+              subprocess.run(['git', '-C', target, 'remote', 'add', 'origin', 'https://github.com/' + item['repository'] + '.git'], check=True)
+              subprocess.run(['git', '-C', target, 'fetch', '-q', '--depth', '1', 'origin', item['commit']], check=True)
+              subprocess.run(['git', '-C', target, 'checkout', '-q', '--detach', 'FETCH_HEAD'], check=True)
+          PY
+      - name: Script syntax and real mTLS circle
+        env:
+          PYTHONPATH: .circle-sources/core:.circle-sources/level2:.circle-sources/level3
+          GENESIS_REQUIRE_E2E: '1'
+        run: |
+          bash -n infra/genesis-circle/bootstrap.sh
+          python -m unittest discover -s infra/genesis-circle/tests -v
+          python -m unittest discover -s .circle-sources/core/tests -p test_bound_e2e.py -v
+      - name: Docker deployment and circle check
+        run: sudo bash infra/genesis-circle/bootstrap.sh "$RUNNER_TEMP/genesis-circle-ci"
+      - name: Stop only this test circle
+        if: always()
+        run: |
+          if sudo test -f "$RUNNER_TEMP/genesis-circle-ci/compose.yml"; then
+            sudo docker compose --env-file "$RUNNER_TEMP/genesis-circle-ci/.env" --project-directory "$RUNNER_TEMP/genesis-circle-ci" -f "$RUNNER_TEMP/genesis-circle-ci/compose.yml" down
+          fi
