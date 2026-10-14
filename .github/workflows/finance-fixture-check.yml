@@ -1,0 +1,20 @@
+name: Finance fixture contract tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/finance_fixture_check/**'
+      - '.github/workflows/finance-fixture-check.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s experiments/finance_fixture_check/tests -v
+      - run: python -m experiments.finance_fixture_check
