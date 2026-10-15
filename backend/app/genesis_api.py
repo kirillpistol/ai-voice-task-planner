@@ -11,6 +11,7 @@ from app.genesis_store import (
     policy_version, require_sql_session,
 )
 from app.v2 import current_uid, database, task_collection
+from app.genesis_security_profiles import plan_execution
 
 router = APIRouter(prefix="/api/v2/genesis", tags=["genesis"])
 MAX_SOURCE_TASKS = 10000
@@ -170,3 +171,19 @@ def get_recommendations(
         "summary": row.summary,
         "generated_at": row.generated_at
     } for row in rows]
+
+
+class ExecutionPlanRequest(BaseModel):
+    """Restricted smoke-test operation. Not a generic command runner."""
+    sector: str = Field(min_length=1, max_length=24, pattern=r"^[A-Z_]+$")
+    tool: str = Field(min_length=1, max_length=64, pattern=r"^[a-z_]+$")
+
+
+@router.post("/execution/plan")
+def execution_plan(request: ExecutionPlanRequest, uid: str = Depends(current_uid)):
+    """Inspect where a user operation would run, without dispatch or side effects.
+
+    This endpoint does not affect ordinary calendar, memory, or GENESIS traffic.
+    User-provided URLs, commands, and arbitrary tool names are not accepted.
+    """
+    return plan_execution(request.sector, request.tool)
