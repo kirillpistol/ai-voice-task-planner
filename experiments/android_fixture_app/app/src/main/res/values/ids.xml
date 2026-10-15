@@ -1,0 +1,9 @@
+<resources>
+    <item type="id" name="fixture_match" />
+    <item type="id" name="fixture_mismatch" />
+    <item type="id" name="fixture_missing" />
+    <item type="id" name="check_fixture" />
+    <item type="id" name="reset_fixture" />
+    <item type="id" name="selected_fixture" />
+    <item type="id" name="fixture_result" />
+</resources>
