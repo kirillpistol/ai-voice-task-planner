@@ -29,3 +29,32 @@ def profile_text(sector, language):
                 "Схема задана; развёртывание будет подключено отдельно.")
     return ("Finance profile\nInbound VPN → VM → temporary Docker container with cleanup → outbound VPN\n"
             "Profile defined; deployment will be connected separately.")
+
+
+# Execution routing is intentionally separate from the normal GENESIS API traffic.
+# A declared profile is never evidence that any VM, tunnel, or container is running.
+ALLOWED_TEST_TOOLS = frozenset({"fixture_lookup", "ui_smoke_test"})
+
+
+def plan_execution(sector: str, tool: str) -> dict:
+    """Resolve an approved test operation without starting or forwarding it."""
+    profile = selected_profile(sector)
+    if tool not in ALLOWED_TEST_TOOLS:
+        return {"status": "rejected", "reason": "tool_not_allowed", "execution_allowed": False}
+    if profile is None:
+        return {"status": "rejected", "reason": "no_security_profile", "execution_allowed": False}
+    if profile["deployment_status"] != "deployed":
+        return {
+            "status": "blocked",
+            "reason": "execution_environment_not_deployed",
+            "profile_id": profile["id"],
+            "stages": profile["stages"],
+            "execution_allowed": False,
+        }
+    # Fail closed until an authenticated, attested worker dispatch exists.
+    return {
+        "status": "blocked",
+        "reason": "worker_dispatch_not_configured",
+        "profile_id": profile["id"],
+        "execution_allowed": False,
+    }
