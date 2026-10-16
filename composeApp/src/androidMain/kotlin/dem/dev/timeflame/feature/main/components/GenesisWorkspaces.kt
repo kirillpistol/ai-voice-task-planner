@@ -423,12 +423,6 @@ fun GenesisServicesWorkspace(
             stringResource(R.string.workspace_services_title),
             stringResource(R.string.workspace_services_subtitle)
         )
-        WorkspaceModuleCard(
-            Icons.Default.GridView,
-            stringResource(R.string.workspace_services_crypto),
-            stringResource(R.string.workspace_services_crypto_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
         GenesisMarketCarousel()
         GenesisNftCarousel()
 
