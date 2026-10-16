@@ -225,7 +225,6 @@ class MainScreenViewModel(
 
     private fun previewComment(sector: String, language: String) {
         val model = _state.value.genesisWorkspace
-        if (model.memoryPolicy?.available != true) return
         val comment = model.commentDrafts[sector].orEmpty().trim()
         if (comment.isEmpty()) return
         val kind = model.commentKinds[sector] ?: "constraint"
