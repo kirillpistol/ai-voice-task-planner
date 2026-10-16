@@ -8,6 +8,7 @@ on:
       - ".github/workflows/genesis-apk-download.yml"
       - "composeApp/**"
       - "shared/**"
+      - "backend/**"
       - "gradle/**"
       - "*.gradle.kts"
       - "gradle.properties"
