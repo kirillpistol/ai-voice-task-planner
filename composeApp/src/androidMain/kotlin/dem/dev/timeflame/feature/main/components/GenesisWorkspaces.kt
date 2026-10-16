@@ -504,12 +504,12 @@ fun GenesisReportsWorkspace(
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_source),
-            sourceDescription + "\\n" + (output?.source ?: "Поиск ещё не выполнен"),
+            sourceDescription + "\n" + (output?.source ?: "Поиск ещё не выполнен"),
             stringResource(R.string.genesis_output_source_empty)
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_connector),
-            resourceDescription + "\\n" + (output?.connectionResource ?: "Адаптер ещё не подключён"),
+            resourceDescription + "\n" + (output?.connectionResource ?: "Адаптер ещё не подключён"),
             stringResource(R.string.genesis_output_connector_empty)
         )
         GenesisOutputDetail(
