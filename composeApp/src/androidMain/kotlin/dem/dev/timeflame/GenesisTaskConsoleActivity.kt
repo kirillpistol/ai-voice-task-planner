@@ -86,7 +86,7 @@ class GenesisTaskConsoleActivity : Activity() {
         add(Button(this).apply {
             text = "Загрузить список из БД"
             setOnClickListener {
-                val key = id.text.toString().trim()
+                val key = this@GenesisTaskConsoleActivity.id.text.toString().trim()
                 if (!Regex("[0-9a-f]{32}").matches(key)) {
                     result.text = "Введите корректный dataset_id"
                 } else send("/v1/tasks/$key", "GET", null)
