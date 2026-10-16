@@ -26,3 +26,23 @@ def check_public_demo(sector="FINANCE"):
     report_dir.mkdir(parents=True, exist_ok=True)
     (report_dir / (sector + ".json")).write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
+
+
+def check_and_store_demo(session_factory, sector="FINANCE"):
+    """Execute an allowlisted check and persist the verified receipt in SQL."""
+    from datetime import datetime
+    from app.genesis_store import GenesisSourceObservation
+    result = check_public_demo(sector)
+    with session_factory() as session:
+        row = session.get(GenesisSourceObservation, sector)
+        if row is None:
+            row = GenesisSourceObservation(sector=sector)
+            session.add(row)
+        row.source_url = result["source_url"]
+        row.resource = result["resource"]
+        row.status = result["status"]
+        row.checked_at = datetime.fromisoformat(result["verified_at"])
+        row.digest = result["sha256"]
+        row.result_json = json.dumps(result, ensure_ascii=False)
+        session.commit()
+    return result
