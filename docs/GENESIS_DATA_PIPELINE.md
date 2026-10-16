@@ -44,3 +44,25 @@ print(db.compare(batch["dataset_id"]))
 The template can be exported as JSON from `export_template()`.
 Data migration, remote template downloads, trained models, rollout gates,
 PostgreSQL and worker attestation remain future integrations.
+
+
+## Замкнутый пилотный цикл (Task Intake, отдельный локальный API)
+
+`POST /v1/tasks/generate` или `/v1/tasks/import` → `POST /v1/tasks/{dataset_id}/process` → запись каждой проверки в SQLite `observations` → JSON в `GENESIS_REPORT_DIR` → `GET /v1/tasks/{dataset_id}/report`.
+
+Проверка пока касается только валидности загрузки, а не третьих приложений. Реальный поиск, работа с APK, обучение и маршрутизация VPN/VM/Docker/VPN не включены. Не путать `validated` с подтверждением данных внешними источниками.
+
+В PowerShell после запуска локального сервиса с `GENESIS_TASK_TOKEN` и `GENESIS_TASK_DB`:
+
+```powershell
+$h = @{"X-Genesis-Token"="local-genesis-test-2026"}
+$root = "http://127.0.0.1:8081"
+$created = Invoke-RestMethod "$root/v1/tasks/generate" -Method Post -Headers $h -ContentType "application/json" -Body '{"count":3}'
+$id = $created.dataset_id
+$processed = Invoke-RestMethod "$root/v1/tasks/$id/process" -Method Post -Headers $h -ContentType "application/json" -Body '{"confirm":true}'
+$report = Invoke-RestMethod "$root/v1/tasks/$id/report" -Headers $h
+$processed | Format-List
+$report.records | Format-Table record_id,status
+```
+
+Server only; no added Android screen. Authentication is for local testing and must be replaced with deployed user-specific authorization before exposing the endpoint over a network.
