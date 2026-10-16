@@ -3,7 +3,7 @@ name: GENESIS backend tests
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, feature/execution-routing-isolation-20261015]
     paths:
       - 'backend/**'
       - '.github/workflows/genesis-backend-tests.yml'
