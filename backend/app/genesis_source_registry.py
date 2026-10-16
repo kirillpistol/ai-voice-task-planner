@@ -5,6 +5,7 @@ No calls to an external application are made here.
 """
 import json
 import os
+from pathlib import Path
 from urllib.parse import urlparse
 
 
@@ -30,6 +31,17 @@ def sector_source_status(sector: str, language: str = "ru") -> dict:
     resource_type = str(item.get("resource_type") or "").strip().lower()
     if resource_type not in ("web", "api", "android_app", "service"):
         resource_type = ""
+    # Completed public checks are read-only receipts produced by Level 3.
+    # They never imply that an app, VPN or virtual machine was started.
+    receipt = None
+    report_path = Path(os.getenv("GENESIS_PUBLIC_REPORT_DIR", "genesis_public_reports")) / (sector + ".json")
+    if sector in ("FINANCE", "MEDICINE", "MANUFACTURING", "MILITARY", "GOVERNMENT", "LOGISTICS") and report_path.is_file():
+        try:
+            candidate = json.loads(report_path.read_text(encoding="utf-8"))
+            if candidate.get("source_url") == url and candidate.get("status") == "verified_http_200":
+                receipt = candidate
+        except (ValueError, OSError):
+            pass
     ru = language == "ru"
     source = (
         f"{source_name} — {url}\n" +
@@ -44,11 +56,15 @@ def sector_source_status(sector: str, language: str = "ru") -> dict:
     ) if resource_name and resource_type else (
         "Ресурс не подключён" if ru else "Execution resource not connected"
     )
+    if receipt:
+        note = "HTTP 200 проверен" if ru else "HTTP 200 verified"
+        source = f"{source_name} — {url}\\n{note}: {receipt[\u0027verified_at\u0027]}"
+        resource = ("Серверная HTTPS-проверка" if ru else "Server HTTPS check") + "\\n" + receipt["sha256"][:16]
     return {
         "source": source,
         "connection_resource": resource,
         "source_configured": bool(valid_url and source_name),
         "resource_configured": bool(resource_name and resource_type),
-        "verification_completed": False,
-        "worker_executed": False,
+        "verification_completed": bool(receipt),
+        "worker_executed": bool(receipt),
     }
