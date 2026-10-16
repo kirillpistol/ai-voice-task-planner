@@ -115,6 +115,9 @@ def workspace(session, uid, sector, language, proposal=None, status="context"):
             ) + f"\nSHA-256: {observed.digest[:16]}…"
             connection["verification_completed"] = True
             connection["worker_executed"] = True
+    if connection["verification_completed"]:
+        lines.extend(["", "Level 3: HTTPS-источник доступен; содержание не анализировалось." if ru
+                      else "Level 3: HTTPS source reachable; content was not analyzed."])
     consent = session.get(MemoryConsent, uid)
     return {
         "status": status, "text": "\n".join(lines), "rules": rules,
