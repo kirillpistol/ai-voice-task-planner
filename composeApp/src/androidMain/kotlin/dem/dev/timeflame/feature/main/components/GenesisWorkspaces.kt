@@ -2,6 +2,8 @@ package dem.dev.timeflame.feature.main.components
 
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
@@ -442,6 +444,26 @@ fun GenesisReportsWorkspace(
     }
     // Sector output is independent of SQL recommendations and other modules.
     val output = sector?.let { state.genesisWorkspace.moduleOutputs[it.name] }
+    var sourceChoice by rememberSaveable(account) { mutableStateOf("browser") }
+    var searchEngine by rememberSaveable(account) { mutableStateOf("Google") }
+    var sourceSite by rememberSaveable(account) { mutableStateOf("") }
+    var resourceChoice by rememberSaveable(account) { mutableStateOf("service") }
+    var resourceName by rememberSaveable(account) { mutableStateOf("") }
+    var apkLabel by rememberSaveable(account) { mutableStateOf("") }
+    val apkPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            apkLabel = uri.lastPathSegment?.takeLast(90) ?: "Выбран APK"
+            resourceChoice = "apk"
+        }
+    }
+    val sourceDescription = when (sourceChoice) {
+        "website" -> "Сайт: " + (sourceSite.ifBlank { "не задан" })
+        else -> "Поиск: $searchEngine"
+    }
+    val resourceDescription = when (resourceChoice) {
+        "apk" -> "APK: " + apkLabel.ifBlank { "не выбран" }
+        else -> "Сервис: " + resourceName.ifBlank { "не выбран" }
+    }
 
     Column(
         modifier = modifier
@@ -466,14 +488,28 @@ fun GenesisReportsWorkspace(
         sector?.let {
             GenesisCommentComposer(state, it.name, language, onEvent)
         }
+        GenesisSourceAndResourceControls(
+            sourceChoice = sourceChoice,
+            onSourceChoice = { sourceChoice = it },
+            searchEngine = searchEngine,
+            onSearchEngine = { searchEngine = it },
+            sourceSite = sourceSite,
+            onSourceSite = { sourceSite = it },
+            resourceChoice = resourceChoice,
+            onResourceChoice = { resourceChoice = it },
+            resourceName = resourceName,
+            onResourceName = { resourceName = it },
+            apkLabel = apkLabel,
+            onPickApk = { apkPicker.launch("application/vnd.android.package-archive") }
+        )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_source),
-            output?.source,
+            sourceDescription + "\\n" + (output?.source ?: "Поиск ещё не выполнен"),
             stringResource(R.string.genesis_output_source_empty)
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_connector),
-            output?.connectionResource,
+            resourceDescription + "\\n" + (output?.connectionResource ?: "Адаптер ещё не подключён"),
             stringResource(R.string.genesis_output_connector_empty)
         )
         GenesisOutputDetail(
@@ -486,6 +522,78 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Source selection is configuration; it does not claim that a browser or APK was executed. */
+@Composable
+private fun GenesisSourceAndResourceControls(
+    sourceChoice: String,
+    onSourceChoice: (String) -> Unit,
+    searchEngine: String,
+    onSearchEngine: (String) -> Unit,
+    sourceSite: String,
+    onSourceSite: (String) -> Unit,
+    resourceChoice: String,
+    onResourceChoice: (String) -> Unit,
+    resourceName: String,
+    onResourceName: (String) -> Unit,
+    apkLabel: String,
+    onPickApk: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Источник проверки", style = MaterialTheme.typography.titleSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { onSourceChoice("browser") },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (sourceChoice == "browser") MaterialTheme.colorScheme.primaryContainer
+                                     else MaterialTheme.colorScheme.surface)) { Text("Поиск") }
+            OutlinedButton(onClick = { onSourceChoice("website") },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (sourceChoice == "website") MaterialTheme.colorScheme.primaryContainer
+                                     else MaterialTheme.colorScheme.surface)) { Text("Сайт") }
+        }
+        if (sourceChoice == "browser") {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf("Google", "Bing", "DuckDuckGo").forEach { engine ->
+                    OutlinedButton(onClick = { onSearchEngine(engine) },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (searchEngine == engine) MaterialTheme.colorScheme.primaryContainer
+                                             else MaterialTheme.colorScheme.surface)) {
+                        Text(engine, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+        } else {
+            OutlinedTextField(
+                value = sourceSite, onValueChange = onSourceSite,
+                label = { Text("Адрес сайта (https://...)") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        }
+        HorizontalDivider()
+        Text("Ресурс", style = MaterialTheme.typography.titleSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { onResourceChoice("service") }) { Text("Сервис") }
+            OutlinedButton(onClick = { onResourceChoice("apk") }) { Text("APK") }
+        }
+        if (resourceChoice == "service") {
+            OutlinedTextField(
+                value = resourceName, onValueChange = onResourceName,
+                label = { Text("Имя подключаемого сервиса") },
+                modifier = Modifier.fillMaxWidth(), singleLine = true
+            )
+        } else {
+            OutlinedButton(onClick = onPickApk) { Text("Выбрать APK на телефоне") }
+            Text(
+                apkLabel.ifBlank { "APK не выбран" },
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        Text("Выбор сохранён на экране. Проверка источника и обучение адаптера требуют отдельного запуска Level 3.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
