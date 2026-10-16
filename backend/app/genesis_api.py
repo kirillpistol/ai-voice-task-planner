@@ -11,7 +11,7 @@ from app.genesis_store import (
     policy_version, require_sql_session,
 )
 from app.v2 import current_uid, database, task_collection
-from app.genesis_security_profiles import plan_execution
+from app.genesis_security_profiles import plan_execution, run_fixture_demo
 
 router = APIRouter(prefix="/api/v2/genesis", tags=["genesis"])
 MAX_SOURCE_TASKS = 10000
@@ -187,3 +187,16 @@ def execution_plan(request: ExecutionPlanRequest, uid: str = Depends(current_uid
     User-provided URLs, commands, and arbitrary tool names are not accepted.
     """
     return plan_execution(request.sector, request.tool)
+
+
+class FixtureDemoRequest(BaseModel):
+    case_ids: list[str] = Field(min_length=1, max_length=40)
+
+
+@router.post("/execution/demo")
+def execution_demo(request: FixtureDemoRequest, uid: str = Depends(current_uid)):
+    """Run fixed synthetic data locally; no ADB, phone lookup, VPN or Level 3 dispatch."""
+    if any(not isinstance(case_id, str) or not __import__("re").fullmatch(r"demo-00[1-4]", case_id)
+           for case_id in request.case_ids):
+        raise HTTPException(status_code=422, detail="Only synthetic demo-001 through demo-004 are accepted")
+    return run_fixture_demo(request.case_ids)
