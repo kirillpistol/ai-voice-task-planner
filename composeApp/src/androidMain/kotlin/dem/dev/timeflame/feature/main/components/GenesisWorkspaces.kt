@@ -392,7 +392,19 @@ private fun formatGenesisDate(raw: String?): String {
 }
 
 @Composable
-fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
+fun GenesisServicesWorkspace(
+    state: MainScreenState,
+    onEvent: (MainScreenEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
+    var expandedDocument by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) { onEvent(MainScreenEvent.GenesisWorkspaceRefresh) }
+    val documents = state.genesisWorkspace.recommendations
+    val sectorDocuments = state.genesisWorkspace.moduleOutputs.entries
+        .filter { it.value.text.isNotBlank() }
+        .sortedBy { it.key }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -411,12 +423,79 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_coming_soon)
         )
         GenesisNftCarousel()
-        WorkspaceModuleCard(
-            Icons.Default.Description,
-            stringResource(R.string.workspace_services_documents),
-            stringResource(R.string.workspace_services_documents_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
+
+        // Documents are read-only. Show only genuine server results or currently loaded sector output.
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Default.Description, contentDescription = null)
+                    Text(stringResource(R.string.workspace_services_documents),
+                        style = MaterialTheme.typography.titleMedium)
+                }
+                Text(
+                    if (language == "ru") "Сохранённые отчёты и результаты GENESIS"
+                    else "Saved reports and GENESIS results",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                if (documents.isEmpty() && sectorDocuments.isEmpty()) {
+                    Text(
+                        if (state.genesisWorkspace.loading) {
+                            if (language == "ru") "Загружаем документы…" else "Loading documents…"
+                        } else if (state.genesisWorkspace.failed) {
+                            if (language == "ru") "Не удалось загрузить сохранённые отчёты."
+                            else "Could not load saved reports."
+                        } else {
+                            if (language == "ru") "Готовых документов пока нет. Результаты появятся здесь после их формирования."
+                            else "No documents yet. Results will appear here when available."
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                documents.forEach { report ->
+                    val key = "saved:" + report.id
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(
+                            onClick = { expandedDocument = if (expandedDocument == key) null else key },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                (if (language == "ru") "Отчёт · " else "Report · ") +
+                                    formatGenesisDate(report.generatedAt),
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (expandedDocument == key) {
+                            SelectionContainer {
+                                Text(report.summary, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
+                sectorDocuments.forEach { (sector, result) ->
+                    val key = "sector:" + sector
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(
+                            onClick = { expandedDocument = if (expandedDocument == key) null else key },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                (if (language == "ru") "Результат · " else "Result · ") + sector,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (expandedDocument == key) {
+                            SelectionContainer {
+                                Text(result.text, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         Spacer(Modifier.height(24.dp))
     }
 }
