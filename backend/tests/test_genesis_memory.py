@@ -82,7 +82,9 @@ def test_policy_change_requires_new_consent(client, monkeypatch):
     assert client.post(path, json=comment(policy_version="memory-v2")).status_code == 400
     assert confirm(client).status_code == 400
     monkeypatch.delenv("GENESIS_MEMORY_PRIVACY_URL")
-    assert client.post("/api/v2/genesis/memory/preview", json=comment()).status_code == 503
+    assert client.post("/api/v2/genesis/memory/preview", json=comment()).status_code == 200
+    # Preview reads existing tasks only; publishing a policy is required for saving rules.
+    assert client.post(path, json=comment(policy_version="memory-v2", consent_to_store=True)).status_code == 503
     # Policy/configuration changes must not prevent reading or erasing stored data.
     data = client.get("/api/v2/genesis/memory/LOGISTICS").json()
     assert client.delete("/api/v2/genesis/memory/LOGISTICS/" + data["rules"][0]["id"]).status_code == 204
