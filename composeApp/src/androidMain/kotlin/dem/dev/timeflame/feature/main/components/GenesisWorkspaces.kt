@@ -553,13 +553,13 @@ private fun GenesisCommentComposer(
             Text(stringResource(R.string.genesis_memory_failed),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         } else if (policy?.available != true && !busy) {
-            Text(stringResource(R.string.genesis_memory_unavailable),
+            Text("Подсказку можно получить сейчас. Сохранение правила требует опубликованной политики.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (pending == null) {
             Button(
                 onClick = { onEvent(MainScreenEvent.GenesisCommentPreview(sector, language)) },
-                enabled = policy?.available == true && draft.isNotBlank() && !busy
+                enabled = draft.isNotBlank() && !busy
             ) {
                 if (model.memoryBusySector == sector) GenesisButtonProgress()
                 else Text(stringResource(R.string.genesis_memory_preview))
@@ -590,6 +590,15 @@ private fun GenesisCommentComposer(
                     onClick = { onEvent(MainScreenEvent.GenesisCommentDiscarded(sector, language)) },
                     enabled = !busy
                 ) { Text(stringResource(R.string.genesis_memory_discard)) }
+            }
+        }
+        if (pending != null) {
+            val result = model.moduleOutputs[sector]?.text.orEmpty()
+            val title = if (language == "ru") "Подсказка GENESIS:" else "GENESIS suggestion:"
+            if (result.contains(title)) {
+                Text(result.substringAfter(title).substringBefore("\n\n").trim(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface)
             }
         }
         TextButton(onClick = { showRules = !showRules }) {
