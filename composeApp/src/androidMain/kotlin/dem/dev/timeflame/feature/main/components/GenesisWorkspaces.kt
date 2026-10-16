@@ -479,7 +479,7 @@ fun GenesisReportsWorkspace(
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_security),
             if (sector == GenesisSector.FINANCE) {
-                "VPN - VM - DOC - VPN\\n" +
+                "VPN - VM - DOC - VPN\n" +
                     if (language == "ru") "Профиль выбран · контур не развёрнут"
                     else "Profile selected · environment not deployed"
             } else sector?.securityProfileRes?.let { stringResource(it) },
