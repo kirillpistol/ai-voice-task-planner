@@ -429,6 +429,7 @@ fun GenesisServicesWorkspace(
             stringResource(R.string.workspace_services_crypto_desc),
             stringResource(R.string.workspace_coming_soon)
         )
+        GenesisMarketCarousel()
         GenesisNftCarousel()
 
         // Documents are read-only. Show only genuine server results or currently loaded sector output.
