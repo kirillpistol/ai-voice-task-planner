@@ -58,8 +58,9 @@ def sector_source_status(sector: str, language: str = "ru") -> dict:
     )
     if receipt:
         note = "HTTP 200 проверен" if ru else "HTTP 200 verified"
-        source = f"{source_name} — {url}\\n{note}: {receipt[\u0027verified_at\u0027]}"
-        resource = ("Серверная HTTPS-проверка" if ru else "Server HTTPS check") + "\\n" + receipt["sha256"][:16]
+        checked_at = receipt.get("verified_at", "unknown")
+        source = f"{source_name} — {url}\n{note}: {checked_at}"
+        resource = ("Серверная HTTPS-проверка" if ru else "Server HTTPS check") + "\n" + receipt.get("sha256", "")[:16]
     return {
         "source": source,
         "connection_resource": resource,
