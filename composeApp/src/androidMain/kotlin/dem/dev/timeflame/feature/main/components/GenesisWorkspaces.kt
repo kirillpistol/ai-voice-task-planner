@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -392,7 +394,24 @@ private fun formatGenesisDate(raw: String?): String {
 }
 
 @Composable
-fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
+fun GenesisServicesWorkspace(
+    state: MainScreenState,
+    onEvent: (MainScreenEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
+    var expandedDocument by rememberSaveable { mutableStateOf<String?>(null) }
+    val dark = isSystemInDarkTheme()
+    val documentBackground = if (dark) Color(0xFF242629) else Color(0xFFF0F1F2)
+    val documentBorder = if (dark) Color(0xFF45484C) else Color(0xFFD5D8DB)
+    val documentText = if (dark) Color(0xFFF3F3F3) else Color(0xFF252525)
+    val documentSecondary = if (dark) Color(0xFFB6B9BE) else Color(0xFF62666B)
+    LaunchedEffect(Unit) { onEvent(MainScreenEvent.GenesisWorkspaceRefresh) }
+    val documents = state.genesisWorkspace.recommendations
+    val sectorDocuments = state.genesisWorkspace.moduleOutputs.entries
+        .filter { it.value.text.isNotBlank() }
+        .sortedBy { it.key }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -404,19 +423,94 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_services_title),
             stringResource(R.string.workspace_services_subtitle)
         )
-        WorkspaceModuleCard(
-            Icons.Default.GridView,
-            stringResource(R.string.workspace_services_crypto),
-            stringResource(R.string.workspace_services_crypto_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
+        GenesisMarketCarousel()
         GenesisNftCarousel()
-        WorkspaceModuleCard(
-            Icons.Default.Description,
-            stringResource(R.string.workspace_services_documents),
-            stringResource(R.string.workspace_services_documents_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
+
+        // Documents are read-only. Show only genuine server results or currently loaded sector output.
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = documentBackground),
+            border = BorderStroke(1.dp, documentBorder),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Default.Description, contentDescription = null, tint = documentText)
+                    Text(stringResource(R.string.workspace_services_documents),
+                        style = MaterialTheme.typography.titleMedium, color = documentText)
+                }
+                Text(
+                    if (language == "ru") "Сохранённые отчёты и результаты GENESIS"
+                    else "Saved reports and GENESIS results",
+                    style = MaterialTheme.typography.bodySmall, color = documentSecondary
+                )
+                if (documents.isEmpty() && sectorDocuments.isEmpty()) {
+                    Text(
+                        if (state.genesisWorkspace.loading) {
+                            if (language == "ru") "Загружаем документы…" else "Loading documents…"
+                        } else if (state.genesisWorkspace.failed) {
+                            if (language == "ru") "Не удалось загрузить сохранённые отчёты."
+                            else "Could not load saved reports."
+                        } else {
+                            if (language == "ru") "Готовых документов пока нет. Результаты появятся здесь после их формирования."
+                            else "No documents yet. Results will appear here when available."
+                        },
+                        style = MaterialTheme.typography.bodyMedium, color = documentSecondary
+                    )
+                }
+                documents.forEach { report ->
+                    val key = "saved:" + report.id
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(
+                            onClick = { expandedDocument = if (expandedDocument == key) null else key },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = documentBackground, contentColor = documentText
+                            ),
+                            border = BorderStroke(1.dp, documentBorder)
+                        ) {
+                            Text(
+                                (if (language == "ru") "Отчёт · " else "Report · ") +
+                                    formatGenesisDate(report.generatedAt),
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (expandedDocument == key) {
+                            SelectionContainer {
+                                Text(report.summary, style = MaterialTheme.typography.bodyMedium, color = documentText)
+                            }
+                        }
+                    }
+                }
+                sectorDocuments.forEach { (sector, result) ->
+                    val key = "sector:" + sector
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(
+                            onClick = { expandedDocument = if (expandedDocument == key) null else key },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = documentBackground, contentColor = documentText
+                            ),
+                            border = BorderStroke(1.dp, documentBorder)
+                        ) {
+                            Text(
+                                (if (language == "ru") "Результат · " else "Result · ") + sector,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (expandedDocument == key) {
+                            SelectionContainer {
+                                Text(result.text, style = MaterialTheme.typography.bodyMedium, color = documentText)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         Spacer(Modifier.height(24.dp))
     }
 }
@@ -478,7 +572,11 @@ fun GenesisReportsWorkspace(
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_security),
-            sector?.securityProfileRes?.let { stringResource(it) },
+            if (sector == GenesisSector.FINANCE) {
+                "VPN - VM - DOC - VPN\n" +
+                    if (language == "ru") "Профиль выбран"
+                    else "Profile selected"
+            } else sector?.securityProfileRes?.let { stringResource(it) },
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
@@ -549,13 +647,13 @@ private fun GenesisCommentComposer(
             Text(stringResource(R.string.genesis_memory_failed),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         } else if (policy?.available != true && !busy) {
-            Text(stringResource(R.string.genesis_memory_unavailable),
+            Text("Подсказку можно получить сейчас. Сохранение правила требует опубликованной политики.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (pending == null) {
             Button(
                 onClick = { onEvent(MainScreenEvent.GenesisCommentPreview(sector, language)) },
-                enabled = policy?.available == true && draft.isNotBlank() && !busy
+                enabled = draft.isNotBlank() && !busy
             ) {
                 if (model.memoryBusySector == sector) GenesisButtonProgress()
                 else Text(stringResource(R.string.genesis_memory_preview))
@@ -586,6 +684,15 @@ private fun GenesisCommentComposer(
                     onClick = { onEvent(MainScreenEvent.GenesisCommentDiscarded(sector, language)) },
                     enabled = !busy
                 ) { Text(stringResource(R.string.genesis_memory_discard)) }
+            }
+        }
+        if (pending != null) {
+            val result = model.moduleOutputs[sector]?.text.orEmpty()
+            val title = if (language == "ru") "Подсказка GENESIS:" else "GENESIS suggestion:"
+            if (result.contains(title)) {
+                Text(result.substringAfter(title).substringBefore("\n\n").trim(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface)
             }
         }
         TextButton(onClick = { showRules = !showRules }) {

@@ -9,8 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import DateTime, String, Text, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
-from app.genesis_store import Base, require_sql_session
+from app.genesis_store import Base, require_sql_session, GenesisSourceObservation, GenesisTask
 from app.genesis_security_profiles import selected_profile, profile_text
+from app.genesis_source_registry import sector_source_status
 from app.v2 import current_uid
 
 router = APIRouter(prefix="/api/v2/genesis/memory", tags=["genesis-memory"])
@@ -91,15 +92,80 @@ def workspace(session, uid, sector, language, proposal=None, status="context"):
                       f"[{names[proposal.kind] if ru else proposal.kind}] {proposal.comment}"])
     if status == "confirmed":
         lines.extend(["", "Правило сохранено." if ru else "Rule saved."])
+    if proposal is not None or status == "confirmed":
+        imported = session.scalars(
+            select(GenesisTask).where(GenesisTask.user_id == uid)
+            .order_by(GenesisTask.imported_at.desc()).limit(500)
+        ).all()
+        pending = [task for task in imported if not task.completed]
+        now = datetime.now(timezone.utc)
+        def due_utc(task):
+            due = task.due_at
+            if due is None:
+                return None
+            return due.replace(tzinfo=timezone.utc) if due.tzinfo is None else due.astimezone(timezone.utc)
+        overdue = [task for task in pending if due_utc(task) is not None and due_utc(task) < now]
+        future = sorted((task for task in pending if due_utc(task) is not None and due_utc(task) >= now),
+                        key=lambda task: due_utc(task))
+        lines.extend(["", "Подсказка GENESIS:" if ru else "GENESIS suggestion:"])
+        if pending:
+            lines.append(
+                (f"Загружено задач: {len(imported)}. Осталось выполнить: {len(pending)}. Просрочено: {len(overdue)}."
+                 if ru else
+                 f"Imported tasks: {len(imported)}. Pending: {len(pending)}. Overdue: {len(overdue)}.")
+            )
+            chosen = overdue[0] if overdue else (future[0] if future else pending[0])
+            lines.append(
+                (f"Начните с задачи «{chosen.title}»" if ru else f"Start with task \"{chosen.title}\"")
+                + (". Проверьте срок выполнения." if ru else ". Review its deadline.")
+            )
+            if proposal is not None:
+                lines.append(
+                    ("Учитывайте указанное условие: " if ru else "Keep this condition in mind: ")
+                    + proposal.comment
+                )
+        else:
+            lines.append(
+                "Выгруженных незавершённых задач нет. Сначала сохраните задачу и нажмите «Выгрузить» в разделе задач."
+                if ru else "No pending imported tasks. Save a task and import it from the Tasks section first."
+            )
+        lines.append(
+            "Подсказка построена по срокам и статусам задач; это не результат обучения ИИ."
+            if ru else "Suggestion is based on task dates and statuses; no AI model training was performed."
+        )
     lines.extend(["", "Это подготовка контекста. Алгоритм роли и обучение модели не подключены."
                   if ru else "This prepares context. Sector algorithms and model training are not connected."])
     _, version = memory_policy()
+    connection = sector_source_status(sector, language)
+    observed = session.get(GenesisSourceObservation, sector)
+    if observed and observed.status == "verified_http_200":
+        import json
+        recorded = json.loads(observed.result_json)
+        # Never display a previous check for a newly selected/unrelated source.
+        if (connection["source_configured"] and
+                recorded.get("source_url") in connection["source"] and
+                observed.source_url == recorded.get("source_url")):
+            when = observed.checked_at.isoformat()
+            name = recorded["source_url"]
+            connection["source"] = (
+                f"{name}\nHTTP 200 проверен: {when}" if ru else
+                f"{name}\nHTTP 200 verified: {when}"
+            )
+            connection["connection_resource"] = (
+                "Серверный HTTPS-исполнитель" if ru else "Server HTTPS worker"
+            ) + f"\nSHA-256: {observed.digest[:16]}…"
+            connection["verification_completed"] = True
+            connection["worker_executed"] = True
+    if connection["verification_completed"]:
+        lines.extend(["", "Level 3: HTTPS-источник доступен; содержание не анализировалось." if ru
+                      else "Level 3: HTTPS source reachable; content was not analyzed."])
     consent = session.get(MemoryConsent, uid)
     return {
         "status": status, "text": "\n".join(lines), "rules": rules,
         "consent_accepted": bool(version and consent and consent.policy_version == version),
-        "source": "Ваш комментарий и подтверждённые правила" if ru else "Your comment and confirmed rules",
-        "connection_resource": "Персональная память правил · версия 1" if ru else "Personal rule memory · version 1",
+        "source": connection["source"],
+        "connection_resource": connection["connection_resource"],
+        "source_status": {key: connection[key] for key in ("source_configured", "resource_configured", "verification_completed", "worker_executed")},
         "security_profile": selected_profile(sector),
         "security_system": profile_text(sector, language),
         "execution_allowed": False,
@@ -122,7 +188,8 @@ def read_memory(sector: Sector, language: Literal["ru", "en"] = "ru",
 
 @router.post("/preview")
 def preview(request: Comment, uid: str = Depends(current_uid), session: Session = Depends(require_sql_session)):
-    require_policy()
+    # Read-only advice requires authentication and SQL but not write consent.
+    # Saving a rule still requires the published policy and explicit confirmation.
     return workspace(session, uid, request.sector, request.language, request, "preview")
 
 
