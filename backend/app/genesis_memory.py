@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from app.genesis_store import Base, require_sql_session
 from app.genesis_security_profiles import selected_profile, profile_text
+from app.genesis_source_registry import sector_source_status
 from app.v2 import current_uid
 
 router = APIRouter(prefix="/api/v2/genesis/memory", tags=["genesis-memory"])
@@ -94,12 +95,14 @@ def workspace(session, uid, sector, language, proposal=None, status="context"):
     lines.extend(["", "Это подготовка контекста. Алгоритм роли и обучение модели не подключены."
                   if ru else "This prepares context. Sector algorithms and model training are not connected."])
     _, version = memory_policy()
+    connection = sector_source_status(sector, language)
     consent = session.get(MemoryConsent, uid)
     return {
         "status": status, "text": "\n".join(lines), "rules": rules,
         "consent_accepted": bool(version and consent and consent.policy_version == version),
-        "source": "Ваш комментарий и подтверждённые правила" if ru else "Your comment and confirmed rules",
-        "connection_resource": "Персональная память правил · версия 1" if ru else "Personal rule memory · version 1",
+        "source": connection["source"],
+        "connection_resource": connection["connection_resource"],
+        "source_status": {key: connection[key] for key in ("source_configured", "resource_configured", "verification_completed", "worker_executed")},
         "security_profile": selected_profile(sector),
         "security_system": profile_text(sector, language),
         "execution_allowed": False,
