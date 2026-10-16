@@ -34,6 +34,18 @@ class GenesisConsent(Base):
     accepted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class GenesisSourceObservation(Base):
+    """Latest sector source observation, produced by a server-only worker."""
+    __tablename__ = "genesis_source_observations"
+    sector: Mapped[str] = mapped_column(String(24), primary_key=True)
+    source_url: Mapped[str] = mapped_column(String(2048), nullable=False)
+    resource: Mapped[str] = mapped_column(String(120), nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    result_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
 class GenesisRecommendation(Base):
     __tablename__ = "genesis_recommendations"
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
