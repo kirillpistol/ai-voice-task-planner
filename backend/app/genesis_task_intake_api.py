@@ -126,15 +126,20 @@ def security_profile():
     from app.genesis_security_profiles import selected_profile, plan_execution
     profile = selected_profile("FINANCE")
     if profile is None:
-        raise HTTPException(503, "No finance execution profile configured")
+        raise HTTPException(503, "Level 2 profile not configured")
     routing = plan_execution("FINANCE", "ui_smoke_test")
     return {
-        "selected_profile": profile,
+        "level": 2,
+        "service": "FINANCE",
+        "profile_selected": True,
+        "profile_id": profile["id"],
+        "stages": profile["stages"],
         "deployment_status": profile["deployment_status"],
         "execution_allowed": routing["execution_allowed"],
         "execution_reason": routing.get("reason"),
-        "message": "Profile is configured, not running" if profile["deployment_status"] != "deployed"
-                   else "Profile configured; worker attestation required",
+        "status_note": "Profile configured, isolation not deployed"
+                       if profile["deployment_status"] != "deployed"
+                       else "Profile configured; verify live worker separately",
     }
 
 
