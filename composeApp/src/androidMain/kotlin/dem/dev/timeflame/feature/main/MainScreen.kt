@@ -245,6 +245,8 @@ private fun MainScreenView(
                                 modifier = Modifier.weight(1f)
                             )
                             MainSection.SERVICES -> GenesisServicesWorkspace(
+                                state = state,
+                                onEvent = onEvent,
                                 modifier = Modifier.weight(1f)
                             )
                             MainSection.GENESIS -> GenesisReportsWorkspace(
