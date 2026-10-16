@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import DateTime, String, Text, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
-from app.genesis_store import Base, require_sql_session
+from app.genesis_store import Base, require_sql_session, GenesisSourceObservation
 from app.genesis_security_profiles import selected_profile, profile_text
 from app.genesis_source_registry import sector_source_status
 from app.v2 import current_uid
@@ -96,6 +96,25 @@ def workspace(session, uid, sector, language, proposal=None, status="context"):
                   if ru else "This prepares context. Sector algorithms and model training are not connected."])
     _, version = memory_policy()
     connection = sector_source_status(sector, language)
+    observed = session.get(GenesisSourceObservation, sector)
+    if observed and observed.status == "verified_http_200":
+        import json
+        recorded = json.loads(observed.result_json)
+        # Never display a previous check for a newly selected/unrelated source.
+        if (connection["source_configured"] and
+                recorded.get("source_url") in connection["source"] and
+                observed.source_url == recorded.get("source_url")):
+            when = observed.checked_at.isoformat()
+            name = recorded["source_url"]
+            connection["source"] = (
+                f"{name}\nHTTP 200 проверен: {when}" if ru else
+                f"{name}\nHTTP 200 verified: {when}"
+            )
+            connection["connection_resource"] = (
+                "Серверный HTTPS-исполнитель" if ru else "Server HTTPS worker"
+            ) + f"\nSHA-256: {observed.digest[:16]}…"
+            connection["verification_completed"] = True
+            connection["worker_executed"] = True
     consent = session.get(MemoryConsent, uid)
     return {
         "status": status, "text": "\n".join(lines), "rules": rules,
