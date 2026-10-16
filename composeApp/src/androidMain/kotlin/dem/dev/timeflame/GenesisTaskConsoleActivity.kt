@@ -121,7 +121,7 @@ class GenesisTaskConsoleActivity : Activity() {
                 result.text = response
                 // Dataset ID is a reference, not secret data; copy it to the fetch field.
                 try {
-                    val parsed = JSONObject(response.substringAfter("\\n"))
+                    val parsed = JSONObject(response.substringAfter(10.toChar()))
                     val datasetId = parsed.optString("dataset_id")
                     if (Regex("[a-f0-9]{32}").matches(datasetId)) id.setText(datasetId)
                 } catch (_: Exception) { }
