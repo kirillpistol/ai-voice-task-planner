@@ -188,7 +188,8 @@ def read_memory(sector: Sector, language: Literal["ru", "en"] = "ru",
 
 @router.post("/preview")
 def preview(request: Comment, uid: str = Depends(current_uid), session: Session = Depends(require_sql_session)):
-    require_policy()
+    # Read-only advice requires authentication and SQL but not write consent.
+    # Saving a rule still requires the published policy and explicit confirmation.
     return workspace(session, uid, request.sector, request.language, request, "preview")
 
 
