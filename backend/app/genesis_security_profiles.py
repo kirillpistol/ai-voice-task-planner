@@ -58,3 +58,52 @@ def plan_execution(sector: str, tool: str) -> dict:
         "profile_id": profile["id"],
         "execution_allowed": False,
     }
+
+
+# Fixed synthetic fixture catalogue, entirely local. Never sends network requests.
+# The keys are test identifiers, not telephone numbers.
+DEMO_FIXTURES = {
+    "demo-001": "Иванов Иван И.",
+    "demo-002": None,
+    "demo-003": "Петрова Анна С.",
+    "demo-004": None,
+}
+
+
+def run_fixture_demo(case_ids: list[str]) -> dict:
+    """Execute an in-process test double, not a Level 3 security-profile dispatch."""
+    from time import perf_counter
+
+    if len(case_ids) > 40:
+        raise ValueError("Batch is limited to 40 test cases")
+    outcomes = []
+    started = perf_counter()
+    for case_id in case_ids:
+        tick = perf_counter()
+        # Simulate clearing the input before every case.
+        input_value = ""
+        input_value = case_id
+        if input_value not in DEMO_FIXTURES:
+            outcomes.append({"case_id": case_id, "result": "error",
+                             "duration_ms": round((perf_counter() - tick) * 1000, 3)})
+            continue
+        name = DEMO_FIXTURES[input_value]
+        outcomes.append({"case_id": case_id, "result": "+" if name else "-",
+                         "display_name": name,
+                         "duration_ms": round((perf_counter() - tick) * 1000, 3)})
+    elapsed = perf_counter() - started
+    positives = sum(row["result"] == "+" for row in outcomes)
+    negatives = sum(row["result"] == "-" for row in outcomes)
+    completed = positives + negatives
+    return {
+        "mode": "local_fixture_simulation",
+        "isolated_execution": False,
+        "count": len(outcomes),
+        "positive": positives,
+        "negative": negatives,
+        "errors": len(outcomes) - completed,
+        "positive_rate": round(positives / completed, 4) if completed else None,
+        "elapsed_ms": round(elapsed * 1000, 3),
+        "throughput_per_second": round(len(outcomes) / elapsed, 2) if elapsed else None,
+        "results": outcomes,
+    }
