@@ -66,13 +66,18 @@ private fun fetchTokens(): List<AiQuote> {
     }
 }
 private fun fetchFx(): List<FxQuote> {
-    // One EUR-based request, avoiding three sequential HTTP calls. Cross-rates are indicative.
-    val obj = JSONObject(requestJson("https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD,GBP,CNY,RUB"))
-    val rates = obj.getJSONObject("rates")
-    val rub = rates.getDouble("RUB")
-    val date = obj.getString("date")
+    // Frankfurter v2 aggregates national-bank sources; RUB is not supported by the old ECB-only v1.
+    val rates = JSONArray(requestJson(
+        "https://api.frankfurter.dev/v2/rates?base=RUB&quotes=USD,GBP,CNY"
+    ))
+    val byCurrency = (0 until rates.length()).mapNotNull { i ->
+        rates.optJSONObject(i)?.let { it.optString("quote") to it }
+    }.toMap()
     return listOf("USD", "GBP", "CNY").map { code ->
-        FxQuote(code, rub / rates.getDouble(code), date)
+        val row = byCurrency[code] ?: error("No RUB/$code quote")
+        val rate = row.getDouble("rate")
+        require(rate > 0)
+        FxQuote(code, 1.0 / rate, row.getString("date"))
     }
 }
 private var cachedMarket: MarketSnapshot? = null
