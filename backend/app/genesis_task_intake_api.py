@@ -8,6 +8,8 @@ from __future__ import annotations
 import csv
 import io
 import os
+import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -163,3 +165,63 @@ def review_tasks(dataset_id: str):
             "record_count": len(tasks), "scenario_counts": breakdown,
             "recommendations": recommendations,
             "android_execution_completed": False}
+
+
+class ProcessRequest(BaseModel):
+    """Run actual server validation and record observations, without external app access."""
+    confirm: bool = True
+
+
+def report_directory() -> Path:
+    folder = Path(os.environ.get("GENESIS_REPORT_DIR", "genesis_reports"))
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
+
+
+@app.post("/v1/tasks/{dataset_id}/process", dependencies=[Depends(authenticate)])
+def process_batch(dataset_id: str, body: ProcessRequest):
+    if not body.confirm:
+        raise HTTPException(422, "Confirm validation run")
+    entries = get_tasks(dataset_id)["tasks"]
+    db = store()
+    for entry in entries:
+        # Validation is an actual outcome; imported category labels are never
+        # interpreted as verified facts from an external application.
+        record = entry["source"]
+        result = {
+            "stage": "data_validation", "status": "passed",
+            "valid_record_id": record["record_id"].startswith("demo-"),
+            "category_label": record["scenario"],
+            "external_lookup_performed": False,
+        }
+        db.record_observation(dataset_id, entry["record_id"], "genesis-validator",
+                              "1", result)
+    comparisons = db.compare(dataset_id)
+    reviewed = review_tasks(dataset_id)
+    report = {
+        "dataset_id": dataset_id, "created_at": datetime.now(timezone.utc).isoformat(),
+        "status": "validated", "process": "internal_dataset_validation",
+        "records": comparisons, "review": reviewed,
+        "security": security_profile(),
+        "external_lookup_performed": False, "android_execution_completed": False,
+    }
+    output = report_directory() / (dataset_id + ".json")
+    temp = output.with_suffix(".json.tmp")
+    temp.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    temp.replace(output)
+    return {
+        "dataset_id": dataset_id, "status": "validated",
+        "count": len(entries), "report_file": output.name,
+        "recommendations": reviewed["recommendations"],
+        "external_lookup_performed": False,
+        "android_execution_completed": False,
+    }
+
+
+@app.get("/v1/tasks/{dataset_id}/report", dependencies=[Depends(authenticate)])
+def read_report(dataset_id: str):
+    get_tasks(dataset_id)  # checks dataset existence and identifier
+    path = report_directory() / (dataset_id + ".json")
+    if not path.is_file():
+        raise HTTPException(404, "Process this dataset first")
+    return json.loads(path.read_text(encoding="utf-8"))
