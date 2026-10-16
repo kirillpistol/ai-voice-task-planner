@@ -119,3 +119,42 @@ def get_tasks(dataset_id: str):
     if not exists:
         raise HTTPException(404, "Dataset not found")
     return {"dataset_id": dataset_id, "tasks": db.compare(dataset_id)}
+
+
+@app.get("/v1/security/profile", dependencies=[Depends(authenticate)])
+def security_profile():
+    from app.genesis_security_profiles import selected_profile, plan_execution
+    profile = selected_profile("FINANCE")
+    if profile is None:
+        raise HTTPException(503, "No finance execution profile configured")
+    routing = plan_execution("FINANCE", "ui_smoke_test")
+    return {
+        "selected_profile": profile,
+        "deployment_status": profile["deployment_status"],
+        "execution_allowed": routing["execution_allowed"],
+        "execution_reason": routing.get("reason"),
+        "message": "Profile is configured, not running" if profile["deployment_status"] != "deployed"
+                   else "Profile configured; worker attestation required",
+    }
+
+
+@app.get("/v1/tasks/{dataset_id}/review", dependencies=[Depends(authenticate)])
+def review_tasks(dataset_id: str):
+    data = get_tasks(dataset_id)
+    tasks = data["tasks"]
+    breakdown = {"positive": 0, "negative": 0, "unknown": 0}
+    for task in tasks:
+        scenario = task["source"]["scenario"]
+        breakdown[scenario] += 1
+    recommendations = []
+    if breakdown["unknown"]:
+        recommendations.append(
+            f"{breakdown['unknown']} record(s) have unknown scenario; review labels before execution."
+        )
+    if not breakdown["unknown"]:
+        recommendations.append("All records have a declared scenario.")
+    recommendations.append("No external-app result is inferred from imported labels.")
+    return {"dataset_id": dataset_id, "analysis_mode": "deterministic_validation",
+            "record_count": len(tasks), "scenario_counts": breakdown,
+            "recommendations": recommendations,
+            "android_execution_completed": False}
