@@ -25,6 +25,7 @@ class GenesisTaskConsoleActivity : Activity() {
     private lateinit var csv: EditText
     private lateinit var id: EditText
     private lateinit var result: TextView
+    private lateinit var securityStatus: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +44,15 @@ class GenesisTaskConsoleActivity : Activity() {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
         add(token)
+        securityStatus = TextView(this).apply {
+            text = "Level 2 / FINANCE: не проверено"
+            textSize = 15f
+        }
+        add(securityStatus)
+        add(Button(this).apply {
+            text = "Состояние безопасности Level 2"
+            setOnClickListener { checkSecurityLevel2() }
+        })
         amount = EditText(this).apply {
             hint = "Количество тестовых заданий"
             inputType = InputType.TYPE_CLASS_NUMBER
@@ -89,6 +99,40 @@ class GenesisTaskConsoleActivity : Activity() {
         }
         add(result)
         setContentView(ScrollView(this).apply { addView(column) })
+    }
+
+    private fun checkSecurityLevel2() {
+        val secret = token.text.toString()
+        if (secret.isBlank()) {
+            securityStatus.text = "Укажите API-токен"
+            return
+        }
+        securityStatus.text = "Level 2 / FINANCE: проверка..."
+        worker.execute {
+            val message = try {
+                val conn = URL("http://127.0.0.1:8081/v1/security/profile").openConnection() as HttpURLConnection
+                try {
+                    conn.connectTimeout = 5000
+                    conn.readTimeout = 10000
+                    conn.setRequestProperty("X-Genesis-Token", secret)
+                    val code = conn.responseCode
+                    if (code != 200) {
+                        "Level 2: HTTP $code"
+                    } else {
+                        val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+                        val profile = json.optString("profile_id", "не выбран")
+                        val deploy = json.optString("deployment_status", "unknown")
+                        val allowed = json.optBoolean("execution_allowed", false)
+                        "Level 2 / FINANCE\nПрофиль: $profile\n" +
+                            "VPN → VM → Docker → VPN: $deploy\n" +
+                            "Исполнение разрешено: $allowed"
+                    }
+                } finally { conn.disconnect() }
+            } catch (ex: Exception) {
+                "Level 2: ошибка связи с API"
+            }
+            ui.post { securityStatus.text = message }
+        }
     }
 
     private fun send(route: String, method: String, body: String?) {
