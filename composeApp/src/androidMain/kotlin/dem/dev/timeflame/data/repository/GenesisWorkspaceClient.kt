@@ -121,6 +121,9 @@ private data class RecommendationSavePayload(val summary: String)
 @Serializable
 data class GenesisAiUsage(val used: Int, val limit: Int, val period: String)
 
+@Serializable
+private data class GenesisDedicatedRequest(val comment: String)
+
 class GenesisWorkspaceClient(
     private val httpClient: HttpClient,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -143,6 +146,15 @@ class GenesisWorkspaceClient(
             header(HttpHeaders.Authorization, authorization)
             contentType(ContentType.Application.Json)
             setBody(RecommendationSavePayload(summary))
+        }
+        checkStatus(response.status.value, 201)
+    }
+
+    suspend fun sendDedicatedInquiry(comment: String) {
+        val response = httpClient.post("$baseUrl/plans/inquiries") {
+            header(HttpHeaders.Authorization, bearer())
+            contentType(ContentType.Application.Json)
+            setBody(GenesisDedicatedRequest(comment))
         }
         checkStatus(response.status.value, 201)
     }
