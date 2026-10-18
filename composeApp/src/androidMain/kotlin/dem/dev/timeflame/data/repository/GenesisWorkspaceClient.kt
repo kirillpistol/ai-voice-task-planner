@@ -115,6 +115,9 @@ private data class GenesisAiAnalyzeRequest(
     @SerialName("consent_to_external_processing") val consent: Boolean
 )
 
+@Serializable
+private data class RecommendationSavePayload(val summary: String)
+
 class GenesisWorkspaceClient(
     private val httpClient: HttpClient,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -129,6 +132,16 @@ class GenesisWorkspaceClient(
 
     private fun checkStatus(code: Int, expected: Int) {
         if (code != expected) error("GENESIS API unavailable ($code)")
+    }
+
+    suspend fun saveRecommendation(summary: String) {
+        val authorization = bearer()
+        val response = httpClient.post("$baseUrl/recommendations") {
+            header(HttpHeaders.Authorization, authorization)
+            contentType(ContentType.Application.Json)
+            setBody(RecommendationSavePayload(summary))
+        }
+        checkStatus(response.status.value, 201)
     }
 
     suspend fun analyzeComment(sector: String, comment: String): GenesisAiAnalysis {
