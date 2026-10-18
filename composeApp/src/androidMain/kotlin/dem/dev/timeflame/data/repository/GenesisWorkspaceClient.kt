@@ -119,7 +119,16 @@ private data class GenesisAiAnalyzeRequest(
 private data class RecommendationSavePayload(val summary: String)
 
 @Serializable
-data class GenesisAiUsage(val used: Int, val limit: Int, val period: String)
+data class GenesisAiUsage(
+    val used: Int,
+    val limit: Int,
+    val period: String,
+    val plan: String = "free",
+    @SerialName("input_tokens") val inputTokens: Long = 0,
+    @SerialName("output_tokens") val outputTokens: Long = 0,
+    @SerialName("completed_requests") val completedRequests: Int = 0,
+    @SerialName("resets_at") val resetsAt: String = ""
+)
 
 @Serializable
 private data class GenesisDedicatedRequest(val comment: String)
@@ -160,7 +169,7 @@ class GenesisWorkspaceClient(
     }
 
     suspend fun aiUsage(): GenesisAiUsage {
-        val response = httpClient.get("$baseUrl/ai/usage") {
+        val response = httpClient.get("$baseUrl/ai/usage/details") {
             header(HttpHeaders.Authorization, bearer())
         }
         checkStatus(response.status.value, 200)
