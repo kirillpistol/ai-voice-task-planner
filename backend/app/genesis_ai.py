@@ -137,6 +137,50 @@ def _usage_detail(uid: str, session: Session) -> dict:
     return basic
 
 
+def _usage_history(uid: str, session: Session, months: int = 6) -> list[dict]:
+    """Server-calculated usage history; no payment or cost claims."""
+    from datetime import date
+    today = datetime.now(timezone.utc)
+    periods = []
+    for offset in range(months):
+        total_month = today.year * 12 + (today.month - 1) - offset
+        periods.append(f"{total_month // 12:04d}-{total_month % 12 + 1:02d}")
+    rows = session.execute(
+        select(
+            GenesisAiQuota.period,
+            GenesisAiQuota.used,
+        ).where(GenesisAiQuota.user_id == uid,
+                GenesisAiQuota.period.in_(periods))
+    ).all()
+    request_counts = {period: used for period, used in rows}
+    tokens = session.execute(
+        select(
+            GenesisAiUsageEvent.period,
+            func.coalesce(func.sum(GenesisAiUsageEvent.input_tokens), 0),
+            func.coalesce(func.sum(GenesisAiUsageEvent.output_tokens), 0),
+            func.count(),
+        ).where(
+            GenesisAiUsageEvent.user_id == uid,
+            GenesisAiUsageEvent.period.in_(periods),
+            GenesisAiUsageEvent.status == "completed",
+        ).group_by(GenesisAiUsageEvent.period)
+    ).all()
+    completed = {period: (int(i), int(o), int(n)) for period, i, o, n in tokens}
+    return [
+        {"period": period, "used": int(request_counts.get(period, 0)),
+         "input_tokens": completed.get(period, (0, 0, 0))[0],
+         "output_tokens": completed.get(period, (0, 0, 0))[1],
+         "completed_requests": completed.get(period, (0, 0, 0))[2]}
+        for period in periods
+    ]
+
+
+@router.get("/usage/history")
+def ai_usage_history(uid: str = Depends(current_uid),
+                     session: Session = Depends(require_sql_session)):
+    return {"months": _usage_history(uid, session)}
+
+
 @router.get("/usage/details")
 def ai_usage_details(uid: str = Depends(current_uid),
                      session: Session = Depends(require_sql_session)):
