@@ -617,41 +617,13 @@ private fun GenesisCommentComposer(
     var showRules by rememberSaveable(sector) { mutableStateOf(false) }
     var forgetId by remember(sector) { mutableStateOf<String?>(null) }
     var showScanner by remember(sector) { mutableStateOf(false) }
-    val kinds = listOf(
-        "goal" to R.string.genesis_memory_goal,
-        "constraint" to R.string.genesis_memory_constraint,
-        "preference" to R.string.genesis_memory_preference,
-        "correction" to R.string.genesis_memory_correction
-    )
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.genesis_memory_comment),
-                modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            IconButton(
-                onClick = { onEvent(MainScreenEvent.GenesisMemoryRefresh(sector, language)) },
-                enabled = !busy
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workspace_check_connection))
+        Text("Сканирование", style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            OutlinedButton(onClick = { showScanner = true }, enabled = !busy) {
+                Text("Сканер")
             }
-        }
-        kinds.chunked(2).forEach { pair ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                pair.forEach { (key, label) ->
-                    OutlinedButton(
-                        onClick = { onEvent(MainScreenEvent.GenesisCommentKindSelected(sector, key)) },
-                        modifier = Modifier.weight(1f).semantics { selected = kind == key },
-                        enabled = model.memoryBusySector != sector,
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = if (kind == key) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            contentColor = if (kind == key) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                        )
-                    ) { Text(stringResource(label), style = MaterialTheme.typography.labelMedium) }
-                }
-            }
-        }
-        OutlinedButton(onClick = { showScanner = true }, enabled = !busy) {
-            Text("Сканировать документ · Камера / Галерея")
         }
         if (showScanner) {
             GenesisDocumentScanner(
