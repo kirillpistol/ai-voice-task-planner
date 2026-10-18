@@ -155,7 +155,10 @@ class MainScreenViewModel(
             MainScreenEvent.NewTaskRecordingDismissed -> onNewTaskRecordingDismissed()
             is MainScreenEvent.RecognizedTaskTextEdited -> onRecognizedTaskTextEdited(event.updatedText)
             MainScreenEvent.CreateNewTaskClicked -> onCreateNewTaskClicked()
-            MainScreenEvent.ProfileContextMenuClicked -> onProfileContextMenuClicked()
+            MainScreenEvent.ProfileContextMenuClicked -> {
+                onProfileContextMenuClicked()
+                refreshAiUsage()
+            }
             MainScreenEvent.LogoutBtnClicked -> onLogoutBtnClicked()
             MainScreenEvent.ProfileContextMenuDismissed -> onProfileContextMenuDismissed()
         }
