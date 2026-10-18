@@ -147,7 +147,6 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Сканирование", style = MaterialTheme.typography.titleLarge, color = Color.White)
                 if (cameraGranted && !captured) {
                     Box(Modifier.fillMaxWidth().height(320.dp).background(Color.Black, RoundedCornerShape(12.dp))) {
                         AndroidView(
@@ -178,8 +177,6 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                                     .background(Color(0xFF42E9EF))
                             )
                         }
-                        Text("Наведите на документ • автоснимок через 2,5 с",
-                            color = Color.White, modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp))
                     }
                 } else if (!cameraGranted) {
                     Text("Разрешите доступ к камере или выберите изображение из галереи.", color = Color.White)
