@@ -133,15 +133,24 @@ fun ProfilePopup(
                         )
                     }
                 }
+                val monoInk = if (darkModeEnabled) Color.White else Color.Black
+                val monoSurface = if (darkModeEnabled) Color.Black else Color.White
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top = 10.dp, bottom = 6.dp)
+                        .background(monoSurface, RoundedCornerShape(10.dp))
+                        .border(1.dp, monoInk, RoundedCornerShape(10.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("🪙 Запросы ИИ", color = MaterialTheme.colorScheme.onSurface)
+                    Text("◉ Запросы ИИ", color = monoInk)
                     Text(
                         aiUsage?.let { "${it.used}/${it.limit}" } ?: "—/—",
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = monoInk,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -154,34 +163,35 @@ fun ProfilePopup(
                 ) {
                     Text("Использование и подписка",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface)
+                        color = monoInk)
                     Text(if (usageExpanded) "−" else "+",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        color = monoInk)
                 }
                 if (usageExpanded) {
                     Column(verticalArrangement = Arrangement.spacedBy(5.dp),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         Text("Тариф: " + (aiUsage?.plan?.uppercase() ?: "—"),
-                            color = MaterialTheme.colorScheme.onSurface)
+                            color = monoInk)
                         Text("Входные токены: " + (aiUsage?.inputTokens?.toString() ?: "—"),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            color = monoInk)
                         Text("Выходные токены: " + (aiUsage?.outputTokens?.toString() ?: "—"),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            color = monoInk)
                         Text("Успешные запросы: " +
                             (aiUsage?.completedRequests?.toString() ?: "—"),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            color = monoInk)
                         Text("Обновление лимита (UTC): " +
                             (aiUsage?.resetsAt?.take(10) ?: "—"),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("История за 6 месяцев", color = MaterialTheme.colorScheme.onSurface)
+                            color = monoInk)
+                        Text("История за 6 месяцев", color = monoInk)
                         aiUsageHistory?.months?.forEach { month ->
                             Text(month.period + " · " + month.used +
                                 " запросов · " + (month.inputTokens + month.outputTokens) + " токенов",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = monoInk,
                                 style = MaterialTheme.typography.bodySmall)
                         }
 
                     }
+                }
                 }
                 Divider(modifier = Modifier
                     .padding(top = 5.dp),
