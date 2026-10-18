@@ -40,3 +40,20 @@ def test_usage_ledger_settles_model_tokens(monkeypatch):
         _settle_usage(event_id, session, failed=True)
         session.refresh(record)
         assert record.status == "completed"
+
+
+def test_repeated_operation_cannot_double_charge_monthly_allowance():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    operation_id = "5f641ecd-ccfd-4909-bd35-82c44177cf93"
+    with Session(engine) as session:
+        assert _charge_one("alice", session, operation_id) == operation_id
+        assert _read_usage("alice", session)["used"] == 1
+        with pytest.raises(HTTPException) as error:
+            _charge_one("alice", session, operation_id)
+        assert error.value.status_code == 409
+        assert _read_usage("alice", session)["used"] == 1
+        with pytest.raises(HTTPException) as other_account:
+            _charge_one("bob", session, operation_id)
+        assert other_account.value.status_code == 409
+        assert _read_usage("bob", session)["used"] == 0
