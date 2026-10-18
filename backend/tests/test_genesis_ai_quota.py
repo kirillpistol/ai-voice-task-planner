@@ -4,19 +4,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import pytest
-from app.genesis_store import Base, GenesisAiUsageEvent
+from app.genesis_store import Base, GenesisAiUsageEvent, GenesisAiQuota
 from app.genesis_ai import _charge_one, _read_usage, _settle_usage, CommentAnalysisResponse
 
 
 def test_atomic_quota_limit_and_user_separation(monkeypatch):
-    monkeypatch.setenv("GENESIS_AI_MONTHLY_LIMIT", "2")
+    # Emulate 99 prior requests; the remaining Free allowance is one request.
     engine = create_engine("sqlite+pysqlite:///:memory:")
     Base.metadata.create_all(engine)
     with Session(engine) as session:
         assert _read_usage("user-a", session)["used"] == 0
+        period = _read_usage("user-a", session)["period"]
+        session.add(GenesisAiQuota(user_id="user-a", period=period, used=99))
+        session.commit()
         _charge_one("user-a", session)
-        _charge_one("user-a", session)
-        assert _read_usage("user-a", session)["used"] == 2
+        assert _read_usage("user-a", session)["used"] == 100
         with pytest.raises(HTTPException) as err:
             _charge_one("user-a", session)
         assert err.value.status_code == 429
