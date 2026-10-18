@@ -281,6 +281,7 @@ private fun MainScreenView(
                             ProfilePopup(
                                 user = state.currentUser,
                                 aiUsage = state.genesisWorkspace.aiUsage,
+                                aiUsageHistory = state.genesisWorkspace.aiUsageHistory,
                                 darkModeEnabled = darkModeEnabled,
                                 onLogoutClicked = { onEvent(MainScreenEvent.LogoutBtnClicked) },
                                 onDarkModeSwitchClicked = { darkModeEnabled = it }
