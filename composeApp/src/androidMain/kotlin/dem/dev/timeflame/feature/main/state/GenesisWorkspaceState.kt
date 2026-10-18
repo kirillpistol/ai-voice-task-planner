@@ -1,5 +1,6 @@
 package dem.dev.timeflame.feature.main.state
 
+import dem.dev.timeflame.data.repository.GenesisAiAnalysis
 import dem.dev.timeflame.data.repository.GenesisPolicyConfig
 import dem.dev.timeflame.data.repository.GenesisRecommendation
 import dem.dev.timeflame.data.repository.GenesisSqlTask
@@ -23,6 +24,9 @@ data class GenesisWorkspaceState(
     val memoryFailedSector: String? = null,
     val memoryRules: Map<String, List<GenesisMemoryRule>> = emptyMap(),
     val commentDrafts: Map<String, String> = emptyMap(),
+    val aiResults: Map<String, GenesisAiAnalysis> = emptyMap(),
+    val aiBusySector: String? = null,
+    val aiFailedSector: String? = null,
     val commentKinds: Map<String, String> = emptyMap(),
     val pendingRules: Map<String, GenesisPendingRule> = emptyMap(),
     val loading: Boolean = false,
