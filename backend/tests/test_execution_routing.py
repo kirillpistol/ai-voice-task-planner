@@ -10,7 +10,7 @@ def test_finance_test_tool_is_blocked_until_deployed():
 
 
 def test_unassigned_sector_cannot_dispatch():
-    result = plan_execution("MEDICINE", "fixture_lookup")
+    result = plan_execution("MANUFACTURING", "fixture_lookup")
     assert result["status"] == "rejected"
     assert result["reason"] == "no_security_profile"
 
@@ -33,3 +33,11 @@ def test_even_declared_deployment_requires_worker_dispatch(monkeypatch):
     result = profiles.plan_execution("FINANCE", "fixture_lookup")
     assert result["status"] == "blocked"
     assert result["reason"] == "worker_dispatch_not_configured"
+
+
+def test_medicine_profile_declared_but_execution_still_blocked():
+    result = plan_execution("MEDICINE", "fixture_lookup")
+    assert result["status"] == "blocked"
+    assert result["reason"] == "execution_environment_not_deployed"
+    assert result["execution_allowed"] is False
+    assert result["profile_id"] == "p2-doc-vpn-doc-p2-medicine"
