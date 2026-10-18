@@ -197,13 +197,22 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                     OutlinedTextField(
                         value = scannedText, onValueChange = { scannedText = it },
                         label = { Text("Проверьте и исправьте распознанный текст") },
-                        modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8
+                        modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black, unfocusedTextColor = Color.Black,
+                            focusedContainerColor = Color.White, unfocusedContainerColor = Color.White,
+                            focusedLabelColor = Color.White, unfocusedLabelColor = Color.White,
+                            cursorColor = Color.Black, focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.LightGray
+                        )
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
-                    OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) { Text("Галерея") }
+                    OutlinedButton(onClick = { galleryLauncher.launch("image/*") },
+                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color.Black)) { Text("Галерея") }
                     if (cameraGranted) {
-                        OutlinedButton(onClick = { captured = false; scannedText = ""; previewBitmap = null; error = null }) {
+                        OutlinedButton(onClick = { captured = false; scannedText = ""; previewBitmap = null; error = null },
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color.Black)) {
                             Text("Повторить")
                         }
                     }
@@ -211,7 +220,9 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                 Button(
                     onClick = { onTextApproved(scannedText.trim()) },
                     enabled = scannedText.isNotBlank() && !busy,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black,
+                        disabledContainerColor = Color(0xFF8B8D90), disabledContentColor = Color.White)
                 ) { Text("✓ Добавить информацию") }
                 TextButton(onClick = onDismiss) { Text("Закрыть", color = Color.White) }
             }
