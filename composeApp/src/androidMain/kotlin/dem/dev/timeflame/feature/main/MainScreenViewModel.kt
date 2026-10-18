@@ -89,6 +89,7 @@ class MainScreenViewModel(
                 ))
             }
             is MainScreenEvent.GenesisAiAnalyze -> analyzeAiComment(event.sector)
+            is MainScreenEvent.GenesisRecommendationSave -> saveAiRecommendation(event.sector)
             is MainScreenEvent.GenesisCommentKindSelected -> _state.update { old ->
                 old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                     commentKinds = old.genesisWorkspace.commentKinds + (event.sector to event.kind),
@@ -225,13 +226,48 @@ class MainScreenViewModel(
         genesisClient.memory(sector, language)
     }
 
+    private fun saveAiRecommendation(sector: String) {
+        val workspace = _state.value.genesisWorkspace
+        val summary = workspace.aiResults[sector]?.summary?.trim().orEmpty()
+        if (summary.isBlank() || workspace.recommendationSavingSector != null ||
+            workspace.recommendationSavedSector == sector) return
+        val account = localAuthManager.getCurrentUser()?.id ?: return
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+            recommendationSavingSector = sector, recommendationSaveFailedSector = null
+        )) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                genesisClient.saveRecommendation(summary)
+                if (localAuthManager.getCurrentUser()?.id == account) {
+                    _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                        recommendationSavedSector = sector
+                    )) }
+                    loadGenesisWorkspace()
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (localAuthManager.getCurrentUser()?.id == account) {
+                    _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                        recommendationSaveFailedSector = sector
+                    )) }
+                }
+            } finally {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    recommendationSavingSector = null
+                )) }
+            }
+        }
+    }
+
     private fun analyzeAiComment(sector: String) {
         val model = _state.value.genesisWorkspace
         val comment = model.commentDrafts[sector].orEmpty().trim()
         if (comment.isBlank() || model.aiBusySector != null) return
         val account = localAuthManager.getCurrentUser()?.id ?: return
         _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
-            aiBusySector = sector, aiFailedSector = null, aiResults = old.genesisWorkspace.aiResults - sector
+            aiBusySector = sector, aiFailedSector = null, aiResults = old.genesisWorkspace.aiResults - sector,
+            recommendationSavedSector = null, recommendationSaveFailedSector = null
         )) }
         viewModelScope.launch(Dispatchers.IO) {
             try {
