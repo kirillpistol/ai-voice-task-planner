@@ -83,10 +83,12 @@ class MainScreenViewModel(
             MainScreenEvent.GenesisCoreStatusRefresh -> refreshCoreStatus()
             is MainScreenEvent.GenesisCommentEdited -> _state.update { old ->
                 old.copy(genesisWorkspace = old.genesisWorkspace.copy(
-                    commentDrafts = old.genesisWorkspace.commentDrafts + (event.sector to event.text.take(2000)),
+                    commentDrafts = old.genesisWorkspace.commentDrafts + (event.sector to event.text.take(4000)),
+                    aiResults = old.genesisWorkspace.aiResults - event.sector,
                     pendingRules = old.genesisWorkspace.pendingRules - event.sector
                 ))
             }
+            is MainScreenEvent.GenesisAiAnalyze -> analyzeAiComment(event.sector)
             is MainScreenEvent.GenesisCommentKindSelected -> _state.update { old ->
                 old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                     commentKinds = old.genesisWorkspace.commentKinds + (event.sector to event.kind),
@@ -221,6 +223,38 @@ class MainScreenViewModel(
         val policy = genesisClient.memoryPolicy()
         _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(memoryPolicy = policy)) }
         genesisClient.memory(sector, language)
+    }
+
+    private fun analyzeAiComment(sector: String) {
+        val model = _state.value.genesisWorkspace
+        val comment = model.commentDrafts[sector].orEmpty().trim()
+        if (comment.isBlank() || model.aiBusySector != null) return
+        val account = localAuthManager.getCurrentUser()?.id ?: return
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+            aiBusySector = sector, aiFailedSector = null, aiResults = old.genesisWorkspace.aiResults - sector
+        )) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = genesisClient.analyzeComment(sector, comment)
+                if (localAuthManager.getCurrentUser()?.id == account) {
+                    _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                        aiResults = old.genesisWorkspace.aiResults + (sector to result)
+                    )) }
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (localAuthManager.getCurrentUser()?.id == account) {
+                    _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                        aiFailedSector = sector
+                    )) }
+                }
+            } finally {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    aiBusySector = null
+                )) }
+            }
+        }
     }
 
     private fun previewComment(sector: String, language: String) {
