@@ -503,6 +503,7 @@ private fun GenesisCommentComposer(
     var consent by remember(sector, policy?.policyVersion) { mutableStateOf(false) }
     var showRules by rememberSaveable(sector) { mutableStateOf(false) }
     var forgetId by remember(sector) { mutableStateOf<String?>(null) }
+    var showScanner by remember(sector) { mutableStateOf(false) }
     val kinds = listOf(
         "goal" to R.string.genesis_memory_goal,
         "constraint" to R.string.genesis_memory_constraint,
@@ -535,6 +536,18 @@ private fun GenesisCommentComposer(
                     ) { Text(stringResource(label), style = MaterialTheme.typography.labelMedium) }
                 }
             }
+        }
+        OutlinedButton(onClick = { showScanner = true }, enabled = !busy) {
+            Text("Сканировать документ · Камера / Галерея")
+        }
+        if (showScanner) {
+            GenesisDocumentScanner(
+                onDismiss = { showScanner = false },
+                onTextApproved = { text ->
+                    onEvent(MainScreenEvent.GenesisCommentEdited(sector, (draft + "\\n" + text).trim().take(4000)))
+                    showScanner = false
+                }
+            )
         }
         OutlinedTextField(
             value = draft,
