@@ -544,7 +544,7 @@ private fun GenesisCommentComposer(
             GenesisDocumentScanner(
                 onDismiss = { showScanner = false },
                 onTextApproved = { text ->
-                    onEvent(MainScreenEvent.GenesisCommentEdited(sector, (draft + "\\n" + text).trim().take(4000)))
+                    onEvent(MainScreenEvent.GenesisCommentEdited(sector, (draft + "\n" + text).trim().take(4000)))
                     showScanner = false
                 }
             )
