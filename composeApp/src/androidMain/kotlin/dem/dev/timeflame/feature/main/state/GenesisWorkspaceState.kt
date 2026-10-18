@@ -1,5 +1,6 @@
 package dem.dev.timeflame.feature.main.state
 
+import dem.dev.timeflame.data.repository.GenesisAiUsageHistory
 import dem.dev.timeflame.data.repository.GenesisAiUsage
 import dem.dev.timeflame.data.repository.GenesisAiAnalysis
 import dem.dev.timeflame.data.repository.GenesisPolicyConfig
@@ -27,6 +28,7 @@ data class GenesisWorkspaceState(
     val commentDrafts: Map<String, String> = emptyMap(),
     val aiResults: Map<String, GenesisAiAnalysis> = emptyMap(),
     val aiUsage: GenesisAiUsage? = null,
+    val aiUsageHistory: GenesisAiUsageHistory? = null,
     val dedicatedInquirySending: Boolean = false,
     val dedicatedInquirySent: Boolean = false,
     val dedicatedInquiryFailed: Boolean = false,
