@@ -691,6 +691,20 @@ private fun GenesisCommentComposer(
             }
                 }
             }
+            Button(
+                onClick = { onEvent(MainScreenEvent.GenesisRecommendationSave(sector)) },
+                enabled = model.recommendationSavingSector == null &&
+                    model.recommendationSavedSector != sector
+            ) {
+                Text(when {
+                    model.recommendationSavingSector == sector -> "Сохранение..."
+                    model.recommendationSavedSector == sector -> "Рекомендация сохранена"
+                    else -> "Сохранить рекомендацию"
+                })
+            }
+            if (model.recommendationSaveFailedSector == sector) {
+                Text("Не удалось сохранить рекомендацию", color = MaterialTheme.colorScheme.error)
+            }
             Text("Токены API: вход ${analysis.inputTokens}, выход ${analysis.outputTokens}",
                 style = MaterialTheme.typography.bodySmall)
         }
