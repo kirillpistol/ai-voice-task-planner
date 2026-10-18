@@ -429,24 +429,28 @@ fun GenesisServicesWorkspace(
         GenesisMarketCarousel()
 
         GenesisNftCarousel()
+        val accent = if (dark) Color.White else Color.Black
+        val inkBackground = if (dark) Color.Black else Color.White
         Card(modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = documentBackground),
-            border = BorderStroke(1.dp, documentBorder),
-            shape = RoundedCornerShape(16.dp)) {
+            colors = CardDefaults.cardColors(containerColor = inkBackground),
+            border = BorderStroke(1.dp, accent),
+            shape = RoundedCornerShape(12.dp)) {
             Column(Modifier.fillMaxWidth().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(if (language == "ru") "Пакеты GENESIS" else "GENESIS plans",
-                    style = MaterialTheme.typography.titleMedium, color = documentText)
+                    style = MaterialTheme.typography.titleMedium, color = accent)
                 Text(if (language == "ru") "Лимиты ИИ и индивидуальные модули"
                      else "AI allowances and custom modules",
-                    color = documentSecondary, style = MaterialTheme.typography.bodySmall)
+                    color = accent, style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = {
                     onEvent(MainScreenEvent.GenesisAiUsageRefresh)
                     packagesOpen = true
-                }, modifier = Modifier.fillMaxWidth()) {
+                }, modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = accent),
+                    border = BorderStroke(1.dp, accent)) {
                     Text(if (language == "ru") "Выбрать пакет" else "Choose plan")
                 }
-                Text("🪙 " + (state.genesisWorkspace.aiUsage?.let {
+                Text("◉ " + (state.genesisWorkspace.aiUsage?.let {
                     "${it.used}/${it.limit}"
                 } ?: "—/—"), color = documentSecondary)
             }
