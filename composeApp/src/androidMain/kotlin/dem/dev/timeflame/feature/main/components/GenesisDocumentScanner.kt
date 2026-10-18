@@ -143,7 +143,8 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth().heightIn(max = 660.dp)
-                    .verticalScroll(rememberScrollState()).padding(16.dp),
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 16.dp, end = 16.dp, top = 28.dp, bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
