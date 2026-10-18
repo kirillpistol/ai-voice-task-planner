@@ -46,6 +46,15 @@ class GenesisSourceObservation(Base):
     result_json: Mapped[str] = mapped_column(Text, nullable=False)
 
 
+class GenesisEnterpriseInquiry(Base):
+    """Customer-requested custom GENESIS deployment; no payment credentials."""
+    __tablename__ = "genesis_enterprise_inquiries"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    comment: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class GenesisAiQuota(Base):
     """Authoritative per-user UTC-month request counter; no client writes."""
     __tablename__ = "genesis_ai_quota"
