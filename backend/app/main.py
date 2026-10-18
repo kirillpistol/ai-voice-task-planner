@@ -8,6 +8,7 @@ from app.v2 import router as v2_router
 from app.genesis_api import router as genesis_router
 from app.genesis_ai import router as genesis_ai_router
 from app.genesis_modules import router as genesis_modules_router
+from app.genesis_plans import router as genesis_plans_router
 from app.genesis_memory import router as memory_router
 from app.genesis_core_status import router as core_status_router, monitor as core_monitor
 from app.genesis_store import make_session_factory, configured_database_url
@@ -80,6 +81,7 @@ app.include_router(v2_router)
 app.include_router(genesis_router)
 app.include_router(genesis_ai_router)
 app.include_router(genesis_modules_router)
+app.include_router(genesis_plans_router)
 app.include_router(memory_router)
 app.include_router(core_status_router)
 
