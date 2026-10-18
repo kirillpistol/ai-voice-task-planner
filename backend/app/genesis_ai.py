@@ -60,7 +60,7 @@ def _period() -> str:
 
 def _quota_limit() -> int:
     # Temporary default until subscription plan limits are deployed.
-    return max(1, min(100000, int(os.getenv("GENESIS_AI_MONTHLY_LIMIT", "500"))))
+    return max(1, min(100000, int(os.getenv("GENESIS_AI_MONTHLY_LIMIT", "5"))))
 
 
 def _read_usage(uid: str, session: Session) -> dict:
