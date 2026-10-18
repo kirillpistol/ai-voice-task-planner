@@ -96,6 +96,25 @@ private data class MemoryConfirmation(
     @SerialName("consent_to_store") val consentToStore: Boolean
 )
 
+@Serializable
+data class GenesisAiTaskProposal(val title: String, val description: String = "")
+
+@Serializable
+data class GenesisAiAnalysis(
+    val summary: String,
+    val tasks: List<GenesisAiTaskProposal> = emptyList(),
+    @SerialName("input_tokens") val inputTokens: Int = 0,
+    @SerialName("output_tokens") val outputTokens: Int = 0,
+    val model: String = ""
+)
+
+@Serializable
+private data class GenesisAiAnalyzeRequest(
+    val sector: String,
+    val comment: String,
+    @SerialName("consent_to_external_processing") val consent: Boolean
+)
+
 class GenesisWorkspaceClient(
     private val httpClient: HttpClient,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -110,6 +129,17 @@ class GenesisWorkspaceClient(
 
     private fun checkStatus(code: Int, expected: Int) {
         if (code != expected) error("GENESIS API unavailable ($code)")
+    }
+
+    suspend fun analyzeComment(sector: String, comment: String): GenesisAiAnalysis {
+        val authorization = bearer()
+        val response = httpClient.post("$baseUrl/ai/comments/analyze") {
+            header(HttpHeaders.Authorization, authorization)
+            contentType(ContentType.Application.Json)
+            setBody(GenesisAiAnalyzeRequest(sector, comment.take(4000), true))
+        }
+        checkStatus(response.status.value, 200)
+        return response.body()
     }
 
     suspend fun memoryPolicy(): GenesisMemoryPolicy {
