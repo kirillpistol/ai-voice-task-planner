@@ -1,5 +1,6 @@
 """Opt-in SQL workspace. Firestore calendar is the only source of task contents."""
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -155,6 +156,26 @@ def delete_imported_task(
     session.delete(row)
     session.commit()
     return None
+
+
+class RecommendationSaveRequest(BaseModel):
+    summary: str = Field(min_length=1, max_length=1500)
+
+
+@router.post("/recommendations", status_code=201)
+def save_confirmed_recommendation(
+    body: RecommendationSaveRequest,
+    uid: str = Depends(current_uid),
+    session: Session = Depends(require_sql_session),
+):
+    """Only a user-confirmed final recommendation is persisted; never raw comments."""
+    row = GenesisRecommendation(
+        id=str(uuid4()), user_id=uid, summary=body.summary.strip(),
+        generated_at=datetime.now(timezone.utc),
+    )
+    session.add(row)
+    session.commit()
+    return {"id": row.id, "summary": row.summary, "generated_at": row.generated_at}
 
 
 @router.get("/recommendations")
