@@ -29,6 +29,7 @@ class CommentAnalysisRequest(BaseModel):
     sector: str = Field(min_length=1, max_length=80)
     comment: str = Field(min_length=1, max_length=4000)
     consent_to_external_processing: bool
+    request_id: str | None = Field(default=None, pattern=r"^[0-9a-fA-F-]{36}$")
 
 
 class TaskProposal(BaseModel):
@@ -72,9 +73,12 @@ def _read_usage(uid: str, session: Session) -> dict:
             "plan": effective_plan(uid, session), "period": period}
 
 
-def _charge_one(uid: str, session: Session) -> None:
+def _charge_one(uid: str, session: Session, request_id: str | None = None) -> str:
     """Atomic conditional increment; account usage cannot be set by clients."""
     period = _period()
+    event_id = request_id or str(uuid4())
+    if session.get(GenesisAiUsageEvent, event_id) is not None:
+        raise HTTPException(status_code=409, detail="AI request already submitted")
     limit = effective_limit(uid, session)
     # Race-safe bootstrap. Concurrent inserts cannot create duplicate user/period rows.
     if session.get(GenesisAiQuota, (uid, period)) is None:
@@ -93,10 +97,13 @@ def _charge_one(uid: str, session: Session) -> None:
     if result.rowcount != 1:
         session.rollback()
         raise HTTPException(status_code=429, detail="Monthly AI request allowance exhausted")
-    event_id = str(uuid4())
     session.add(GenesisAiUsageEvent(id=event_id, user_id=uid, period=period,
         status="reserved", created_at=datetime.now(timezone.utc)))
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError as exc:
+        session.rollback()
+        raise HTTPException(status_code=409, detail="AI request already submitted") from exc
     return event_id
 
 
@@ -238,7 +245,7 @@ async def analyze_comment(body: CommentAnalysisRequest, uid: str = Depends(curre
         raise HTTPException(status_code=503, detail="OpenAI backend not configured")
     if not _allow(uid):
         raise HTTPException(status_code=429, detail="Hourly AI analysis limit reached")
-    event_id = _charge_one(uid, session)
+    event_id = _charge_one(uid, session, body.request_id)
     try:
         answer = await asyncio.to_thread(_analyze, body.sector, body.comment)
         _settle_usage(event_id, session, result=answer)
