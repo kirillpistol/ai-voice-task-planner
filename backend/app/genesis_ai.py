@@ -13,6 +13,7 @@ from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.genesis_store import GenesisAiQuota, GenesisAiUsageEvent, require_sql_session
+from app.genesis_entitlements import effective_limit, effective_plan
 from pydantic import BaseModel, Field
 
 from app.v2 import current_uid
@@ -67,13 +68,14 @@ def _quota_limit() -> int:
 def _read_usage(uid: str, session: Session) -> dict:
     period = _period()
     item = session.get(GenesisAiQuota, (uid, period))
-    return {"used": item.used if item else 0, "limit": _quota_limit(), "period": period}
+    return {"used": item.used if item else 0, "limit": effective_limit(uid, session),
+            "plan": effective_plan(uid, session), "period": period}
 
 
 def _charge_one(uid: str, session: Session) -> None:
     """Atomic conditional increment; account usage cannot be set by clients."""
     period = _period()
-    limit = _quota_limit()
+    limit = effective_limit(uid, session)
     # Race-safe bootstrap. Concurrent inserts cannot create duplicate user/period rows.
     if session.get(GenesisAiQuota, (uid, period)) is None:
         try:
