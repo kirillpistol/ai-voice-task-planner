@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from app.genesis_ai import _usage_detail, _period
-from app.genesis_store import Base, GenesisAiUsageEvent
+from app.genesis_ai import _usage_detail, _usage_history, _period
+from app.genesis_store import Base, GenesisAiUsageEvent, GenesisAiQuota
 
 
 def test_details_are_user_scoped_and_count_completed_only():
@@ -31,3 +31,27 @@ def test_details_are_user_scoped_and_count_completed_only():
         assert details["completed_requests"] == 1
         assert details["resets_at"].endswith("00:00:00+00:00")
         assert _usage_detail("c", session)["completed_requests"] == 0
+
+
+def test_history_is_account_isolated_and_counts_monthly_usage():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    now = datetime.now(timezone.utc)
+    with Session(engine) as session:
+        session.add_all([
+            GenesisAiQuota(user_id="a", period=_period(), used=3),
+            GenesisAiQuota(user_id="b", period=_period(), used=25),
+            GenesisAiUsageEvent(id="a-ok", user_id="a", period=_period(),
+                status="completed", model="fixture", input_tokens=14,
+                output_tokens=6, created_at=now),
+            GenesisAiUsageEvent(id="b-ok", user_id="b", period=_period(),
+                status="completed", model="fixture", input_tokens=99,
+                output_tokens=88, created_at=now),
+        ])
+        session.commit()
+        history = _usage_history("a", session)
+        assert len(history) == 6
+        assert history[0] == {"period": _period(), "used": 3,
+                              "input_tokens": 14, "output_tokens": 6,
+                              "completed_requests": 1}
+        assert all(row["used"] == 0 for row in history[1:])
