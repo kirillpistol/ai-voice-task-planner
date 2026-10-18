@@ -401,6 +401,9 @@ fun GenesisServicesWorkspace(
 ) {
     val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
     var expandedDocument by rememberSaveable { mutableStateOf<String?>(null) }
+    var packagesOpen by rememberSaveable { mutableStateOf(false) }
+    var selectedPackage by rememberSaveable { mutableStateOf("free") }
+    var inquiryComment by rememberSaveable { mutableStateOf("") }
     val dark = isSystemInDarkTheme()
     val documentBackground = if (dark) Color(0xFF242629) else Color(0xFFF0F1F2)
     val documentBorder = if (dark) Color(0xFF45484C) else Color(0xFFD5D8DB)
@@ -424,7 +427,90 @@ fun GenesisServicesWorkspace(
             stringResource(R.string.workspace_services_subtitle)
         )
         GenesisMarketCarousel()
+
         GenesisNftCarousel()
+        Card(modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = documentBackground),
+            border = BorderStroke(1.dp, documentBorder),
+            shape = RoundedCornerShape(16.dp)) {
+            Column(Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(if (language == "ru") "Пакеты GENESIS" else "GENESIS plans",
+                    style = MaterialTheme.typography.titleMedium, color = documentText)
+                Text(if (language == "ru") "Лимиты ИИ и индивидуальные модули"
+                     else "AI allowances and custom modules",
+                    color = documentSecondary, style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = {
+                    onEvent(MainScreenEvent.GenesisAiUsageRefresh)
+                    packagesOpen = true
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (language == "ru") "Выбрать пакет" else "Choose plan")
+                }
+                Text("🪙 " + (state.genesisWorkspace.aiUsage?.let {
+                    "${it.used}/${it.limit}"
+                } ?: "—/—"), color = documentSecondary)
+            }
+        }
+        if (packagesOpen) {
+            AlertDialog(
+                onDismissRequest = { packagesOpen = false },
+                title = { Text(if (language == "ru") "Пакеты GENESIS" else "GENESIS plans") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        OutlinedButton(onClick = { selectedPackage = "free" },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text("Free · 0 ₽ · 100/мес." +
+                                if (selectedPackage == "free") " ✓" else "")
+                        }
+                        OutlinedButton(onClick = { selectedPackage = "plus" },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text("Plus · 1 000/мес." +
+                                if (selectedPackage == "plus") " ✓" else "")
+                        }
+                        OutlinedButton(onClick = { selectedPackage = "dedicated" },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text("PISTOL GENESIS · Custom" +
+                                if (selectedPackage == "dedicated") " ✓" else "")
+                        }
+                        when (selectedPackage) {
+                            "free" -> Text(if (language == "ru")
+                                "Бесплатно: до 100 запросов в месяц. Лимит проверяется сервером."
+                                else "Free: 100 requests per month, enforced by server.")
+                            "plus" -> Text(if (language == "ru")
+                                "1 000 запросов в месяц. Оплата пока не подключена; пакет недоступен для активации."
+                                else "1,000 requests per month. Payments are not configured yet.")
+                            else -> {
+                                Text(if (language == "ru")
+                                    "Опишите, что хотите получить от системы:"
+                                    else "Describe your desired custom system:")
+                                OutlinedTextField(value = inquiryComment,
+                                    onValueChange = { inquiryComment = it.take(3000) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    label = { Text(if (language == "ru") "Комментарий" else "Comment") },
+                                    minLines = 3)
+                                Button(onClick = {
+                                    onEvent(MainScreenEvent.GenesisDedicatedInquiry(inquiryComment))
+                                }, enabled = inquiryComment.trim().length >= 10 &&
+                                    !state.genesisWorkspace.dedicatedInquirySending,
+                                    modifier = Modifier.fillMaxWidth()) {
+                                    Text(if (language == "ru") "Отправить заявку" else "Submit request")
+                                }
+                                if (state.genesisWorkspace.dedicatedInquirySent)
+                                    Text(if (language == "ru") "Заявка принята сервером."
+                                         else "Request received by server.")
+                                if (state.genesisWorkspace.dedicatedInquiryFailed)
+                                    Text(if (language == "ru") "Ошибка отправки заявки."
+                                         else "Could not send request.")
+                            }
+                        }
+                    }
+                },
+                confirmButton = { TextButton(onClick = { packagesOpen = false }) {
+                    Text(if (language == "ru") "Закрыть" else "Close")
+                } }
+            )
+        }
 
         // Documents are read-only. Show only genuine server results or currently loaded sector output.
         Card(
