@@ -81,6 +81,7 @@ class MainScreenViewModel(
     fun onEvent(event: MainScreenEvent) {
         when(event) {
             MainScreenEvent.GenesisCoreStatusRefresh -> refreshCoreStatus()
+            MainScreenEvent.GenesisAiUsageRefresh -> refreshAiUsage()
             is MainScreenEvent.GenesisCommentEdited -> _state.update { old ->
                 old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                     commentDrafts = old.genesisWorkspace.commentDrafts + (event.sector to event.text.take(4000)),
@@ -260,6 +261,17 @@ class MainScreenViewModel(
         }
     }
 
+    private fun refreshAiUsage() {
+        val account = localAuthManager.getCurrentUser()?.id ?: return
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(aiUsage = null)) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val usage = runCatching { genesisClient.aiUsage() }.getOrNull()
+            if (localAuthManager.getCurrentUser()?.id == account) {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(aiUsage = usage)) }
+            }
+        }
+    }
+
     private fun analyzeAiComment(sector: String) {
         val model = _state.value.genesisWorkspace
         val comment = model.commentDrafts[sector].orEmpty().trim()
@@ -272,6 +284,7 @@ class MainScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = genesisClient.analyzeComment(sector, comment)
+                refreshAiUsage()
                 if (localAuthManager.getCurrentUser()?.id == account) {
                     _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                         aiResults = old.genesisWorkspace.aiResults + (sector to result)
