@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import Boolean, DateTime, Index, String, Text, create_engine
+from sqlalchemy import Boolean, DateTime, Index, Integer, String, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 
@@ -44,6 +44,14 @@ class GenesisSourceObservation(Base):
     checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     digest: Mapped[str] = mapped_column(String(64), nullable=False)
     result_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class GenesisAiQuota(Base):
+    """Authoritative per-user UTC-month request counter; no client writes."""
+    __tablename__ = "genesis_ai_quota"
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    period: Mapped[str] = mapped_column(String(7), primary_key=True)
+    used: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
 
 class GenesisRecommendation(Base):
