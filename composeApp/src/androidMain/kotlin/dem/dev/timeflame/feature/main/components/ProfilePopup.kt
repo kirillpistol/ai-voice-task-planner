@@ -57,6 +57,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dem.dev.timeflame.R
 import dem.dev.timeflame.domain.model.User
+import dem.dev.timeflame.data.repository.GenesisAiUsage
 import dem.dev.timeflame.feature.main.MainScreen
 import dem.dev.timeflame.util.language.UiLanguageHelper
 import dem.dev.timeflame.util.theme.AppTheme
@@ -66,6 +67,7 @@ import dem.dev.timeflame.util.theme.DarkModeHelper
 fun ProfilePopup(
     modifier: Modifier = Modifier,
     user: User,
+    aiUsage: GenesisAiUsage?,
     darkModeEnabled: Boolean,
     onLogoutClicked: () -> Unit,
     onDarkModeSwitchClicked: (Boolean) -> Unit
@@ -128,6 +130,18 @@ fun ProfilePopup(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("🪙 Запросы ИИ", color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        aiUsage?.let { "${it.used}/${it.limit}" } ?: "—/—",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
                 Divider(modifier = Modifier
                     .padding(top = 5.dp),
