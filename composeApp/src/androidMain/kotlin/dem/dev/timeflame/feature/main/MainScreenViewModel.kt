@@ -82,6 +82,7 @@ class MainScreenViewModel(
         when(event) {
             MainScreenEvent.GenesisCoreStatusRefresh -> refreshCoreStatus()
             MainScreenEvent.GenesisAiUsageRefresh -> refreshAiUsage()
+            is MainScreenEvent.GenesisDedicatedInquiry -> submitDedicatedInquiry(event.comment)
             is MainScreenEvent.GenesisCommentEdited -> _state.update { old ->
                 old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                     commentDrafts = old.genesisWorkspace.commentDrafts + (event.sector to event.text.take(4000)),
@@ -259,6 +260,26 @@ class MainScreenViewModel(
             } finally {
                 _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
                     recommendationSavingSector = null
+                )) }
+            }
+        }
+    }
+
+    private fun submitDedicatedInquiry(comment: String) {
+        val trimmed = comment.trim()
+        if (trimmed.length < 10 || trimmed.length > 3000 ||
+            _state.value.genesisWorkspace.dedicatedInquirySending) return
+        val account = localAuthManager.getCurrentUser()?.id ?: return
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+            dedicatedInquirySending = true, dedicatedInquirySent = false,
+            dedicatedInquiryFailed = false
+        )) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val ok = runCatching { genesisClient.sendDedicatedInquiry(trimmed) }.isSuccess
+            if (localAuthManager.getCurrentUser()?.id == account) {
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(
+                    dedicatedInquirySending = false, dedicatedInquirySent = ok,
+                    dedicatedInquiryFailed = !ok
                 )) }
             }
         }
