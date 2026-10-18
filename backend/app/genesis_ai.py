@@ -98,6 +98,18 @@ def _charge_one(uid: str, session: Session) -> None:
     return event_id
 
 
+def _settle_usage(event_id: str, session: Session, result=None, failed=False):
+    record = session.get(GenesisAiUsageEvent, event_id)
+    if record is None or record.status != "reserved":
+        return
+    record.status = "failed" if failed else "completed"
+    if result is not None:
+        record.model = result.model
+        record.input_tokens = result.input_tokens
+        record.output_tokens = result.output_tokens
+    session.commit()
+
+
 @router.get("/usage")
 def ai_usage(uid: str = Depends(current_uid), session: Session = Depends(require_sql_session)):
     return _read_usage(uid, session)
@@ -149,11 +161,15 @@ async def analyze_comment(body: CommentAnalysisRequest, uid: str = Depends(curre
         raise HTTPException(status_code=503, detail="OpenAI backend not configured")
     if not _allow(uid):
         raise HTTPException(status_code=429, detail="Hourly AI analysis limit reached")
-    _charge_one(uid, session)
+    event_id = _charge_one(uid, session)
     try:
-        return await asyncio.to_thread(_analyze, body.sector, body.comment)
+        answer = await asyncio.to_thread(_analyze, body.sector, body.comment)
+        _settle_usage(event_id, session, result=answer)
+        return answer
     except HTTPException:
+        _settle_usage(event_id, session, failed=True)
         raise
     except Exception as exc:
+        _settle_usage(event_id, session, failed=True)
         # Never leak credentials or provider error bodies to callers.
         raise HTTPException(status_code=502, detail="AI analysis temporarily unavailable") from exc
