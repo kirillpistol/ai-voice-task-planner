@@ -112,7 +112,8 @@ data class GenesisAiAnalysis(
 private data class GenesisAiAnalyzeRequest(
     val sector: String,
     val comment: String,
-    @SerialName("consent_to_external_processing") val consent: Boolean
+    @SerialName("consent_to_external_processing") val consent: Boolean,
+    @SerialName("request_id") val requestId: String
 )
 
 @Serializable
@@ -201,7 +202,7 @@ class GenesisWorkspaceClient(
         val response = httpClient.post("$baseUrl/ai/comments/analyze") {
             header(HttpHeaders.Authorization, authorization)
             contentType(ContentType.Application.Json)
-            setBody(GenesisAiAnalyzeRequest(sector, comment.take(4000), true))
+            setBody(GenesisAiAnalyzeRequest(sector, comment.take(4000), true, java.util.UUID.randomUUID().toString()))
         }
         checkStatus(response.status.value, 200)
         return response.body()
