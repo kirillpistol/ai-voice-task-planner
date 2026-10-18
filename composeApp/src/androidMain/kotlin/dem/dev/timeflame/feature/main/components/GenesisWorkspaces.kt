@@ -503,8 +503,11 @@ fun GenesisServicesWorkspace(
                             )
                         }
                         if (expandedDocument == key) {
-                            SelectionContainer {
-                                Text(result.text, style = MaterialTheme.typography.bodyMedium, color = documentText)
+                            Box(Modifier.fillMaxWidth().heightIn(max = 200.dp)
+                                .verticalScroll(rememberScrollState())) {
+                                SelectionContainer {
+                                    Text(result.text, style = MaterialTheme.typography.bodyMedium, color = documentText)
+                                }
                             }
                         }
                     }
@@ -672,7 +675,10 @@ private fun GenesisCommentComposer(
         }
         model.aiResults[sector]?.let { analysis ->
             Text("Результат анализа", style = MaterialTheme.typography.titleSmall)
-            Text(analysis.summary)
+            Box(Modifier.fillMaxWidth().heightIn(max = 180.dp)
+                .verticalScroll(rememberScrollState())) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(analysis.summary)
             if (analysis.tasks.isEmpty()) {
                 Text("В комментарии не обнаружены конкретные задачи.")
             } else {
@@ -681,6 +687,8 @@ private fun GenesisCommentComposer(
                     Text("• ${proposal.title}", style = MaterialTheme.typography.bodyMedium)
                     if (proposal.description.isNotBlank()) Text(proposal.description,
                         style = MaterialTheme.typography.bodySmall)
+                }
+            }
                 }
             }
             Text("Токены API: вход ${analysis.inputTokens}, выход ${analysis.outputTokens}",
@@ -733,9 +741,12 @@ private fun GenesisCommentComposer(
             val result = model.moduleOutputs[sector]?.text.orEmpty()
             val title = if (language == "ru") "Подсказка GENESIS:" else "GENESIS suggestion:"
             if (result.contains(title)) {
-                Text(result.substringAfter(title).substringBefore("\n\n").trim(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface)
+                Box(Modifier.fillMaxWidth().heightIn(max = 160.dp)
+                    .verticalScroll(rememberScrollState())) {
+                    Text(result.substringAfter(title).substringBefore("\n\n").trim(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface)
+                }
             }
         }
         TextButton(onClick = { showRules = !showRules }) {
