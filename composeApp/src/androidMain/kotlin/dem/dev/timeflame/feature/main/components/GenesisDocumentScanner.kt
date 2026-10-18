@@ -20,6 +20,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -131,11 +134,20 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
             if (cameraReady && !captured && !busy) takePhoto()
         }
     }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Сканирование информации") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            color = Color(0xFF30343A),
+            tonalElevation = 0.dp
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 660.dp)
+                    .verticalScroll(rememberScrollState()).padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Сканирование", style = MaterialTheme.typography.titleLarge, color = Color.White)
                 if (cameraGranted && !captured) {
                     Box(Modifier.fillMaxWidth().height(320.dp).background(Color.Black, RoundedCornerShape(12.dp))) {
                         AndroidView(
@@ -170,7 +182,7 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                             color = Color.White, modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp))
                     }
                 } else if (!cameraGranted) {
-                    Text("Разрешите доступ к камере или выберите изображение из галереи.")
+                    Text("Разрешите доступ к камере или выберите изображение из галереи.", color = Color.White)
                     Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
                         Text("Разрешить камеру")
                     }
@@ -188,7 +200,7 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                         modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
                     OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) { Text("Галерея") }
                     if (cameraGranted) {
                         OutlinedButton(onClick = { captured = false; scannedText = ""; previewBitmap = null; error = null }) {
@@ -196,13 +208,13 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                         }
                     }
                 }
+                Button(
+                    onClick = { onTextApproved(scannedText.trim()) },
+                    enabled = scannedText.isNotBlank() && !busy,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) { Text("✓ Добавить информацию") }
+                TextButton(onClick = onDismiss) { Text("Закрыть", color = Color.White) }
             }
-        },
-        confirmButton = {
-            Button(onClick = { onTextApproved(scannedText.trim()) }, enabled = scannedText.isNotBlank() && !busy) {
-                Text("✓ Добавить информацию")
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Отмена") } }
-    )
+        }
+    }
 }
