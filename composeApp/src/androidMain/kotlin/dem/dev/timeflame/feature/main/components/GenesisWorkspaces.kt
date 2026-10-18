@@ -618,11 +618,11 @@ private fun GenesisCommentComposer(
     var forgetId by remember(sector) { mutableStateOf<String?>(null) }
     var showScanner by remember(sector) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Сканирование", style = MaterialTheme.typography.titleMedium,
+        Text("Добавить комментарий", style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             OutlinedButton(onClick = { showScanner = true }, enabled = !busy) {
-                Text("Сканер")
+                Text("Сканирование документов")
             }
         }
         if (showScanner) {
