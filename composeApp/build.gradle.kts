@@ -28,6 +28,11 @@ kotlin {
             implementation(libs.ktor.client.android)
             implementation("io.coil-kt:coil-compose:2.7.0")
             implementation("io.coil-kt:coil-svg:2.7.0")
+            implementation("androidx.camera:camera-core:1.4.2")
+            implementation("androidx.camera:camera-camera2:1.4.2")
+            implementation("androidx.camera:camera-lifecycle:1.4.2")
+            implementation("androidx.camera:camera-view:1.4.2")
+            implementation("com.google.mlkit:text-recognition:16.0.1")
 
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
