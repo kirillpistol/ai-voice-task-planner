@@ -118,6 +118,9 @@ private data class GenesisAiAnalyzeRequest(
 @Serializable
 private data class RecommendationSavePayload(val summary: String)
 
+@Serializable
+data class GenesisAiUsage(val used: Int, val limit: Int, val period: String)
+
 class GenesisWorkspaceClient(
     private val httpClient: HttpClient,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -142,6 +145,14 @@ class GenesisWorkspaceClient(
             setBody(RecommendationSavePayload(summary))
         }
         checkStatus(response.status.value, 201)
+    }
+
+    suspend fun aiUsage(): GenesisAiUsage {
+        val response = httpClient.get("$baseUrl/ai/usage") {
+            header(HttpHeaders.Authorization, bearer())
+        }
+        checkStatus(response.status.value, 200)
+        return response.body()
     }
 
     suspend fun analyzeComment(sector: String, comment: String): GenesisAiAnalysis {
