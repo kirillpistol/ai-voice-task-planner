@@ -287,11 +287,12 @@ class MainScreenViewModel(
 
     private fun refreshAiUsage() {
         val account = localAuthManager.getCurrentUser()?.id ?: return
-        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(aiUsage = null)) }
+        _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(aiUsage = null, aiUsageHistory = null)) }
         viewModelScope.launch(Dispatchers.IO) {
             val usage = runCatching { genesisClient.aiUsage() }.getOrNull()
+            val history = runCatching { genesisClient.aiUsageHistory() }.getOrNull()
             if (localAuthManager.getCurrentUser()?.id == account) {
-                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(aiUsage = usage)) }
+                _state.update { old -> old.copy(genesisWorkspace = old.genesisWorkspace.copy(aiUsage = usage, aiUsageHistory = history)) }
             }
         }
     }
