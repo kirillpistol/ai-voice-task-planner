@@ -618,6 +618,7 @@ private fun GenesisCommentComposer(
     var showRules by rememberSaveable(sector) { mutableStateOf(false) }
     var forgetId by remember(sector) { mutableStateOf<String?>(null) }
     var showScanner by remember(sector) { mutableStateOf(false) }
+    var aiConsent by remember(sector) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Добавить комментарий", style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
@@ -650,6 +651,41 @@ private fun GenesisCommentComposer(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = aiConsent, onCheckedChange = { aiConsent = it })
+            Text(
+                "Разрешаю отправить этот комментарий в OpenAI для анализа и предложения задач.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f).clickable { aiConsent = !aiConsent }
+            )
+        }
+        Button(
+            onClick = {
+                if (aiConsent) onEvent(MainScreenEvent.GenesisAiAnalyze(sector))
+                aiConsent = false
+            },
+            enabled = draft.isNotBlank() && aiConsent && model.aiBusySector == null
+        ) { Text(if (model.aiBusySector == sector) "Анализ..." else "Анализировать ИИ") }
+        if (model.aiFailedSector == sector) {
+            Text("Анализ ИИ недоступен. Проверьте соединение и настройку сервера.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+        model.aiResults[sector]?.let { analysis ->
+            Text("Результат анализа", style = MaterialTheme.typography.titleSmall)
+            Text(analysis.summary)
+            if (analysis.tasks.isEmpty()) {
+                Text("В комментарии не обнаружены конкретные задачи.")
+            } else {
+                Text("Предложения задач (не сохранены)", style = MaterialTheme.typography.titleSmall)
+                analysis.tasks.forEach { proposal ->
+                    Text("• ${proposal.title}", style = MaterialTheme.typography.bodyMedium)
+                    if (proposal.description.isNotBlank()) Text(proposal.description,
+                        style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            Text("Токены API: вход ${analysis.inputTokens}, выход ${analysis.outputTokens}",
+                style = MaterialTheme.typography.bodySmall)
+        }
         if (model.memoryFailedSector == sector) {
             Text(stringResource(R.string.genesis_memory_failed),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
