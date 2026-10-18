@@ -7,6 +7,11 @@ from collections import defaultdict, deque
 from threading import Lock
 
 from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timezone
+from sqlalchemy import update
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+from app.genesis_store import GenesisAiQuota, require_sql_session
 from pydantic import BaseModel, Field
 
 from app.v2 import current_uid
@@ -49,6 +54,50 @@ def _allow(uid: str) -> bool:
     return True
 
 
+def _period() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m")
+
+
+def _quota_limit() -> int:
+    # Temporary default until subscription plan limits are deployed.
+    return max(1, min(100000, int(os.getenv("GENESIS_AI_MONTHLY_LIMIT", "500"))))
+
+
+def _read_usage(uid: str, session: Session) -> dict:
+    period = _period()
+    item = session.get(GenesisAiQuota, (uid, period))
+    return {"used": item.used if item else 0, "limit": _quota_limit(), "period": period}
+
+
+def _charge_one(uid: str, session: Session) -> None:
+    """Atomic conditional increment; account usage cannot be set by clients."""
+    period = _period()
+    limit = _quota_limit()
+    # Race-safe bootstrap. Concurrent inserts cannot create duplicate user/period rows.
+    if session.get(GenesisAiQuota, (uid, period)) is None:
+        try:
+            with session.begin_nested():
+                session.add(GenesisAiQuota(user_id=uid, period=period, used=0))
+                session.flush()
+        except IntegrityError:
+            session.expire_all()
+    result = session.execute(
+        update(GenesisAiQuota)
+        .where(GenesisAiQuota.user_id == uid, GenesisAiQuota.period == period,
+               GenesisAiQuota.used < limit)
+        .values(used=GenesisAiQuota.used + 1)
+    )
+    if result.rowcount != 1:
+        session.rollback()
+        raise HTTPException(status_code=429, detail="Monthly AI request allowance exhausted")
+    session.commit()
+
+
+@router.get("/usage")
+def ai_usage(uid: str = Depends(current_uid), session: Session = Depends(require_sql_session)):
+    return _read_usage(uid, session)
+
+
 def _analyze(sector: str, comment: str) -> CommentAnalysisResponse:
     from openai import OpenAI
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"], timeout=25.0, max_retries=1)
@@ -87,13 +136,15 @@ def _analyze(sector: str, comment: str) -> CommentAnalysisResponse:
 
 
 @router.post("/comments/analyze", response_model=CommentAnalysisResponse)
-async def analyze_comment(body: CommentAnalysisRequest, uid: str = Depends(current_uid)):
+async def analyze_comment(body: CommentAnalysisRequest, uid: str = Depends(current_uid),
+                          session: Session = Depends(require_sql_session)):
     if not body.consent_to_external_processing:
         raise HTTPException(status_code=400, detail="External processing consent required")
     if not os.getenv("OPENAI_API_KEY"):
         raise HTTPException(status_code=503, detail="OpenAI backend not configured")
     if not _allow(uid):
         raise HTTPException(status_code=429, detail="Hourly AI analysis limit reached")
+    _charge_one(uid, session)
     try:
         return await asyncio.to_thread(_analyze, body.sector, body.comment)
     except HTTPException:
