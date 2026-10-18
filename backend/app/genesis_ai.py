@@ -8,7 +8,7 @@ from threading import Lock
 
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
-from sqlalchemy import update
+from sqlalchemy import update, select, func
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -110,6 +110,37 @@ def _settle_usage(event_id: str, session: Session, result=None, failed=False):
         record.input_tokens = result.input_tokens
         record.output_tokens = result.output_tokens
     session.commit()
+
+
+def _usage_detail(uid: str, session: Session) -> dict:
+    basic = _read_usage(uid, session)
+    completed = session.execute(
+        select(
+            func.coalesce(func.sum(GenesisAiUsageEvent.input_tokens), 0),
+            func.coalesce(func.sum(GenesisAiUsageEvent.output_tokens), 0),
+            func.count(),
+        ).where(
+            GenesisAiUsageEvent.user_id == uid,
+            GenesisAiUsageEvent.period == basic["period"],
+            GenesisAiUsageEvent.status == "completed",
+        )
+    ).one()
+    period_start = datetime.strptime(basic["period"], "%Y-%m").replace(tzinfo=timezone.utc)
+    next_year = period_start.year + (period_start.month == 12)
+    next_month = 1 if period_start.month == 12 else period_start.month + 1
+    basic.update({
+        "input_tokens": int(completed[0]),
+        "output_tokens": int(completed[1]),
+        "completed_requests": int(completed[2]),
+        "resets_at": datetime(next_year, next_month, 1, tzinfo=timezone.utc).isoformat(),
+    })
+    return basic
+
+
+@router.get("/usage/details")
+def ai_usage_details(uid: str = Depends(current_uid),
+                     session: Session = Depends(require_sql_session)):
+    return _usage_detail(uid, session)
 
 
 @router.get("/usage")
