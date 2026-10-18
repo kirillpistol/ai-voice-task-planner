@@ -57,6 +57,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dem.dev.timeflame.R
 import dem.dev.timeflame.domain.model.User
+import dem.dev.timeflame.data.repository.GenesisAiUsageHistory
 import dem.dev.timeflame.data.repository.GenesisAiUsage
 import dem.dev.timeflame.feature.main.MainScreen
 import dem.dev.timeflame.util.language.UiLanguageHelper
@@ -68,6 +69,7 @@ fun ProfilePopup(
     modifier: Modifier = Modifier,
     user: User,
     aiUsage: GenesisAiUsage?,
+    aiUsageHistory: GenesisAiUsageHistory?,
     darkModeEnabled: Boolean,
     onLogoutClicked: () -> Unit,
     onDarkModeSwitchClicked: (Boolean) -> Unit
@@ -171,6 +173,14 @@ fun ProfilePopup(
                         Text("Обновление лимита (UTC): " +
                             (aiUsage?.resetsAt?.take(10) ?: "—"),
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("История за 6 месяцев", color = MaterialTheme.colorScheme.onSurface)
+                        aiUsageHistory?.months?.forEach { month ->
+                            Text(month.period + " · " + month.used +
+                                " запросов · " + (month.inputTokens + month.outputTokens) + " токенов",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+
                     }
                 }
                 Divider(modifier = Modifier
