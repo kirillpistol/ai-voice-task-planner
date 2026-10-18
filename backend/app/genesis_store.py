@@ -68,6 +68,16 @@ class GenesisAiUsageEvent(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class GenesisSubscription(Base):
+    """Server-managed entitlement; never updated directly from a user request."""
+    __tablename__ = "genesis_subscriptions"
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    plan_id: Mapped[str] = mapped_column(String(24), nullable=False)
+    valid_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    granted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source: Mapped[str] = mapped_column(String(40), nullable=False)
+
+
 class GenesisAiQuota(Base):
     """Authoritative per-user UTC-month request counter; no client writes."""
     __tablename__ = "genesis_ai_quota"
