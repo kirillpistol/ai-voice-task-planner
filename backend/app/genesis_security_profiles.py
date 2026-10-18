@@ -9,11 +9,23 @@ SECURITY_PROFILES = {
         "stages": ["inbound_vpn", "virtual_machine", "ephemeral_docker_container", "outbound_vpn"],
         "cleanup_scope": ["container", "temporary_workdir"],
         "deployment_status": "not_deployed",
+    },
+    "p2-doc-vpn-doc-p2-medicine": {
+        "id": "p2-doc-vpn-doc-p2-medicine",
+        "version": 1,
+        "applies_to": "medicine_sector_authorized_data_ingestion",
+        "stages": ["p2_inbound_gateway", "isolated_document_ingest", "private_vpn_link",
+                   "isolated_document_processing", "p2_outbound_gateway"],
+        "data_scope": ["consented_documents", "authorized_telemetry"],
+        "storage": "private_encrypted_user_scoped_storage",
+        "retention": "requires_policy_and_configured_expiry",
+        "traffic_capture": "only_explicitly_authorized_sources; no passive third-party interception",
+        "deployment_status": "not_deployed",
     }
 }
 
 # Model/service bindings and security profiles can be combined independently.
-SECTOR_SECURITY_PROFILES = {"FINANCE": "vpn-vm-ephemeral-container-vpn"}
+SECTOR_SECURITY_PROFILES = {"FINANCE": "vpn-vm-ephemeral-container-vpn", "MEDICINE": "p2-doc-vpn-doc-p2-medicine"}
 
 
 def selected_profile(sector):
@@ -24,6 +36,19 @@ def selected_profile(sector):
 def profile_text(sector, language):
     if selected_profile(sector) is None:
         return None
+    if sector == "MEDICINE":
+        if language == "ru":
+            return ("MEDICINE · P2 - DOC - VPN - DOC - P2\\n"
+                    "Отдельный серверный модуль: приём разрешённых медицинских документов и телеметрии, "
+                    "закрытый канал, изолированная обработка, контроль доступа, журналирование и сроки хранения.\\n"
+                    "Сетевой трафик — только от принадлежащих системе либо явно разрешённых источников; "
+                    "скрытый перехват чужих данных не предусмотрен.\\n"
+                    "Профиль выбран; модуль ещё не развёрнут.")
+        return ("MEDICINE · P2 - DOC - VPN - DOC - P2\\n"
+                "Separate server module for authorized documents and telemetry, private tunnel, "
+                "isolated processing, access controls, audit and retention.\\n"
+                "Capture restricted to owned or expressly authorized traffic; no covert interception.\\n"
+                "Profile selected; module not deployed.")
     if language == "ru":
         return ("Профиль финансов\nВходной VPN → VM → временный Docker-контейнер с очисткой → выходной VPN\n"
                 "Схема задана; развёртывание будет подключено отдельно.")
