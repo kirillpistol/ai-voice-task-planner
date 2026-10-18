@@ -9,9 +9,10 @@ from threading import Lock
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone
 from sqlalchemy import update
+from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from app.genesis_store import GenesisAiQuota, require_sql_session
+from app.genesis_store import GenesisAiQuota, GenesisAiUsageEvent, require_sql_session
 from pydantic import BaseModel, Field
 
 from app.v2 import current_uid
@@ -90,7 +91,11 @@ def _charge_one(uid: str, session: Session) -> None:
     if result.rowcount != 1:
         session.rollback()
         raise HTTPException(status_code=429, detail="Monthly AI request allowance exhausted")
+    event_id = str(uuid4())
+    session.add(GenesisAiUsageEvent(id=event_id, user_id=uid, period=period,
+        status="reserved", created_at=datetime.now(timezone.utc)))
     session.commit()
+    return event_id
 
 
 @router.get("/usage")
