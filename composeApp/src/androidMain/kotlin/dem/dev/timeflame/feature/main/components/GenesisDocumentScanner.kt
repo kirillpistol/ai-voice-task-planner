@@ -197,7 +197,9 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                     OutlinedTextField(
                         value = scannedText, onValueChange = { scannedText = it },
                         label = { Text("Проверьте и исправьте распознанный текст") },
-                        modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 8,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = 190.dp),
+                        minLines = 3, maxLines = 6,
+                        singleLine = false,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.Black, unfocusedTextColor = Color.Black,
                             focusedContainerColor = Color.White, unfocusedContainerColor = Color.White,
