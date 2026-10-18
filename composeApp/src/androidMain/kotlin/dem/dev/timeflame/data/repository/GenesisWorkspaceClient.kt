@@ -131,6 +131,18 @@ data class GenesisAiUsage(
 )
 
 @Serializable
+data class GenesisAiMonthUsage(
+    val period: String,
+    val used: Int,
+    @SerialName("input_tokens") val inputTokens: Long = 0,
+    @SerialName("output_tokens") val outputTokens: Long = 0,
+    @SerialName("completed_requests") val completedRequests: Int = 0
+)
+
+@Serializable
+data class GenesisAiUsageHistory(val months: List<GenesisAiMonthUsage> = emptyList())
+
+@Serializable
 private data class GenesisDedicatedRequest(val comment: String)
 
 class GenesisWorkspaceClient(
@@ -166,6 +178,14 @@ class GenesisWorkspaceClient(
             setBody(GenesisDedicatedRequest(comment))
         }
         checkStatus(response.status.value, 201)
+    }
+
+    suspend fun aiUsageHistory(): GenesisAiUsageHistory {
+        val response = httpClient.get("$baseUrl/ai/usage/history") {
+            header(HttpHeaders.Authorization, bearer())
+        }
+        checkStatus(response.status.value, 200)
+        return response.body()
     }
 
     suspend fun aiUsage(): GenesisAiUsage {
