@@ -55,6 +55,19 @@ class GenesisEnterpriseInquiry(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class GenesisAiUsageEvent(Base):
+    """Server-only accounting record; separate from wallet/payment balances."""
+    __tablename__ = "genesis_ai_usage_events"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    period: Mapped[str] = mapped_column(String(7), nullable=False)
+    model: Mapped[Optional[str]] = mapped_column(String(120))
+    input_tokens: Mapped[Optional[int]] = mapped_column(Integer)
+    output_tokens: Mapped[Optional[int]] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class GenesisAiQuota(Base):
     """Authoritative per-user UTC-month request counter; no client writes."""
     __tablename__ = "genesis_ai_quota"
