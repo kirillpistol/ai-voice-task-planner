@@ -20,6 +20,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.window.Dialog
@@ -136,20 +138,20 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
     }
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().imePadding(),
             shape = RoundedCornerShape(20.dp),
             color = Color(0xFF30343A),
             tonalElevation = 0.dp
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().heightIn(max = 660.dp)
+                modifier = Modifier.fillMaxWidth().heightIn(max = 620.dp)
                     .verticalScroll(rememberScrollState())
                     .padding(start = 16.dp, end = 16.dp, top = 28.dp, bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (cameraGranted && !captured) {
-                    Box(Modifier.fillMaxWidth().height(320.dp).background(Color.Black, RoundedCornerShape(12.dp))) {
+                    Box(Modifier.fillMaxWidth().aspectRatio(1.15f).clip(RoundedCornerShape(12.dp)).background(Color.Black)) {
                         AndroidView(
                             factory = { ctx ->
                                 PreviewView(ctx).apply {
@@ -187,7 +189,7 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                 }
                 if (captured && previewBitmap != null) {
                     Image(bitmap = previewBitmap!!.asImageBitmap(), contentDescription = "Снимок документа",
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp))
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp), contentScale = ContentScale.Fit)
                 }
                 if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -205,11 +207,15 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                         )
                     )
                 }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)) {
-                    OutlinedButton(onClick = { galleryLauncher.launch("image/*") },
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedButton(onClick = { galleryLauncher.launch("image/*") }, modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color.Black)) { Text("Галерея") }
                     if (cameraGranted) {
                         OutlinedButton(onClick = { captured = false; scannedText = ""; previewBitmap = null; error = null },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
                             colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color.Black)) {
                             Text("Повторить")
                         }
@@ -218,7 +224,7 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                 Button(
                     onClick = { onTextApproved(scannedText.trim()) },
                     enabled = scannedText.isNotBlank() && !busy,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black,
                         disabledContainerColor = Color(0xFF8B8D90), disabledContentColor = Color.White)
                 ) { Text("✓ Добавить информацию") }
