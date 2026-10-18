@@ -613,6 +613,7 @@ private fun GenesisCommentComposer(
     val rules = model.memoryRules[sector].orEmpty()
     val kind = model.commentKinds[sector] ?: "constraint"
     val draft = model.commentDrafts[sector].orEmpty()
+    val estimatedTokens = (draft.length + 1) / 2 // Approximation for Cyrillic; not provider billing usage.
     var consent by remember(sector, policy?.policyVersion) { mutableStateOf(false) }
     var showRules by rememberSaveable(sector) { mutableStateOf(false) }
     var forgetId by remember(sector) { mutableStateOf<String?>(null) }
@@ -636,12 +637,18 @@ private fun GenesisCommentComposer(
         }
         OutlinedTextField(
             value = draft,
-            onValueChange = { onEvent(MainScreenEvent.GenesisCommentEdited(sector, it)) },
+            onValueChange = { onEvent(MainScreenEvent.GenesisCommentEdited(sector, it.take(4000))) },
             modifier = Modifier.fillMaxWidth(),
             enabled = model.memoryBusySector != sector,
             minLines = 3, maxLines = 6,
             label = { Text(stringResource(R.string.genesis_memory_comment)) },
             supportingText = { Text(stringResource(R.string.genesis_memory_limit, draft.length)) }
+        )
+        Text(
+            "Объём: ${draft.length}/4000 символов · ≈${estimatedTokens} токенов (оценка). " +
+                "Сначала проверьте текст, затем запустите обработку комментария.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         if (model.memoryFailedSector == sector) {
             Text(stringResource(R.string.genesis_memory_failed),
