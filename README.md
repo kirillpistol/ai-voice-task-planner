@@ -1,5 +1,14 @@
 # PISTOL GENESIS
 
+## Скачать PISTOL GENESIS на Android
+
+**[⬇ Скачать PISTOL-GENESIS.apk](https://github.com/kirillpistol/ai-voice-task-planner/releases/download/genesis-preview/PISTOL-GENESIS.apk)**
+
+[Страница выпуска — версия, APK и контрольная сумма](https://github.com/kirillpistol/ai-voice-task-planner/releases/tag/genesis-preview)
+
+> Ссылка работает после успешной автоматической сборки и публикации в GitHub Releases. Если файл пока не доступен, проверьте [статус сборки](https://github.com/kirillpistol/ai-voice-task-planner/actions/workflows/genesis-apk-download.yml). Это тестовая Android-сборка (debug), не магазинная версия.
+
+
 Мобильное приложение для планирования задач и развития модульной платформы GENESIS.
 
 ## Приложение
