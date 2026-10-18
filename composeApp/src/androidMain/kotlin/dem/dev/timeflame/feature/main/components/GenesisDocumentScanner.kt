@@ -36,7 +36,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.google.mlkit.vision.text.cyrillic.CyrillicTextRecognizerOptions
 import java.io.File
 import java.util.concurrent.Executor
 import kotlinx.coroutines.delay
@@ -59,7 +59,7 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
     var captured by remember { mutableStateOf(false) }
     var previewBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
-    val recognizer = remember { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
+    val recognizer = remember { TextRecognition.getClient(CyrillicTextRecognizerOptions.DEFAULT_OPTIONS) }
     DisposableEffect(Unit) {
         onDispose { cameraProvider?.unbindAll(); recognizer.close() }
     }
