@@ -576,6 +576,21 @@ fun GenesisReportsWorkspace(
                 "VPN - VM - DOC - VPN\n" +
                     if (language == "ru") "Профиль выбран"
                     else "Profile selected"
+            } else if (sector == GenesisSector.MEDICINE) {
+                if (language == "ru") {
+                    "P2 - DOC - VPN - DOC - P2\n" +
+                        "Профиль выбран · отдельный серверный модуль\n" +
+                        "Приём разрешённых медицинских данных и сетевой телеметрии; " +
+                        "изолированная обработка, защищённое хранение, контроль доступа и аудит.\n" +
+                        "Только собственные или явно разрешённые источники трафика. " +
+                        "Модуль ещё не развёрнут."
+                } else {
+                    "P2 - DOC - VPN - DOC - P2\n" +
+                        "Profile selected · separate server module\n" +
+                        "Authorized medical data and traffic telemetry, isolated processing, " +
+                        "protected storage, access controls and audit.\n" +
+                        "Only owned or explicitly authorized traffic sources. Module not deployed."
+                }
             } else sector?.securityProfileRes?.let { stringResource(it) },
             stringResource(R.string.genesis_output_security_empty)
         )
