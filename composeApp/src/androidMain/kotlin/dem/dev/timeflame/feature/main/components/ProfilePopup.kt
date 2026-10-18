@@ -143,6 +143,36 @@ fun ProfilePopup(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
+                var usageExpanded by remember { mutableStateOf(false) }
+                Row(
+                    modifier = Modifier.fillMaxWidth().clickable { usageExpanded = !usageExpanded }
+                        .padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Использование и подписка",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface)
+                    Text(if (usageExpanded) "−" else "+",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (usageExpanded) {
+                    Column(verticalArrangement = Arrangement.spacedBy(5.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                        Text("Тариф: " + (aiUsage?.plan?.uppercase() ?: "—"),
+                            color = MaterialTheme.colorScheme.onSurface)
+                        Text("Входные токены: " + (aiUsage?.inputTokens?.toString() ?: "—"),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Выходные токены: " + (aiUsage?.outputTokens?.toString() ?: "—"),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Успешные запросы: " +
+                            (aiUsage?.completedRequests?.toString() ?: "—"),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Обновление лимита (UTC): " +
+                            (aiUsage?.resetsAt?.take(10) ?: "—"),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
                 Divider(modifier = Modifier
                     .padding(top = 5.dp),
                     color = MaterialTheme.colorScheme.onSurface
