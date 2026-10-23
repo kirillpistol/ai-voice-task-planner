@@ -1053,7 +1053,7 @@ private fun GenesisSectorSelector(
             stringResource(R.string.genesis_sector_prompt),
             style = MaterialTheme.typography.titleSmall
         )
-        GenesisSector.values().toList().chunked(2).forEach { sectors ->
+        enumValues<GenesisSector>().toList().chunked(2).forEach { sectors ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
