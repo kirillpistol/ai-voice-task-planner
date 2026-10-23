@@ -1,5 +1,12 @@
 package dem.dev.timeflame.feature.main.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -154,6 +161,22 @@ fun ProfilePopup(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
+                val quotaFraction = aiUsage?.let {
+                    if (it.limit > 0) (it.used.toFloat() / it.limit).coerceIn(0f, 1f) else 0f
+                } ?: 0f
+                val animatedQuota by animateFloatAsState(
+                    targetValue = quotaFraction, animationSpec = tween(650),
+                    label = "genesis-billing-quota"
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(5.dp)
+                        .background(monoInk.copy(alpha = 0.17f), RoundedCornerShape(4.dp))
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(animatedQuota).height(5.dp)
+                            .background(monoInk, RoundedCornerShape(4.dp))
+                    )
+                }
                 var usageExpanded by remember { mutableStateOf(false) }
                 Row(
                     modifier = Modifier.fillMaxWidth().clickable { usageExpanded = !usageExpanded }
@@ -167,7 +190,11 @@ fun ProfilePopup(
                     Text(if (usageExpanded) "−" else "+",
                         color = monoInk)
                 }
-                if (usageExpanded) {
+                AnimatedVisibility(
+                    visible = usageExpanded,
+                    enter = fadeIn(tween(180)) + expandVertically(tween(240)),
+                    exit = fadeOut(tween(120)) + shrinkVertically(tween(180))
+                ) {
                     Column(verticalArrangement = Arrangement.spacedBy(5.dp),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         Text("Тариф: " + (aiUsage?.plan?.uppercase() ?: "—"),
