@@ -1059,9 +1059,10 @@ private fun GenesisSectorSelector(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 sectors.forEach { sector ->
-                    val isSelected = selectedSector == sector.name
+                    val sectorId = sector.toString()
+                    val isSelected = selectedSector == sectorId
                     OutlinedButton(
-                        onClick = { onSelected(sector.name) },
+                        onClick = { onSelected(sectorId) },
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp)
                             .semantics { selected = isSelected },
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
