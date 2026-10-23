@@ -393,17 +393,6 @@ private fun formatGenesisDate(raw: String?): String {
 
 @Composable
 fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
-    var billingOpen by remember { mutableStateOf(false) }
-    if (billingOpen) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = { billingOpen = false },
-            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            androidx.compose.material3.Surface(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
-                dem.dev.timeflame.feature.billing.BillingScreen(onBack = { billingOpen = false })
-            }
-        }
-    }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -421,12 +410,6 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_services_crypto_desc),
             stringResource(R.string.workspace_coming_soon)
         )
-        OutlinedButton(
-            onClick = { billingOpen = true },
-            modifier = androidx.compose.ui.Modifier.fillMaxWidth()
-        ) {
-            Text("Plans")
-        }
         GenesisNftCarousel()
         WorkspaceModuleCard(
             Icons.Default.Description,
