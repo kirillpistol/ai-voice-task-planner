@@ -458,61 +458,127 @@ fun GenesisServicesWorkspace(
         if (packagesOpen) {
             AlertDialog(
                 onDismissRequest = { packagesOpen = false },
-                title = { Text(if (language == "ru") "Пакеты GENESIS" else "GENESIS plans") },
+                shape = RoundedCornerShape(16.dp),
+                containerColor = inkBackground,
+                titleContentColor = accent,
+                textContentColor = accent,
+                title = {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("PISTOL GENESIS", style = MaterialTheme.typography.titleLarge)
+                        Text(if (language == "ru") "ВЫБЕРИТЕ ВОЗМОЖНОСТИ"
+                            else "CHOOSE YOUR PLAN",
+                            style = MaterialTheme.typography.labelSmall)
+                    }
+                },
                 text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        OutlinedButton(onClick = { selectedPackage = "free" },
-                            modifier = Modifier.fillMaxWidth()) {
-                            Text("Free · 0 ₽ · 100/мес." +
-                                if (selectedPackage == "free") " ✓" else "")
+                    Column(
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 490.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        listOf("free", "plus", "dedicated").forEach { plan ->
+                            val selected = selectedPackage == plan
+                            val name = when (plan) {
+                                "free" -> "FREE"
+                                "plus" -> "PLUS"
+                                else -> "PISTOL GENESIS"
+                            }
+                            val amount = when (plan) {
+                                "free" -> "0 ₽"
+                                "plus" -> "—"
+                                else -> "CUSTOM"
+                            }
+                            val details = when (plan) {
+                                "free" -> if (language == "ru") "100 запросов ИИ / месяц"
+                                    else "100 AI requests / month"
+                                "plus" -> if (language == "ru") "1 000 запросов ИИ / месяц"
+                                    else "1,000 AI requests / month"
+                                else -> if (language == "ru") "Свои модули и инфраструктура"
+                                    else "Custom modules and infrastructure"
+                            }
+                            val tileBackground = if (selected) accent else inkBackground
+                            val tileInk = if (selected) inkBackground else accent
+                            Card(
+                                onClick = { selectedPackage = plan },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(if (selected) 2.dp else 1.dp, accent),
+                                colors = CardDefaults.cardColors(containerColor = tileBackground)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(14.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(name, color = tileInk,
+                                            style = MaterialTheme.typography.titleMedium)
+                                        Text(if (selected) "●" else "○", color = tileInk,
+                                            style = MaterialTheme.typography.titleMedium)
+                                    }
+                                    Text(details, color = tileInk,
+                                        style = MaterialTheme.typography.bodySmall)
+                                    Text(amount, color = tileInk,
+                                        style = MaterialTheme.typography.titleLarge)
+                                    if (plan == "plus") {
+                                        Text(if (language == "ru") "Оплата пока недоступна"
+                                            else "Payments not available yet",
+                                            color = tileInk, style = MaterialTheme.typography.labelSmall)
+                                    }
+                                }
+                            }
                         }
-                        OutlinedButton(onClick = { selectedPackage = "plus" },
-                            modifier = Modifier.fillMaxWidth()) {
-                            Text("Plus · 1 000/мес." +
-                                if (selectedPackage == "plus") " ✓" else "")
-                        }
-                        OutlinedButton(onClick = { selectedPackage = "dedicated" },
-                            modifier = Modifier.fillMaxWidth()) {
-                            Text("PISTOL GENESIS · Custom" +
-                                if (selectedPackage == "dedicated") " ✓" else "")
-                        }
+                        HorizontalDivider(color = accent)
                         when (selectedPackage) {
                             "free" -> Text(if (language == "ru")
-                                "Бесплатно: до 100 запросов в месяц. Лимит проверяется сервером."
-                                else "Free: 100 requests per month, enforced by server.")
+                                "Базовый пакет действует без оплаты. Лимит контролируется сервером."
+                                else "The free plan is active without payment. Server enforces the limit.",
+                                color = accent)
                             "plus" -> Text(if (language == "ru")
-                                "1 000 запросов в месяц. Оплата пока не подключена; пакет недоступен для активации."
-                                else "1,000 requests per month. Payments are not configured yet.")
+                                "Подключение Plus станет доступно после запуска платежей. Сейчас тариф можно изучить, но нельзя активировать."
+                                else "Plus activation will be available when payments launch. For now it is preview only.",
+                                color = accent)
                             else -> {
-                                Text(if (language == "ru")
-                                    "Опишите, что хотите получить от системы:"
-                                    else "Describe your desired custom system:")
-                                OutlinedTextField(value = inquiryComment,
+                                Text(if (language == "ru") "Расскажите о необходимом решении"
+                                    else "Tell us what you need", color = accent)
+                                OutlinedTextField(
+                                    value = inquiryComment,
                                     onValueChange = { inquiryComment = it.take(3000) },
                                     modifier = Modifier.fillMaxWidth(),
-                                    label = { Text(if (language == "ru") "Комментарий" else "Comment") },
-                                    minLines = 3)
-                                Button(onClick = {
-                                    onEvent(MainScreenEvent.GenesisDedicatedInquiry(inquiryComment))
-                                }, enabled = inquiryComment.trim().length >= 10 &&
-                                    !state.genesisWorkspace.dedicatedInquirySending,
-                                    modifier = Modifier.fillMaxWidth()) {
-                                    Text(if (language == "ru") "Отправить заявку" else "Submit request")
+                                    label = { Text(if (language == "ru") "Описание проекта" else "Project brief") },
+                                    minLines = 3
+                                )
+                                Button(
+                                    onClick = {
+                                        onEvent(MainScreenEvent.GenesisDedicatedInquiry(inquiryComment))
+                                    },
+                                    enabled = inquiryComment.trim().length >= 10 &&
+                                        !state.genesisWorkspace.dedicatedInquirySending,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = accent, contentColor = inkBackground)
+                                ) {
+                                    Text(if (language == "ru") "ОТПРАВИТЬ ЗАЯВКУ"
+                                        else "SEND REQUEST")
                                 }
                                 if (state.genesisWorkspace.dedicatedInquirySent)
                                     Text(if (language == "ru") "Заявка принята сервером."
-                                         else "Request received by server.")
+                                        else "Request received by server.", color = accent)
                                 if (state.genesisWorkspace.dedicatedInquiryFailed)
                                     Text(if (language == "ru") "Ошибка отправки заявки."
-                                         else "Could not send request.")
+                                        else "Could not send request.", color = accent)
                             }
                         }
                     }
                 },
-                confirmButton = { TextButton(onClick = { packagesOpen = false }) {
-                    Text(if (language == "ru") "Закрыть" else "Close")
-                } }
+                confirmButton = {
+                    TextButton(onClick = { packagesOpen = false }) {
+                        Text(if (language == "ru") "ГОТОВО" else "DONE", color = accent)
+                    }
+                }
             )
         }
 
