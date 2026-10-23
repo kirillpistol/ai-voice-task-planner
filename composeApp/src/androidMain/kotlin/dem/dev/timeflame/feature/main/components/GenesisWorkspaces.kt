@@ -425,7 +425,7 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             onClick = { billingOpen = true },
             modifier = androidx.compose.ui.Modifier.fillMaxWidth()
         ) {
-            Text("Подписки и биллинг")
+            Text("Plans")
         }
         GenesisNftCarousel()
         WorkspaceModuleCard(
