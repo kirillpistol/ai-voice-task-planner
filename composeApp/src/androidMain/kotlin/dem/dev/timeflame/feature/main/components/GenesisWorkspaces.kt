@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -543,12 +544,10 @@ fun GenesisServicesWorkspace(
                             }
                         }
                         HorizontalDivider(color = accent)
-                        androidx.compose.runtime.key(selectedPackage) {
-                        AnimatedVisibility(visible = true,
-                            enter = fadeIn(tween(180)) + expandVertically(tween(220)),
-                            exit = fadeOut(tween(120)) + shrinkVertically(tween(160))) {
+                        Crossfade(targetState = selectedPackage,
+                            animationSpec = tween(240), label = "genesis-plan-details") { activePlan ->
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        when (selectedPackage) {
+                        when (activePlan) {
                             "free" -> Text(if (language == "ru")
                                 "Базовый пакет действует без оплаты. Лимит контролируется сервером."
                                 else "The free plan is active without payment. Server enforces the limit.",
@@ -587,7 +586,6 @@ fun GenesisServicesWorkspace(
                                     Text(if (language == "ru") "Ошибка отправки заявки."
                                         else "Could not send request.", color = accent)
                             }
-                        }
                         }
                         }
                     }
