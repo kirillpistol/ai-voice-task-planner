@@ -182,6 +182,56 @@ def _usage_history(uid: str, session: Session, months: int = 6) -> list[dict]:
     ]
 
 
+def _billing_summary(uid: str, session: Session) -> dict:
+    """Account-scoped allowance view. No payment or monetary cost estimation."""
+    details = _usage_detail(uid, session)
+    used = int(details["used"])
+    limit = int(details["limit"])
+    details["remaining"] = max(0, limit - used)
+    details["usage_percent"] = round(100 * used / limit, 1) if limit else 0
+    details["warning_level"] = (
+        "exhausted" if used >= limit else
+        "critical" if used * 100 >= limit * 95 else
+        "warning" if used * 100 >= limit * 80 else "normal"
+    )
+    details["billing_currency"] = None
+    details["estimated_cost"] = None
+    details["payments_enabled"] = False
+    return details
+
+
+def _billing_events(uid: str, session: Session, limit: int = 30) -> list[dict]:
+    """Return only metering metadata; never expose the input comment."""
+    records = session.execute(
+        select(GenesisAiUsageEvent)
+        .where(GenesisAiUsageEvent.user_id == uid)
+        .order_by(GenesisAiUsageEvent.created_at.desc(), GenesisAiUsageEvent.id.desc())
+        .limit(limit)
+    ).scalars().all()
+    return [{
+        "id": event.id,
+        "period": event.period,
+        "created_at": event.created_at.isoformat(),
+        "status": event.status,
+        "model": event.model,
+        "input_tokens": event.input_tokens,
+        "output_tokens": event.output_tokens,
+        "quota_units": 1,
+    } for event in records]
+
+
+@router.get("/billing/summary")
+def ai_billing_summary(uid: str = Depends(current_uid),
+                       session: Session = Depends(require_sql_session)):
+    return _billing_summary(uid, session)
+
+
+@router.get("/billing/events")
+def ai_billing_events(uid: str = Depends(current_uid),
+                      session: Session = Depends(require_sql_session)):
+    return {"events": _billing_events(uid, session)}
+
+
 @router.get("/usage/history")
 def ai_usage_history(uid: str = Depends(current_uid),
                      session: Session = Depends(require_sql_session)):
