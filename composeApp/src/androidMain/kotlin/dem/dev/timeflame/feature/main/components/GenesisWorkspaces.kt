@@ -5,6 +5,13 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -496,11 +503,15 @@ fun GenesisServicesWorkspace(
                                 else -> if (language == "ru") "Свои модули и инфраструктура"
                                     else "Custom modules and infrastructure"
                             }
-                            val tileBackground = if (selected) accent else inkBackground
-                            val tileInk = if (selected) inkBackground else accent
+                            val tileBackground by animateColorAsState(
+                                targetValue = if (selected) accent else inkBackground,
+                                animationSpec = tween(240), label = "plan-background")
+                            val tileInk by animateColorAsState(
+                                targetValue = if (selected) inkBackground else accent,
+                                animationSpec = tween(240), label = "plan-text")
                             Card(
                                 onClick = { selectedPackage = plan },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().animateContentSize(),
                                 shape = RoundedCornerShape(12.dp),
                                 border = BorderStroke(if (selected) 2.dp else 1.dp, accent),
                                 colors = CardDefaults.cardColors(containerColor = tileBackground)
@@ -532,6 +543,11 @@ fun GenesisServicesWorkspace(
                             }
                         }
                         HorizontalDivider(color = accent)
+                        androidx.compose.runtime.key(selectedPackage) {
+                        AnimatedVisibility(visible = true,
+                            enter = fadeIn(tween(180)) + expandVertically(tween(220)),
+                            exit = fadeOut(tween(120)) + shrinkVertically(tween(160))) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         when (selectedPackage) {
                             "free" -> Text(if (language == "ru")
                                 "Базовый пакет действует без оплаты. Лимит контролируется сервером."
@@ -571,6 +587,8 @@ fun GenesisServicesWorkspace(
                                     Text(if (language == "ru") "Ошибка отправки заявки."
                                         else "Could not send request.", color = accent)
                             }
+                        }
+                        }
                         }
                     }
                 },
