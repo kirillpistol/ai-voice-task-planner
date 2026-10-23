@@ -445,7 +445,7 @@ fun GenesisServicesWorkspace(
             shape = RoundedCornerShape(12.dp)) {
             Column(Modifier.fillMaxWidth().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(if (language == "ru") "Пакеты Genesis" else "Genesis plans",
+                Text(if (language == "ru") "Пакеты GENESIS" else "GENESIS plans",
                     style = MaterialTheme.typography.titleMedium, color = accent)
                 Text(if (language == "ru") "Лимиты ИИ и индивидуальные модули"
                      else "AI allowances and custom modules",
@@ -473,7 +473,7 @@ fun GenesisServicesWorkspace(
                 title = {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("PISTOL GENESIS", style = MaterialTheme.typography.titleLarge)
-                        Text(if (language == "ru") "ВЫБЕРИТЕ ПАКЕТ"
+                        Text(if (language == "ru") "ВЫБЕРИТЕ ВОЗМОЖНОСТИ"
                             else "CHOOSE YOUR PLAN",
                             style = MaterialTheme.typography.labelSmall)
                     }
@@ -484,17 +484,17 @@ fun GenesisServicesWorkspace(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        listOf("free", "plus", "custom").forEach { plan ->
+                        listOf("free", "plus", "dedicated").forEach { plan ->
                             val selected = selectedPackage == plan
                             val name = when (plan) {
                                 "free" -> "FREE"
                                 "plus" -> "PLUS"
-                                else -> "CUSTOM"
+                                else -> "PISTOL GENESIS"
                             }
                             val amount = when (plan) {
-                                "free" -> "0 ₽ / мес"
-                                "plus" -> "990 ₽ / мес"
-                                else -> if (language == "ru") "По запросу" else "On request"
+                                "free" -> "0 ₽"
+                                "plus" -> "—"
+                                else -> "CUSTOM"
                             }
                             val details = when (plan) {
                                 "free" -> if (language == "ru") "100 запросов ИИ / месяц"
@@ -505,16 +505,16 @@ fun GenesisServicesWorkspace(
                                     else "Custom modules and infrastructure"
                             }
                             val tileBackground by animateColorAsState(
-                                targetValue = if (selected) documentBackground else inkBackground,
+                                targetValue = if (selected) accent else inkBackground,
                                 animationSpec = tween(240), label = "plan-background")
                             val tileInk by animateColorAsState(
-                                targetValue = accent,
+                                targetValue = if (selected) inkBackground else accent,
                                 animationSpec = tween(240), label = "plan-text")
                             Card(
                                 onClick = { selectedPackage = plan },
                                 modifier = Modifier.fillMaxWidth().animateContentSize(),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(if (selected) 2.dp else 1.dp, if (selected) accent else documentBorder),
+                                border = BorderStroke(if (selected) 2.dp else 1.dp, accent),
                                 colors = CardDefaults.cardColors(containerColor = tileBackground)
                             ) {
                                 Column(
@@ -1053,24 +1053,15 @@ private fun GenesisSectorSelector(
             stringResource(R.string.genesis_sector_prompt),
             style = MaterialTheme.typography.titleSmall
         )
-        val options = listOf(
-            "FINANCE" to R.string.genesis_sector_finance,
-            "MEDICINE" to R.string.genesis_sector_medicine,
-            "MANUFACTURING" to R.string.genesis_sector_manufacturing,
-            "MILITARY" to R.string.genesis_sector_military,
-            "GOVERNMENT" to R.string.genesis_sector_government,
-            "LOGISTICS" to R.string.genesis_sector_logistics
-        )
-        options.chunked(2).forEach { sectors ->
+        enumValues<GenesisSector>().toList().chunked(2).forEach { sectors ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 sectors.forEach { sector ->
-                    val sectorId = sector.first
-                    val isSelected = selectedSector == sectorId
+                    val isSelected = selectedSector == sector.name
                     OutlinedButton(
-                        onClick = { onSelected(sectorId) },
+                        onClick = { onSelected(sector.name) },
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp)
                             .semantics { selected = isSelected },
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
@@ -1085,7 +1076,7 @@ private fun GenesisSectorSelector(
                         )
                     ) {
                         Text(
-                            stringResource(sector.second),
+                            stringResource(sector.titleRes),
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
