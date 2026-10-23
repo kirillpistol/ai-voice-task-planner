@@ -445,7 +445,7 @@ fun GenesisServicesWorkspace(
             shape = RoundedCornerShape(12.dp)) {
             Column(Modifier.fillMaxWidth().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(if (language == "ru") "Пакеты GENESIS" else "GENESIS plans",
+                Text(if (language == "ru") "Пакеты Genesis" else "Genesis plans",
                     style = MaterialTheme.typography.titleMedium, color = accent)
                 Text(if (language == "ru") "Лимиты ИИ и индивидуальные модули"
                      else "AI allowances and custom modules",
@@ -473,7 +473,7 @@ fun GenesisServicesWorkspace(
                 title = {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("PISTOL GENESIS", style = MaterialTheme.typography.titleLarge)
-                        Text(if (language == "ru") "ВЫБЕРИТЕ ВОЗМОЖНОСТИ"
+                        Text(if (language == "ru") "ВЫБЕРИТЕ ПАКЕТ"
                             else "CHOOSE YOUR PLAN",
                             style = MaterialTheme.typography.labelSmall)
                     }
@@ -484,17 +484,17 @@ fun GenesisServicesWorkspace(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        listOf("free", "plus", "dedicated").forEach { plan ->
+                        listOf("free", "plus", "custom").forEach { plan ->
                             val selected = selectedPackage == plan
                             val name = when (plan) {
                                 "free" -> "FREE"
                                 "plus" -> "PLUS"
-                                else -> "PISTOL GENESIS"
+                                else -> "CUSTOM"
                             }
                             val amount = when (plan) {
-                                "free" -> "0 ₽"
-                                "plus" -> "—"
-                                else -> "CUSTOM"
+                                "free" -> "0 ₽ / мес"
+                                "plus" -> "990 ₽ / мес"
+                                else -> if (language == "ru") "По запросу" else "On request"
                             }
                             val details = when (plan) {
                                 "free" -> if (language == "ru") "100 запросов ИИ / месяц"
@@ -505,16 +505,16 @@ fun GenesisServicesWorkspace(
                                     else "Custom modules and infrastructure"
                             }
                             val tileBackground by animateColorAsState(
-                                targetValue = if (selected) accent else inkBackground,
+                                targetValue = if (selected) documentBackground else inkBackground,
                                 animationSpec = tween(240), label = "plan-background")
                             val tileInk by animateColorAsState(
-                                targetValue = if (selected) inkBackground else accent,
+                                targetValue = accent,
                                 animationSpec = tween(240), label = "plan-text")
                             Card(
                                 onClick = { selectedPackage = plan },
                                 modifier = Modifier.fillMaxWidth().animateContentSize(),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(if (selected) 2.dp else 1.dp, accent),
+                                border = BorderStroke(if (selected) 2.dp else 1.dp, if (selected) accent else documentBorder),
                                 colors = CardDefaults.cardColors(containerColor = tileBackground)
                             ) {
                                 Column(
