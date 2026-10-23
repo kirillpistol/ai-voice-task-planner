@@ -1053,13 +1053,21 @@ private fun GenesisSectorSelector(
             stringResource(R.string.genesis_sector_prompt),
             style = MaterialTheme.typography.titleSmall
         )
-        enumValues<GenesisSector>().toList().chunked(2).forEach { sectors ->
+        val options = listOf(
+            "FINANCE" to R.string.genesis_sector_finance,
+            "MEDICINE" to R.string.genesis_sector_medicine,
+            "MANUFACTURING" to R.string.genesis_sector_manufacturing,
+            "MILITARY" to R.string.genesis_sector_military,
+            "GOVERNMENT" to R.string.genesis_sector_government,
+            "LOGISTICS" to R.string.genesis_sector_logistics
+        )
+        options.chunked(2).forEach { sectors ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 sectors.forEach { sector ->
-                    val sectorId = sector.toString()
+                    val sectorId = sector.first
                     val isSelected = selectedSector == sectorId
                     OutlinedButton(
                         onClick = { onSelected(sectorId) },
@@ -1077,7 +1085,7 @@ private fun GenesisSectorSelector(
                         )
                     ) {
                         Text(
-                            stringResource(sector.titleRes),
+                            stringResource(sector.second),
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
