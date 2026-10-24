@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from app.v2 import router as v2_router
+from app.phone_generator import router as phone_generator_router
 from app.genesis_api import router as genesis_router
 from app.genesis_memory import router as memory_router
 from app.genesis_core_status import router as core_status_router, monitor as core_monitor
@@ -51,6 +52,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PISTOL GENESIS API", version="0.2.0", lifespan=lifespan, docs_url=None, redoc_url=None)
 app.include_router(v2_router)
+app.include_router(phone_generator_router)
 app.include_router(genesis_router)
 app.include_router(memory_router)
 app.include_router(core_status_router)
