@@ -418,59 +418,6 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
     }
 }
 
-/** Visual crypto entry only: no prices, trades, wallets or provider connection are implied. */
-@Composable
-private fun GenesisCryptoPreviewCard() {
-    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    val cardSurface = if (darkApp) Color.White else Color.Black
-    val foreground = if (darkApp) Color.Black else Color.White
-    val secondary = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
-    val accent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
-    val rule = if (darkApp) Color(0xFFB8B8B8) else Color(0xFF555555)
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardSurface)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(Icons.Default.GridView, contentDescription = null, tint = accent)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.workspace_services_crypto),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = foreground
-                    )
-                    Text(
-                        text = stringResource(R.string.workspace_services_crypto_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = secondary
-                    )
-                }
-            }
-            HorizontalDivider(color = rule)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("GENESIS / CRYPTO", style = MaterialTheme.typography.labelSmall, color = accent)
-                Text(
-                    stringResource(R.string.workspace_coming_soon),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = secondary
-                )
-            }
-        }
-    }
-}
-
 @Composable
 fun GenesisReportsWorkspace(
     state: MainScreenState,
