@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +20,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.luminance
 import dem.dev.timeflame.domain.model.Task
 import androidx.compose.material3.IconButton
