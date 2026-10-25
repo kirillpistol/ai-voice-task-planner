@@ -95,8 +95,6 @@ fun MainScreen(
     val context = LocalContext.current
     val viewModel = androidKoinViewModel<MainScreenViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var genesisDocumentRequested by remember { mutableStateOf(false) }
-    var genesisReportUsage by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     val speechController = remember(context, viewModel) {
         TaskSpeechController(
@@ -188,6 +186,8 @@ private fun MainScreenView(
     onEvent: (MainScreenEvent) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState()
+    var genesisDocumentRequested by remember { mutableStateOf(false) }
+    var genesisReportUsage by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     val isDarkModeEnabled = DarkModeHelper.isDarkModeEnabled()
     val isSystemInDarkMode = isSystemInDarkTheme()
