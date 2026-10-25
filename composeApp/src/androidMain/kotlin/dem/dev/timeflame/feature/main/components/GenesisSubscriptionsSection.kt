@@ -67,8 +67,11 @@ private val gold = Color(0xFFD5B65E)
 private fun PistolTokenIcon(modifier: Modifier = Modifier, large: Boolean = false) {
     // This is the customer's original raster artwork: never redraw or recolor it.
     val context = LocalContext.current
-    val resourceId = remember(context) {
-        context.resources.getIdentifier("pistol_token", "drawable", context.packageName)
+    val resourceId = remember(context, large) {
+        val resourceName = if (large) "pistol_token" else "pistol_token_micro"
+        val requested = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+        if (requested != 0) requested
+        else context.resources.getIdentifier("pistol_token", "drawable", context.packageName)
     }
     if (resourceId == 0) return
     Image(
