@@ -5,6 +5,17 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -693,6 +704,59 @@ private fun GenesisOverviewBanner(selectedSectorTitle: String?, connected: Boole
 }
 
 @Composable
+private fun GenesisScanButton(onClick: () -> Unit, enabled: Boolean) {
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val backgroundColor = if (darkApp) Color.White else Color.Black
+    val foreground = if (darkApp) Color.Black else Color.White
+    val muted = if (darkApp) Color(0xFF555555) else Color(0xFFCECECE)
+    val accent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val progress = remember { Animatable(-1f) }
+    LaunchedEffect(Unit) {
+        repeat(2) {
+            progress.snapTo(-1f)
+            progress.animateTo(2f, tween(1100, easing = FastOutSlowInEasing))
+            delay(180)
+        }
+    }
+    val shimmer = Brush.linearGradient(
+        colors = listOf(backgroundColor, accent.copy(alpha = 0.20f), backgroundColor),
+        start = Offset(progress.value * 850f, 0f),
+        end = Offset(progress.value * 850f + 260f, 260f)
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .border(1.dp, accent.copy(alpha = 0.32f), RoundedCornerShape(18.dp))
+            .background(backgroundColor)
+            .clickable(enabled = enabled, onClick = onClick)
+    ) {
+        Box(Modifier.matchParentSize().background(shimmer))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 15.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(42.dp).clip(CircleShape)
+                    .background(if (darkApp) Color(0xFFF1F1F1) else Color(0xFF202020)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Description, contentDescription = null,
+                    tint = accent, modifier = Modifier.size(22.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text("Сканировать документ", color = foreground,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold)
+                Text("Камера / галерея / ручной ввод", color = muted,
+                    style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+}
+
+@Composable
 private fun GenesisCommentComposer(
     state: MainScreenState,
     sector: String,
@@ -721,16 +785,10 @@ private fun GenesisCommentComposer(
                 Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workspace_check_connection))
             }
         }
-        OutlinedButton(
+        GenesisScanButton(
             onClick = { showScanner = true },
-            enabled = !busy,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(Icons.Default.Description, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Сканировать документ")
-        }
+            enabled = !busy
+        )
         if (showScanner) {
             GenesisDocumentScanner(
                 onDismiss = { showScanner = false },
