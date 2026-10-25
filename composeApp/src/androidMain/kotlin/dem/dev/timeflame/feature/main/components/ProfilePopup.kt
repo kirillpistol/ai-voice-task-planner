@@ -29,6 +29,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -75,7 +76,7 @@ import dem.dev.timeflame.util.theme.AppTheme
 import dem.dev.timeflame.util.theme.DarkModeHelper
 
 /** Read-only, authenticated server counter; PISTOL monetary balance is separate. */
-private suspend fun genesisRequestUsage(): Pair<Int, Int>? {
+internal suspend fun genesisRequestUsage(): Pair<Int, Int>? {
     val user = FirebaseAuth.getInstance().currentUser ?: return null
     val token = suspendCancellableCoroutine<String?> { continuation ->
         user.getIdToken(false).addOnCompleteListener { result ->
@@ -105,7 +106,7 @@ private suspend fun genesisRequestUsage(): Pair<Int, Int>? {
 }
 
 @Composable
-private fun GenesisUsageHeader() {
+private fun GenesisUsageHeader(onReportClick: (Pair<Int, Int>?) -> Unit) {
     val context = LocalContext.current
     var usage by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var loading by remember { mutableStateOf(true) }
@@ -145,10 +146,22 @@ private fun GenesisUsageHeader() {
             Text("Израсходовано / всего", style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text(
-            if (loading) "…" else usage?.let { "${it.first} / ${it.second}" } ?: "— / —",
-            style = MaterialTheme.typography.titleMedium,
-            color = accent
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                if (loading) "…" else usage?.let { "${it.first} / ${it.second}" } ?: "— / —",
+                style = MaterialTheme.typography.titleMedium,
+                color = accent
+            )
+            Text("Эффективность: —", style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Потенциал: —", style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(
+            imageVector = Icons.Default.Description,
+            contentDescription = "Открыть отчёт в документах",
+            tint = accent,
+            modifier = Modifier.size(26.dp).clickable { onReportClick(usage) }
         )
     }
 }
@@ -159,7 +172,8 @@ fun ProfilePopup(
     user: User,
     darkModeEnabled: Boolean,
     onLogoutClicked: () -> Unit,
-    onDarkModeSwitchClicked: (Boolean) -> Unit
+    onDarkModeSwitchClicked: (Boolean) -> Unit,
+    onGenesisReportClick: (Pair<Int, Int>?) -> Unit
 ) {
     var isSettingsOpen by remember { mutableStateOf(false) }
     // Keep the menu inside the screen on compact phones, rather than sizing to the flags.
@@ -220,7 +234,7 @@ fun ProfilePopup(
                         )
                     }
                 }
-                GenesisUsageHeader()
+                GenesisUsageHeader(onGenesisReportClick)
                 Divider(modifier = Modifier
                     .padding(top = 5.dp),
                     color = MaterialTheme.colorScheme.onSurface
