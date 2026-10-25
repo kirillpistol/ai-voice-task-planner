@@ -253,13 +253,13 @@ fun GenesisTasksWorkspace(
                                 TextButton(
                                     onClick = { onEvent(MainScreenEvent.EditTaskClicked(task)) },
                                     enabled = !state.isSavingTask
-                                ) { Text(stringResource(R.string.edit_task)) }
+                                ) { Text(stringResource(R.string.edit_task), color = panelAccent) }
                             }
                             IconButton(
                                 onClick = { confirmCalendarDelete = task },
                                 enabled = !state.isSavingTask
                             ) {
-                                Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.workspace_delete_task))
+                                Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.workspace_delete_task), tint = panelMuted)
                             }
                         }
                     }
@@ -295,7 +295,7 @@ fun GenesisTasksWorkspace(
                                 Icon(
                                     Icons.Default.DeleteOutline,
                                     contentDescription = stringResource(R.string.genesis_sql_delete_one),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = panelMuted
                                 )
                             }
                         }
