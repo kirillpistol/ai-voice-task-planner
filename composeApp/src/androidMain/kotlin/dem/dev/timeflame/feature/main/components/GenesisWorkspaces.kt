@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dem.dev.timeflame.R
+import dem.dev.timeflame.feature.main.components.genesisRequestUsage
 import dem.dev.timeflame.feature.main.MainScreenEvent
 import dem.dev.timeflame.feature.main.state.MainScreenState
 import dem.dev.timeflame.util.components.GenesisTaskSkeleton
@@ -469,11 +470,23 @@ private fun formatGenesisDate(raw: String?): String {
 }
 
 @Composable
-fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
+fun GenesisServicesWorkspace(
+    modifier: Modifier = Modifier,
+    focusDocuments: Boolean = false,
+    initialReportUsage: Pair<Int, Int>? = null
+) {
+    val scrollState = rememberScrollState()
+    var reportUsage by remember { mutableStateOf(initialReportUsage) }
+    LaunchedEffect(focusDocuments) {
+        if (focusDocuments) {
+            reportUsage = genesisRequestUsage()
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -484,14 +497,14 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
         GenesisMarketCarousel()
         GenesisNftCarousel()
         GenesisSubscriptionsSection()
-        GenesisDocumentsPreviewCard()
+        GenesisDocumentsPreviewCard(reportVisible = focusDocuments, usage = reportUsage)
         Spacer(Modifier.height(24.dp))
     }
 }
 
 /** Document entry retains its original upcoming status; no unsupported action is attached. */
 @Composable
-private fun GenesisDocumentsPreviewCard() {
+private fun GenesisDocumentsPreviewCard(reportVisible: Boolean, usage: Pair<Int, Int>?) {
     val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val surface = if (darkApp) Color.White else Color.Black
     val ink = if (darkApp) Color.Black else Color.White
@@ -524,6 +537,17 @@ private fun GenesisDocumentsPreviewCard() {
                         color = muted
                     )
                 }
+            }
+            if (reportVisible) {
+                HorizontalDivider(color = line)
+                Text("GENESIS / PERFORMANCE REPORT", color = accent,
+                    style = MaterialTheme.typography.labelSmall)
+                Text("Запросы: " + (usage?.let { "${it.first} / ${it.second}" } ?: "— / —"),
+                    color = ink, style = MaterialTheme.typography.titleMedium)
+                Text("Эффективность: —  ·  Потенциал: —",
+                    color = muted, style = MaterialTheme.typography.bodySmall)
+                Text("Индивидуальные показатели NFT, ядра, настроек и подписки ещё не подключены. Отчёт отображается в приложении и не создаёт файлы.",
+                    color = muted, style = MaterialTheme.typography.bodySmall)
             }
             HorizontalDivider(color = line)
             Row(
