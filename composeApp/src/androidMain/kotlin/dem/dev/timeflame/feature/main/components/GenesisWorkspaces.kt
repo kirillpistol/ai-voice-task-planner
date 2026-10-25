@@ -411,6 +411,7 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_coming_soon)
         )
         GenesisNftCarousel()
+        GenesisSubscriptionsSection()
         WorkspaceModuleCard(
             Icons.Default.Description,
             stringResource(R.string.workspace_services_documents),
