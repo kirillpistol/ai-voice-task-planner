@@ -166,7 +166,7 @@
     <string name="genesis_output_title">GENESIS output</string>
     <string name="genesis_output_choose">Select a sector. Result text will appear here.</string>
     <string name="genesis_output_waiting">Waiting for a server result.</string>
-    <string name="genesis_output_source">Source · website or link</string>
+    <string name="genesis_output_source">Source</string>
     <string name="genesis_output_source_empty">No source received yet.</string>
     <string name="genesis_output_connector">Connection resource or tool</string>
     <string name="genesis_output_connector_empty">No connection resource or tool identified yet.</string>
