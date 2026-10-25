@@ -164,7 +164,6 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             Text("GENESIS / MEMBERSHIP", color = secondaryText,
                                 style = MaterialTheme.typography.labelSmall,
                                 modifier = Modifier.weight(1f))
-                            PistolTokenIcon()
                         }
                         AnimatedContent(targetState = selected, label = "tier change") { position ->
                             val current = demoTiers[position]
@@ -175,7 +174,6 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                                     style = MaterialTheme.typography.bodyMedium)
                                 Row(verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    PistolTokenIcon()
                                     Text(current.usageLabel,
                                         color = accent, style = MaterialTheme.typography.bodyMedium)
                                 }
