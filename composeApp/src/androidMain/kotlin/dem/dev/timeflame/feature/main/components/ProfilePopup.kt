@@ -123,46 +123,63 @@ private fun GenesisUsageHeader(onReportClick: (Pair<Int, Int>?) -> Unit) {
             .takeIf { it != 0 }
             ?: context.resources.getIdentifier("pistol_token", "drawable", context.packageName)
     }
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-            if (imageId != 0) {
-                Image(
-                    painter = painterResource(imageId),
-                    contentDescription = "PISTOL",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(30.dp)
-                )
-            } else {
-                Text("P", color = accent, style = MaterialTheme.typography.titleMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                if (imageId != 0) {
+                    Image(
+                        painter = painterResource(imageId),
+                        contentDescription = "PISTOL",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(30.dp)
+                    )
+                } else {
+                    Text("P", color = accent, style = MaterialTheme.typography.titleMedium)
+                }
             }
-        }
-        Column(Modifier.weight(1f)) {
-            Text("Запросы GENESIS", style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface)
-            Text("Израсходовано / всего", style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Column(horizontalAlignment = Alignment.End) {
+            Column(Modifier.weight(1f)) {
+                Text("Запросы GENESIS", style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface)
+                Text("Израсходовано / всего", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             Text(
                 if (loading) "…" else usage?.let { "${it.first} / ${it.second}" } ?: "— / —",
                 style = MaterialTheme.typography.titleMedium,
                 color = accent
             )
-            Text("Эффективность: —", style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("Потенциал: —", style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(
-            imageVector = Icons.Default.Download,
-            contentDescription = "Открыть обновляемый отчёт в документах",
-            tint = accent,
-            modifier = Modifier.size(26.dp).clickable { onReportClick(usage) }
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Эффективность: —", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Потенциал: —", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Box(
+                modifier = Modifier.size(40.dp)
+                    .clickable { onReportClick(usage) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = "Открыть отчёт в документах",
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
     }
 }
 
