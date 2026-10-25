@@ -93,15 +93,15 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val tier = demoTiers[selected]
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    val outerSurface = if (dark) graphite else Color(0xFFF5F6F8)
-    val foreground = if (dark) Color.White else Color(0xFF171B23)
-    val muted = if (dark) secondaryText else Color(0xFF515866)
-    val hairline = if (dark) Color(0xFF3C4149) else Color(0xFFD5D8DF)
-    val tokenBackground = if (dark) Color(0xFF25272E) else Color(0xFFE5E8EC)
-    val selectedBackground = if (dark) Color(0xFF383A40) else Color(0xFFDDE2E9)
-    val idleBackground = if (dark) Color(0xFF22252B) else Color(0xFFE8EBF0)
-    val detailBackground = if (dark) Color(0xFF1A1D24) else Color.White
-    val metallicAccent = if (dark) gold else Color(0xFF826010)
+    val outerSurface = if (dark) Color.Black else Color.White
+    val foreground = if (dark) Color.White else Color.Black
+    val muted = if (dark) Color(0xFFD5D5D5) else Color(0xFF333333)
+    val hairline = if (dark) Color(0xFF5D5D5D) else Color(0xFFB8B8B8)
+    val tokenBackground = if (dark) Color(0xFF171717) else Color(0xFFF1F1F1)
+    val selectedBackground = if (dark) Color(0xFF262626) else Color(0xFFE8E8E8)
+    val idleBackground = if (dark) Color(0xFF101010) else Color.White
+    val detailBackground = if (dark) Color.Black else Color.White
+    val metallicAccent = if (dark) Color.White else Color.Black
     val accent by animateColorAsState(
         if (selected == 2) (if (dark) Color(0xFFE8D2A0) else Color(0xFF886B2C)) else if (selected == 1) metallicAccent else (if (dark) Color(0xFFBEC4CD) else Color(0xFF596170)),
         animationSpec = tween(380), label = "tier accent"
@@ -117,9 +117,9 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("ПАКЕТЫ GENESIS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("ПАКЕТЫ GENESIS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                 Text("БЕСПЛАТНЫЙ ЛИМИТ / ЗАКАЗЫ / PISTOL", style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.72f))
             }
         }
         Card(
@@ -169,7 +169,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                     colors = CardDefaults.cardColors(containerColor = detailBackground)
                 ) {
                     Column(Modifier.fillMaxWidth()
-                        .background(Brush.verticalGradient(listOf(if (dark) Color(0xFF292D35) else Color.White, if (dark) Color(0xFF17191E) else Color(0xFFF0F2F5))))
+                        .background(Brush.verticalGradient(listOf(if (dark) Color(0xFF151515) else Color.White, if (dark) Color.Black else Color.White)))
                         .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("GENESIS / MEMBERSHIP", color = muted,
