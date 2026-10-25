@@ -20,6 +20,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.luminance
 import dem.dev.timeflame.domain.model.Task
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
@@ -41,6 +42,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -95,6 +97,19 @@ fun GenesisTasksWorkspace(
     var confirmClear by remember { mutableStateOf(false) }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
     var confirmCalendarDelete by remember { mutableStateOf<Task?>(null) }
+    var calendarFilter by rememberSaveable { mutableStateOf("today") }
+    val today = java.time.LocalDate.now(ZoneId.systemDefault())
+    val filteredCalendarTasks = if (calendarFilter == "today") calendarTasks.filter {
+        java.time.Instant.ofEpochMilli(it.timestamp).atZone(ZoneId.systemDefault()).toLocalDate() == today
+    } else calendarTasks
+    val completed = calendarTasks.count { it.completed }
+    val progress = if (calendarTasks.isEmpty()) 0f else completed.toFloat() / calendarTasks.size
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val panel = if (darkApp) Color.White else Color.Black
+    val panelInk = if (darkApp) Color.Black else Color.White
+    val panelMuted = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val panelAccent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val panelTile = if (darkApp) Color(0xFFF0F0F0) else Color(0xFF171717)
 
     Column(
         modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
@@ -104,21 +119,65 @@ fun GenesisTasksWorkspace(
             stringResource(R.string.workspace_tasks_title),
             stringResource(R.string.workspace_tasks_subtitle)
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-            Text(
-                text = stringResource(R.string.genesis_sql_count, model.tasks.size),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.genesis_recommendations_count, model.recommendations.size),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.workspace_tasks_total, calendarTasks.size))
-            Text(stringResource(R.string.workspace_tasks_completed, calendarTasks.count { it.completed }))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = panel)
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("GENESIS / TASK CONTROL", color = panelAccent,
+                    style = MaterialTheme.typography.labelSmall)
+                Text("Управление задачами", color = panelInk,
+                    style = MaterialTheme.typography.titleLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        "Всего" to calendarTasks.size,
+                        "Активные" to (calendarTasks.size - completed),
+                        "Готово" to completed
+                    ).forEach { (label, value) ->
+                        Column(
+                            Modifier.weight(1f).background(panelTile, RoundedCornerShape(10.dp)).padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(label, color = panelMuted, style = MaterialTheme.typography.labelSmall)
+                            Text(value.toString(), color = panelInk, style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("today" to "Сегодня", "all" to "Все задачи").forEach { (key, label) ->
+                        val active = calendarFilter == key
+                        Card(
+                            onClick = { calendarFilter = key },
+                            modifier = Modifier.weight(1f),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (active) panelAccent else panelTile
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(label, modifier = Modifier.fillMaxWidth().padding(10.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                color = if (active) panel else panelInk,
+                                style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Прогресс выполнения", color = panelInk, style = MaterialTheme.typography.bodySmall)
+                    Text("${(progress * 100).toInt()}%", color = panelAccent,
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                androidx.compose.material3.LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = panelAccent,
+                    trackColor = panelTile
+                )
+                Text(
+                    "SQL: ${model.tasks.size} · Рекомендации: ${model.recommendations.size}",
+                    color = panelMuted, style = MaterialTheme.typography.labelSmall
+                )
+            }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         if (model.loading) {
@@ -150,7 +209,7 @@ fun GenesisTasksWorkspace(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        if (calendarTasks.isEmpty() && model.tasks.isEmpty()) {
+        if (filteredCalendarTasks.isEmpty() && model.tasks.isEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.workspace_tasks_empty),
@@ -164,7 +223,7 @@ fun GenesisTasksWorkspace(
                 contentPadding = PaddingValues(bottom = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(calendarTasks, key = { "calendar:" + it.id }) { task ->
+                items(filteredCalendarTasks, key = { "calendar:" + it.id }) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
