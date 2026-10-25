@@ -113,7 +113,7 @@ fun GenesisTasksWorkspace(
     val panelTile = if (darkApp) Color(0xFFF0F0F0) else Color(0xFF171717)
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         WorkspaceTitle(
@@ -211,7 +211,7 @@ fun GenesisTasksWorkspace(
             )
         }
         if (filteredCalendarTasks.isEmpty() && model.tasks.isEmpty()) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth().background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 280.dp).background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.workspace_tasks_empty),
                     color = panelMuted,
@@ -220,12 +220,12 @@ fun GenesisTasksWorkspace(
             }
         } else {
             Card(
-                modifier = Modifier.fillMaxWidth().weight(1f),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 280.dp, max = 440.dp),
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = panel)
             ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(horizontal = 8.dp, vertical = 10.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 280.dp, max = 440.dp).padding(horizontal = 8.dp, vertical = 10.dp),
                     contentPadding = PaddingValues(bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
