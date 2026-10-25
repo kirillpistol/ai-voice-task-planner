@@ -57,9 +57,9 @@ private data class GenesisTier(
 private val demoTiers = listOf(
     GenesisTier("CORE", "Индивидуальный заказ", "CUSTOM", "Ядро · индивидуальная конфигурация",
         listOf("Проектные запросы сверх бесплатного лимита", "Собственные модули и инфраструктура", "Стоимость рассчитывается индивидуально")),
-    GenesisTier("PRO", "1 000 запросов ИИ / месяц", "Цена не установлена", "Расширенный пакет · прежний PLUS",
-        listOf("Расширенная квота запросов", "Платёжное подключение пока недоступно")),
-    GenesisTier("ULTRA", "Большой пакет запросов", "Цена не установлена", "Настройка и тестирование",
+    GenesisTier("PRO", "1 000 запросов / месяц", "1 000 запросов", "Расширенный пакет",
+        listOf("Расширенная квота запросов", "Дополнительные инструменты")),
+    GenesisTier("ULTRA", "500 запросов / месяц", "500 запросов", "Настройка и тестирование",
         listOf("Большой объём запросов", "Настройка сценариев", "Тестирование и отладка"))
 )
 
@@ -129,9 +129,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             style = MaterialTheme.typography.titleMedium)
                         Text("Расчётный токен GENESIS", color = secondaryText,
                             style = MaterialTheme.typography.bodySmall)
-                        Text("FREE: 100 запросов/мес · 0 ₽", color = gold,
-                            style = MaterialTheme.typography.labelSmall)
-                    }
+                                            }
                 }
                 HorizontalDivider(color = Color(0xFF373A43))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -180,8 +178,6 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                                     PistolTokenIcon()
                                     Text(current.usageLabel,
                                         color = accent, style = MaterialTheme.typography.bodyMedium)
-                                    Text("Стоимость: ${current.priceLabel}", color = Color.White,
-                                        style = MaterialTheme.typography.titleSmall)
                                 }
                                 current.features.forEach { feature ->
                                     Text("• $feature", color = Color(0xFFE4E5E8),
@@ -190,8 +186,14 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             }
                         }
                         HorizontalDivider(color = Color(0xFF3C4149))
-                        Text("Стоимость: ${tier.priceLabel}. Цена в PISTOL появится после подключения биллинга.",
-                            color = secondaryText, style = MaterialTheme.typography.labelSmall)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(if (selected == 0) "ЯДРО · CUSTOM" else "${tier.name} · ${tier.priceLabel}",
+                                color = Color.White, style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.weight(1f))
+                            PistolTokenIcon()
+                        }
+                        Text("FREE · 100 запросов/мес · 0 ₽", color = secondaryText,
+                            style = MaterialTheme.typography.labelSmall)
                     }
                 }
                 TextButton(onClick = { expanded = !expanded }) {
