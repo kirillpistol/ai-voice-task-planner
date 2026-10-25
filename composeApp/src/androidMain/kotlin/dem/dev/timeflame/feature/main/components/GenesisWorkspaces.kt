@@ -211,7 +211,7 @@ fun GenesisTasksWorkspace(
             )
         }
         if (filteredCalendarTasks.isEmpty() && model.tasks.isEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 280.dp).background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth().weight(1f).background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.workspace_tasks_empty),
                     color = panelMuted,
@@ -220,12 +220,12 @@ fun GenesisTasksWorkspace(
             }
         } else {
             Card(
-                modifier = Modifier.fillMaxWidth().heightIn(min = 280.dp, max = 440.dp),
+                modifier = Modifier.fillMaxWidth().weight(1f),
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = panel)
             ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 280.dp, max = 440.dp).padding(horizontal = 8.dp, vertical = 10.dp),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 10.dp),
                     contentPadding = PaddingValues(bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
