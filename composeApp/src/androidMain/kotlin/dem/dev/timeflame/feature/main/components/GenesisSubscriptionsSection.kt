@@ -1,12 +1,16 @@
 package dem.dev.timeflame.feature.main.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,139 +36,165 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import dem.dev.timeflame.R
 
-/**
- * UI-only subscription prototype. No billing, balance or entitlement changes occur here.
- * Amounts are sample request-unit budgets, not token prices or credits actually issued.
- */
-private data class GenesisTier(val name: String, val sampleRequests: Int, val description: String)
-
-private val sampleTiers = listOf(
-    GenesisTier("CORE", 100, "Basic access"),
-    GenesisTier("PRO", 500, "Extended tools"),
-    GenesisTier("ULTRA", 1500, "Higher request budget")
+/** Display-only catalogue: never grants access, creates balances, or charges the user. */
+private data class GenesisTier(
+    val name: String,
+    val sampleRequests: Int,
+    val subtitle: String,
+    val features: List<String>
 )
 
+private val demoTiers = listOf(
+    GenesisTier("CORE", 100, "Базовые инструменты", listOf("Основные запросы", "Личное пространство")),
+    GenesisTier("PRO", 500, "Расширенные возможности", listOf("Возможности CORE", "Дополнительные инструменты", "Расширенная квота")),
+    GenesisTier("ULTRA", 1500, "Максимальный доступ", listOf("Возможности PRO", "Приоритетные функции", "Увеличенная квота"))
+)
+
+private val graphite = Color(0xFF111318)
+private val secondaryText = Color(0xFFB4B8C2)
+private val gold = Color(0xFFD5B65E)
+
 @Composable
-private fun PistolTokenIcon(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    // Render only the owner's authentic supplied PNG; never substitute a redrawn token.
-    // Add the untouched file as res/drawable-nodpi/pistol_token.png to enable this asset.
-    val tokenId = remember(context) {
-        context.resources.getIdentifier("pistol_token", "drawable", context.packageName)
-    }
-    if (tokenId != 0) {
-        Image(
-            painter = painterResource(tokenId),
-            contentDescription = "PISTOL token",
-            modifier = modifier.size(25.dp)
-        )
-    }
+private fun PistolTokenIcon(modifier: Modifier = Modifier, large: Boolean = false) {
+    // This is the customer's original raster artwork: never redraw or recolor it.
+    Image(
+        painter = painterResource(R.drawable.pistol_token),
+        contentDescription = "Оригинальный токен PISTOL",
+        contentScale = ContentScale.Fit,
+        modifier = modifier.size(if (large) 54.dp else 24.dp)
+    )
 }
 
 @Composable
 fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
     var selected by rememberSaveable { mutableStateOf(1) }
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val tier = sampleTiers[selected]
-    val intensity by animateFloatAsState(
-        targetValue = if (expanded) 1f else 0.7f,
-        label = "genesis tier emphasis"
+    val tier = demoTiers[selected]
+    val accent by animateColorAsState(
+        if (selected == 2) Color(0xFFE8D2A0) else if (selected == 1) gold else Color(0xFFBEC4CD),
+        animationSpec = tween(380), label = "tier accent"
     )
-    val surface by animateColorAsState(
-        targetValue = if (expanded) Color(0xFF262A32) else Color(0xFF191C22),
-        label = "genesis tier background"
+    val selectionGlow by animateFloatAsState(
+        targetValue = if (expanded) 1f else 0.75f,
+        animationSpec = tween(450), label = "membership glow"
     )
 
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Пакеты GENESIS", style = MaterialTheme.typography.titleLarge)
-        Text(
-            "PISTOL · вычислительные запросы",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("ПАКЕТЫ GENESIS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("ПОДПИСКИ / ЗАПРОСЫ / PISTOL", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text("G", style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Black)
+        }
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF14161B)),
-            shape = RoundedCornerShape(18.dp)
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = graphite)
         ) {
-            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PistolTokenIcon()
-                    Column {
-                        Text("PISTOL", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text(
-                            "Токен расчётов · баланс появится после подключения биллинга",
-                            color = Color(0xFFB9BDC6),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(
+                        Modifier.size(66.dp).background(Color(0xFF25272E), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        PistolTokenIcon(large = true)
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text("PISTOL", color = Color.White, fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium)
+                        Text("Расчётный токен GENESIS", color = secondaryText,
+                            style = MaterialTheme.typography.bodySmall)
+                        Text("Баланс: подключение биллинга", color = gold,
+                            style = MaterialTheme.typography.labelSmall)
                     }
                 }
-                HorizontalDivider(color = Color(0xFF363941))
+                HorizontalDivider(color = Color(0xFF373A43))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    sampleTiers.forEachIndexed { index, plan ->
+                    demoTiers.forEachIndexed { index, plan ->
                         val active = selected == index
-                        Card(
-                            modifier = Modifier.weight(1f).clickable {
-                                selected = index
-                                expanded = false
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (active) Color(0xFF47404A) else Color(0xFF24262D)
-                            ),
-                            border = BorderStroke(1.dp, if (active) Color(0xFFD4AF37) else Color(0xFF41444B))
+                        Box(
+                            modifier = Modifier.weight(1f)
+                                .background(if (active) Color(0xFF383A40) else Color(0xFF22252B),
+                                    RoundedCornerShape(12.dp))
+                                .clickable {
+                                    selected = index
+                                    expanded = false
+                                }.padding(vertical = 14.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Column(Modifier.padding(vertical = 14.dp, horizontal = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(plan.name, color = Color.White, fontWeight = FontWeight.SemiBold)
-                            }
+                            Text(plan.name, textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (active) gold else secondaryText)
                         }
                     }
                 }
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = surface),
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(1.dp, Color(0xFF665B38))
+                    shape = RoundedCornerShape(18.dp),
+                    border = BorderStroke(1.dp, accent.copy(alpha = selectionGlow)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1D24))
                 ) {
-                    Column(
-                        Modifier.fillMaxWidth().padding(16.dp).alpha(intensity),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("GENESIS ${tier.name}", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                            Spacer(Modifier.weight(1f))
+                    Column(Modifier.fillMaxWidth()
+                        .background(Brush.verticalGradient(listOf(Color(0xFF292D35), Color(0xFF17191E))))
+                        .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("GENESIS / MEMBERSHIP", color = secondaryText,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.weight(1f))
                             PistolTokenIcon()
                         }
-                        Text(tier.description, color = Color(0xFFDFDFE3))
-                        Text(
-                            "Пример лимита: ${tier.sampleRequests} запросов",
-                            color = Color(0xFFD4AF37),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "Демонстрационные значения — не цена и не начисленный баланс P",
-                            color = Color(0xFFB8BAC1),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        AnimatedContent(targetState = selected, label = "tier change") { position ->
+                            val current = demoTiers[position]
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(current.name, color = Color.White, fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.headlineMedium)
+                                Text(current.subtitle, color = secondaryText,
+                                    style = MaterialTheme.typography.bodyMedium)
+                                Row(verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    PistolTokenIcon()
+                                    Text("${current.sampleRequests} запросов · пример квоты",
+                                        color = accent, style = MaterialTheme.typography.bodyMedium)
+                                }
+                                current.features.forEach { feature ->
+                                    Text("• $feature", color = Color(0xFFE4E5E8),
+                                        style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        HorizontalDivider(color = Color(0xFF3C4149))
+                        Text("Концепт тарифа. Цена в P и реальные лимиты пока не утверждены.",
+                            color = secondaryText, style = MaterialTheme.typography.labelSmall)
                     }
                 }
                 TextButton(onClick = { expanded = !expanded }) {
-                    Text(if (expanded) "Скрыть расчёт" else "Как будут списываться запросы", color = Color(0xFFE6C45E))
+                    Text(if (expanded) "Скрыть модель списаний" else "Как работает расчёт запросов",
+                        color = gold)
                 }
                 AnimatedVisibility(visible = expanded) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Расход P = сумма (число запросов × тариф операции).", color = Color.White)
-                        Text(
-                            "Реальный курс P, лимиты, серверный журнал операций и подтверждение оплаты подключаются отдельно. Демо не списывает средства.",
-                            color = Color(0xFFC6C7CC),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Расход P = Σ (число запросов × цена класса запроса)",
+                            color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                        Text("Запросы и балансы сейчас не списываются. Подтверждённые сервером операции, платежи и история появятся на этапе биллинга.",
+                            color = secondaryText, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
         }
+        Spacer(Modifier.height(6.dp))
     }
 }
