@@ -408,13 +408,61 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
         GenesisMarketCarousel()
         GenesisNftCarousel()
         GenesisSubscriptionsSection()
-        WorkspaceModuleCard(
-            Icons.Default.Description,
-            stringResource(R.string.workspace_services_documents),
-            stringResource(R.string.workspace_services_documents_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
+        GenesisDocumentsPreviewCard()
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Document entry retains its original upcoming status; no unsupported action is attached. */
+@Composable
+private fun GenesisDocumentsPreviewCard() {
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val surface = if (darkApp) Color.White else Color.Black
+    val ink = if (darkApp) Color.Black else Color.White
+    val muted = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val accent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val line = if (darkApp) Color(0xFFB8B8B8) else Color(0xFF5D5D5D)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = surface)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(Icons.Default.Description, contentDescription = null, tint = accent)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.workspace_services_documents),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ink
+                    )
+                    Text(
+                        text = stringResource(R.string.workspace_services_documents_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = muted
+                    )
+                }
+            }
+            HorizontalDivider(color = line)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("GENESIS / DOCUMENTS", color = accent, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    stringResource(R.string.workspace_coming_soon),
+                    color = muted,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
     }
 }
 
