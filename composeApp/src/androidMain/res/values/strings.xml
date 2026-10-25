@@ -165,7 +165,7 @@
     <string name="genesis_output_title">Результат GENESIS</string>
     <string name="genesis_output_choose">Выберите раздел. Здесь появится текст результата.</string>
     <string name="genesis_output_waiting">Ожидание результата с сервера.</string>
-    <string name="genesis_output_source">Источник · сайт или ссылка</string>
+    <string name="genesis_output_source">Источник</string>
     <string name="genesis_output_source_empty">Источник ещё не получен.</string>
     <string name="genesis_output_connector">Ресурс или инструмент подключения</string>
     <string name="genesis_output_connector_empty">Ресурс или инструмент ещё не определён.</string>
