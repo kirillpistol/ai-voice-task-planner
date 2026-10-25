@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -91,8 +92,18 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
     var selected by rememberSaveable { mutableStateOf(1) }
     var expanded by rememberSaveable { mutableStateOf(false) }
     val tier = demoTiers[selected]
+    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val outerSurface = if (dark) graphite else Color(0xFFF5F6F8)
+    val foreground = if (dark) Color.White else Color(0xFF171B23)
+    val muted = if (dark) secondaryText else Color(0xFF515866)
+    val hairline = if (dark) Color(0xFF3C4149) else Color(0xFFD5D8DF)
+    val tokenBackground = if (dark) Color(0xFF25272E) else Color(0xFFE5E8EC)
+    val selectedBackground = if (dark) Color(0xFF383A40) else Color(0xFFDDE2E9)
+    val idleBackground = if (dark) Color(0xFF22252B) else Color(0xFFE8EBF0)
+    val detailBackground = if (dark) Color(0xFF1A1D24) else Color.White
+    val metallicAccent = if (dark) gold else Color(0xFF826010)
     val accent by animateColorAsState(
-        if (selected == 2) Color(0xFFE8D2A0) else if (selected == 1) gold else Color(0xFFBEC4CD),
+        if (selected == 2) (if (dark) Color(0xFFE8D2A0) else Color(0xFF886B2C)) else if (selected == 1) metallicAccent else (if (dark) Color(0xFFBEC4CD) else Color(0xFF596170)),
         animationSpec = tween(380), label = "tier accent"
     )
     val selectionGlow by animateFloatAsState(
@@ -113,31 +124,31 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
         }
         Card(
             shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = graphite)
+            colors = CardDefaults.cardColors(containerColor = outerSurface)
         ) {
             Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Box(
-                        Modifier.size(66.dp).background(Color(0xFF25272E), CircleShape),
+                        Modifier.size(66.dp).background(tokenBackground, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         PistolTokenIcon(large = true)
                     }
                     Column(Modifier.weight(1f)) {
-                        Text("PISTOL", color = Color.White, fontWeight = FontWeight.Bold,
+                        Text("PISTOL", color = foreground, fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleMedium)
-                        Text("Расчётный токен GENESIS", color = secondaryText,
+                        Text("Расчётный токен GENESIS", color = muted,
                             style = MaterialTheme.typography.bodySmall)
-                                            }
+                    }
                 }
-                HorizontalDivider(color = Color(0xFF373A43))
+                HorizontalDivider(color = hairline)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     demoTiers.forEachIndexed { index, plan ->
                         val active = selected == index
                         Box(
                             modifier = Modifier.weight(1f)
-                                .background(if (active) Color(0xFF383A40) else Color(0xFF22252B),
+                                .background(if (active) selectedBackground else idleBackground,
                                     RoundedCornerShape(12.dp))
                                 .clickable {
                                     selected = index
@@ -148,29 +159,29 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             Text(plan.name, textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = if (active) gold else secondaryText)
+                                color = if (active) metallicAccent else muted)
                         }
                     }
                 }
                 Card(
                     shape = RoundedCornerShape(18.dp),
                     border = BorderStroke(1.dp, accent.copy(alpha = selectionGlow)),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1D24))
+                    colors = CardDefaults.cardColors(containerColor = detailBackground)
                 ) {
                     Column(Modifier.fillMaxWidth()
-                        .background(Brush.verticalGradient(listOf(Color(0xFF292D35), Color(0xFF17191E))))
+                        .background(Brush.verticalGradient(listOf(if (dark) Color(0xFF292D35) else Color.White, if (dark) Color(0xFF17191E) else Color(0xFFF0F2F5))))
                         .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("GENESIS / MEMBERSHIP", color = secondaryText,
+                            Text("GENESIS / MEMBERSHIP", color = muted,
                                 style = MaterialTheme.typography.labelSmall,
                                 modifier = Modifier.weight(1f))
                         }
                         AnimatedContent(targetState = selected, label = "tier change") { position ->
                             val current = demoTiers[position]
                             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text(current.name, color = Color.White, fontWeight = FontWeight.Black,
+                                Text(current.name, color = foreground, fontWeight = FontWeight.Black,
                                     style = MaterialTheme.typography.headlineMedium)
-                                Text(current.subtitle, color = secondaryText,
+                                Text(current.subtitle, color = muted,
                                     style = MaterialTheme.typography.bodyMedium)
                                 Row(verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -178,32 +189,32 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                                         color = accent, style = MaterialTheme.typography.bodyMedium)
                                 }
                                 current.features.forEach { feature ->
-                                    Text("• $feature", color = Color(0xFFE4E5E8),
+                                    Text("• $feature", color = foreground,
                                         style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
-                        HorizontalDivider(color = Color(0xFF3C4149))
+                        HorizontalDivider(color = hairline)
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Text(if (selected == 0) "ЯДРО · CUSTOM" else "${tier.name} · ${tier.priceLabel}",
-                                color = Color.White, style = MaterialTheme.typography.titleSmall,
+                                color = foreground, style = MaterialTheme.typography.titleSmall,
                                 modifier = Modifier.weight(1f))
                             PistolTokenIcon()
                         }
-                        Text("FREE · 100 запросов/мес · 0 ₽", color = secondaryText,
+                        Text("FREE · 100 запросов/мес · 0 ₽", color = muted,
                             style = MaterialTheme.typography.labelSmall)
                     }
                 }
                 TextButton(onClick = { expanded = !expanded }) {
                     Text(if (expanded) "Скрыть модель списаний" else "Как работает расчёт запросов",
-                        color = gold)
+                        color = metallicAccent)
                 }
                 AnimatedVisibility(visible = expanded) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Расход P = Σ (число запросов × цена класса запроса)",
-                            color = Color.White, style = MaterialTheme.typography.bodyMedium)
+                            color = foreground, style = MaterialTheme.typography.bodyMedium)
                         Text("Запросы и балансы сейчас не списываются. Подтверждённые сервером операции, платежи и история появятся на этапе биллинга.",
-                            color = secondaryText, style = MaterialTheme.typography.bodySmall)
+                            color = muted, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
