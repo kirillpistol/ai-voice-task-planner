@@ -478,8 +478,10 @@ fun GenesisServicesWorkspace(
     val scrollState = rememberScrollState()
     var reportUsage by remember { mutableStateOf(initialReportUsage) }
     LaunchedEffect(focusDocuments) {
-        if (focusDocuments) {
-            reportUsage = genesisRequestUsage()
+        if (focusDocuments) reportUsage = genesisRequestUsage()
+    }
+    LaunchedEffect(focusDocuments, scrollState.maxValue) {
+        if (focusDocuments && scrollState.maxValue > 0) {
             scrollState.animateScrollTo(scrollState.maxValue)
         }
     }
