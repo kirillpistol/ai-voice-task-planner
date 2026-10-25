@@ -24,8 +24,4 @@ def selected_profile(sector):
 def profile_text(sector, language):
     if selected_profile(sector) is None:
         return None
-    if language == "ru":
-        return ("Профиль финансов\nВходной VPN → VM → временный Docker-контейнер с очисткой → выходной VPN\n"
-                "Схема задана; развёртывание будет подключено отдельно.")
-    return ("Finance profile\nInbound VPN → VM → temporary Docker container with cleanup → outbound VPN\n"
-            "Profile defined; deployment will be connected separately.")
+    return "VPN → VM → DOC → VPN"
