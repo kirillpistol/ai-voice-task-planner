@@ -405,7 +405,7 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_services_title),
             stringResource(R.string.workspace_services_subtitle)
         )
-        GenesisCryptoPreviewCard()
+        GenesisMarketCarousel()
         GenesisNftCarousel()
         GenesisSubscriptionsSection()
         WorkspaceModuleCard(
