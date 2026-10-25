@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -119,22 +119,24 @@ private fun QuoteSparkline(values: List<Double>, changeValue: Double, modifier: 
 }
 @Composable
 private fun TokenBadge(symbol: String) {
-    val dark = isSystemInDarkTheme()
-    Box(Modifier.size(35.dp).background(if (dark) Color(0xFF41454B) else Color(0xFFE0E2E5),
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    Box(Modifier.size(35.dp).background(if (darkApp) Color(0xFFEDEDED) else Color(0xFF303030),
         CircleShape), contentAlignment = Alignment.Center) {
         Text(symbol.take(3), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold,
-            color = if (dark) Color.White else Color(0xFF27292B))
+            color = if (darkApp) Color.Black else Color.White)
     }
 }
 
 /** Swipeable full-width market pages. Lower movers -> summary -> FX. No fabricated quotes. */
 @Composable
 fun GenesisMarketCarousel(modifier: Modifier = Modifier) {
-    val dark = isSystemInDarkTheme()
-    val bg = if (dark) Color(0xFF25282B) else Color(0xFFF0F1F2)
-    val panel = if (dark) Color(0xFF32363A) else Color(0xFFE4E6E8)
-    val ink = if (dark) Color(0xFFF5F5F5) else Color(0xFF25282A)
-    val muted = if (dark) Color(0xFFB5BBC0) else Color(0xFF62676B)
+    // Inverse card palette shared with PISTOL GENESIS NFT and subscriptions.
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val bg = if (darkApp) Color.White else Color.Black
+    val panel = if (darkApp) Color(0xFFF1F1F1) else Color(0xFF171717)
+    val ink = if (darkApp) Color.Black else Color.White
+    val muted = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val rule = if (darkApp) Color(0xFFB8B8B8) else Color(0xFF5D5D5D)
     var page by remember { mutableIntStateOf(0) }
     var refresh by remember { mutableIntStateOf(0) }
     var snapshot by remember { mutableStateOf<MarketSnapshot?>(null) }
@@ -152,7 +154,7 @@ fun GenesisMarketCarousel(modifier: Modifier = Modifier) {
         }
     }
     Card(modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp),
-        border = BorderStroke(1.dp, if (dark) Color(0xFF41464A) else Color(0xFFD4D7D9)),
+        border = BorderStroke(1.dp, rule),
         colors = CardDefaults.cardColors(containerColor = bg)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
