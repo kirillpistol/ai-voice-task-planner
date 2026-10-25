@@ -93,17 +93,18 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val tier = demoTiers[selected]
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    val outerSurface = if (dark) Color.Black else Color.White
-    val foreground = if (dark) Color.White else Color.Black
-    val muted = if (dark) Color(0xFFD5D5D5) else Color(0xFF333333)
-    val hairline = if (dark) Color(0xFF5D5D5D) else Color(0xFFB8B8B8)
-    val tokenBackground = if (dark) Color(0xFF171717) else Color(0xFFF1F1F1)
-    val selectedBackground = if (dark) Color(0xFF262626) else Color(0xFFE8E8E8)
-    val idleBackground = if (dark) Color(0xFF101010) else Color.White
-    val detailBackground = if (dark) Color.Black else Color.White
-    val metallicAccent = if (dark) Color.White else Color.Black
+    // Inverse card system: dark app -> white GENESIS card; light app -> black GENESIS card.
+    val outerSurface = if (dark) Color.White else Color.Black
+    val foreground = if (dark) Color.Black else Color.White
+    val muted = if (dark) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val hairline = if (dark) Color(0xFFB8B8B8) else Color(0xFF5D5D5D)
+    val tokenBackground = if (dark) Color(0xFFF1F1F1) else Color(0xFF171717)
+    val selectedBackground = if (dark) Color(0xFFE8E8E8) else Color(0xFF262626)
+    val idleBackground = if (dark) Color.White else Color(0xFF101010)
+    val detailBackground = if (dark) Color.White else Color.Black
+    val metallicAccent = if (dark) Color(0xFF8B6816) else gold
     val accent by animateColorAsState(
-        if (selected == 2) (if (dark) Color(0xFFE8D2A0) else Color(0xFF886B2C)) else if (selected == 1) metallicAccent else (if (dark) Color(0xFFBEC4CD) else Color(0xFF596170)),
+        if (selected == 2) (if (dark) Color(0xFF96732E) else Color(0xFFE8D2A0)) else if (selected == 1) metallicAccent else (if (dark) Color(0xFF596170) else Color(0xFFBEC4CD)),
         animationSpec = tween(380), label = "tier accent"
     )
     val selectionGlow by animateFloatAsState(
@@ -169,7 +170,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                     colors = CardDefaults.cardColors(containerColor = detailBackground)
                 ) {
                     Column(Modifier.fillMaxWidth()
-                        .background(Brush.verticalGradient(listOf(if (dark) Color(0xFF151515) else Color.White, if (dark) Color.Black else Color.White)))
+                        .background(Brush.verticalGradient(listOf(if (dark) Color.White else Color(0xFF151515), if (dark) Color(0xFFF3F3F3) else Color.Black)))
                         .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("GENESIS / MEMBERSHIP", color = muted,
