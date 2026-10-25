@@ -245,7 +245,13 @@ fun GenesisTasksWorkspace(
                                 checked = task.completed,
                                 onCheckedChange = { onEvent(MainScreenEvent.TaskStatusChangeClicked(task)) },
                                 enabled = !state.isSavingTask,
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF2E7D32))
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = panelAccent,
+                                    uncheckedColor = panelInk,
+                                    checkmarkColor = panel,
+                                    disabledCheckedColor = panelMuted,
+                                    disabledUncheckedColor = panelMuted
+                                )
                             )
                             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                                 Text(task.text, style = MaterialTheme.typography.bodyMedium, color = panelInk)
