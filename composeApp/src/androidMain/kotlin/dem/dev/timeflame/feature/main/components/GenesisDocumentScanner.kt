@@ -135,9 +135,13 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
         onDismissRequest = onDismiss,
         title = { Text("Сканирование информации") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 460.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 if (cameraGranted && !captured) {
-                    Box(Modifier.fillMaxWidth().height(320.dp).background(Color.Black, RoundedCornerShape(12.dp))) {
+                    Box(Modifier.fillMaxWidth().height(220.dp).background(Color.Black, RoundedCornerShape(12.dp))) {
                         AndroidView(
                             factory = { ctx ->
                                 PreviewView(ctx).apply {
@@ -177,7 +181,7 @@ fun GenesisDocumentScanner(onDismiss: () -> Unit, onTextApproved: (String) -> Un
                 }
                 if (captured && previewBitmap != null) {
                     Image(bitmap = previewBitmap!!.asImageBitmap(), contentDescription = "Снимок документа",
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp))
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 160.dp))
                 }
                 if (busy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
