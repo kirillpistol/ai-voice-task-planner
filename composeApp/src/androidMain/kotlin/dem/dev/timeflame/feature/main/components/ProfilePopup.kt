@@ -29,7 +29,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -158,8 +158,8 @@ private fun GenesisUsageHeader(onReportClick: (Pair<Int, Int>?) -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Icon(
-            imageVector = Icons.Default.Description,
-            contentDescription = "Открыть отчёт в документах",
+            imageVector = Icons.Default.Download,
+            contentDescription = "Открыть обновляемый отчёт в документах",
             tint = accent,
             modifier = Modifier.size(26.dp).clickable { onReportClick(usage) }
         )
