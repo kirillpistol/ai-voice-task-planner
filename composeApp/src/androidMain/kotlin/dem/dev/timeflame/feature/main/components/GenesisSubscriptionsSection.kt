@@ -48,15 +48,18 @@ import dem.dev.timeflame.R
 /** Display-only catalogue: never grants access, creates balances, or charges the user. */
 private data class GenesisTier(
     val name: String,
-    val sampleRequests: Int,
+    val usageLabel: String,
     val subtitle: String,
     val features: List<String>
 )
 
 private val demoTiers = listOf(
-    GenesisTier("CORE", 100, "Базовые инструменты", listOf("Основные запросы", "Личное пространство")),
-    GenesisTier("PRO", 500, "Расширенные возможности", listOf("Возможности CORE", "Дополнительные инструменты", "Расширенная квота")),
-    GenesisTier("ULTRA", 1500, "Максимальный доступ", listOf("Возможности PRO", "Приоритетные функции", "Увеличенная квота"))
+    GenesisTier("FREE", "Бесплатный лимит", "Начало работы с GENESIS",
+        listOf("Бесплатные запросы в пределах выделенного лимита", "Контроль доступного остатка")),
+    GenesisTier("ЯДРО", "Индивидуальный расчёт", "Индивидуальный заказ сверх бесплатного лимита",
+        listOf("Запросы и вычисления сверх бесплатной квоты", "Персональная конфигурация ядра", "Стоимость и условия рассчитываются по заказу")),
+    GenesisTier("ULTRA", "Большой пакет запросов", "Настройка, эксперименты и тестирование",
+        listOf("Увеличенный объём запросов", "Настройка сценариев", "Тестирование и отладка"))
 )
 
 private val graphite = Color(0xFF111318)
@@ -103,7 +106,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("ПАКЕТЫ GENESIS", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text("ПОДПИСКИ / ЗАПРОСЫ / PISTOL", style = MaterialTheme.typography.labelSmall,
+                Text("БЕСПЛАТНЫЙ ЛИМИТ / ЗАКАЗЫ / PISTOL", style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Text("G", style = MaterialTheme.typography.headlineMedium,
@@ -176,7 +179,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                                 Row(verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     PistolTokenIcon()
-                                    Text("${current.sampleRequests} запросов · пример квоты",
+                                    Text(current.usageLabel,
                                         color = accent, style = MaterialTheme.typography.bodyMedium)
                                 }
                                 current.features.forEach { feature ->
@@ -186,7 +189,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             }
                         }
                         HorizontalDivider(color = Color(0xFF3C4149))
-                        Text("Концепт тарифа. Цена в P и реальные лимиты пока не утверждены.",
+                        Text("Цены в P и точные лимиты определим после расчёта экономики.",
                             color = secondaryText, style = MaterialTheme.typography.labelSmall)
                     }
                 }
