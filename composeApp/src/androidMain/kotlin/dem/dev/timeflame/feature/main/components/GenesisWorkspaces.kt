@@ -546,9 +546,35 @@ private fun GenesisDocumentsPreviewCard(reportVisible: Boolean, usage: Pair<Int,
                     style = MaterialTheme.typography.labelSmall)
                 Text("Запросы: " + (usage?.let { "${it.first} / ${it.second}" } ?: "— / —"),
                     color = ink, style = MaterialTheme.typography.titleMedium)
-                Text("Эффективность: —  ·  Потенциал: —",
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("Эффективность" to "— %", "Потенциал" to "— %").forEach { (label, value) ->
+                        Column(
+                            modifier = Modifier.weight(1f).background(
+                                if (darkApp) Color(0xFFF2F2F2) else Color(0xFF222222),
+                                RoundedCornerShape(12.dp)
+                            ).padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(label, color = muted, style = MaterialTheme.typography.labelSmall)
+                            Text(value, color = accent, style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                }
+                Text("Потенциал GENESIS", color = ink, style = MaterialTheme.typography.labelMedium)
+                androidx.compose.material3.LinearProgressIndicator(
+                    progress = { 0f },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = accent,
+                    trackColor = line
+                )
+                Text("Методика оценки разрабатывается · данные пока не рассчитаны",
+                    color = muted, style = MaterialTheme.typography.labelSmall)
+                Text("Учитываемые направления: подписка, ИИ, задачи, NFT, токены PISTOL, ядро и персональные системы.",
                     color = muted, style = MaterialTheme.typography.bodySmall)
-                Text("Индивидуальные показатели NFT, ядра, настроек и подписки ещё не подключены. Отчёт отображается в приложении и не создаёт файлы.",
+                Text("Отчёт хранится как представление в приложении: при открытии актуализируется без создания новых файлов.",
                     color = muted, style = MaterialTheme.typography.bodySmall)
             }
             HorizontalDivider(color = line)
@@ -601,6 +627,10 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.workspace_genesis_title),
             stringResource(R.string.workspace_genesis_subtitle)
         )
+        GenesisOverviewBanner(
+            selectedSectorTitle = sector?.let { stringResource(it.titleRes) },
+            connected = state.genesisWorkspace.coreStatus?.status == "ok"
+        )
         GenesisSectorSelector(selectedSector) { name ->
             selectedSector = name
             preferences.edit().putString(account, name).apply()
@@ -629,6 +659,36 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Visual system overview; system availability is not inferred from selected sector. */
+@Composable
+private fun GenesisOverviewBanner(selectedSectorTitle: String?, connected: Boolean) {
+    val inverse = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val bg = if (inverse) Color.White else Color.Black
+    val fg = if (inverse) Color.Black else Color.White
+    val soft = if (inverse) Color(0xFF555555) else Color(0xFFCCCCCC)
+    val gold = if (inverse) Color(0xFF866618) else Color(0xFFD5B65E)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = bg)
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("PISTOL / GENESIS CORE", color = gold, style = MaterialTheme.typography.labelSmall)
+            Text("Индивидуальные системы", color = fg, style = MaterialTheme.typography.titleLarge)
+            Text(
+                selectedSectorTitle?.let { "Направление: $it" } ?: "Выберите направление для работы с системой",
+                color = soft, style = MaterialTheme.typography.bodySmall
+            )
+            HorizontalDivider(color = soft.copy(alpha = 0.35f))
+            Text(
+                if (connected) "Ядро: связь подтверждена" else "Ядро: статус не подтверждён",
+                color = soft,
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
     }
 }
 
