@@ -660,7 +660,8 @@ fun GenesisReportsWorkspace(
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_source),
             output?.source,
-            stringResource(R.string.genesis_output_source_empty)
+            stringResource(R.string.genesis_output_source_empty),
+            sourceLink = true
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_connector),
@@ -937,13 +938,14 @@ private fun GenesisOutputWindow(
 }
 
 @Composable
-private fun GenesisOutputDetail(title: String, value: String?, emptyText: String) {
+private fun GenesisOutputDetail(title: String, value: String?, emptyText: String, sourceLink: Boolean = false) {
+    val context = LocalContext.current
+    val displayedValue = value?.takeIf { it.isNotBlank() } ?: emptyText
+    val link = value?.trim()?.takeIf { sourceLink && (it.startsWith("https://") || it.startsWith("http://")) }
     Card(
         modifier = Modifier.fillMaxWidth().animateContentSize(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -952,9 +954,17 @@ private fun GenesisOutputDetail(title: String, value: String?, emptyText: String
             Text(title, style = MaterialTheme.typography.labelLarge)
             SelectionContainer {
                 Text(
-                    value?.takeIf { it.isNotBlank() } ?: emptyText,
+                    displayedValue,
+                    modifier = if (link != null) Modifier.clickable {
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                        } catch (_: android.content.ActivityNotFoundException) {
+                            // Retain selectable text when no URL handler exists.
+                        }
+                    } else Modifier,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (link != null) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
