@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -223,11 +224,19 @@ fun GenesisTasksWorkspace(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = panel)
             ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(12.dp),
-                contentPadding = PaddingValues(bottom = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(horizontal = 8.dp, vertical = 10.dp),
+                    contentPadding = PaddingValues(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item(key = "tasks-list-title") {
+                        Text(
+                            "Список задач",
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = panelInk
+                        )
+                    }
                 items(filteredCalendarTasks, key = { "calendar:" + it.id }) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -301,7 +310,7 @@ fun GenesisTasksWorkspace(
                         }
                     }
                 }
-            }
+                }
             }
         }
 
