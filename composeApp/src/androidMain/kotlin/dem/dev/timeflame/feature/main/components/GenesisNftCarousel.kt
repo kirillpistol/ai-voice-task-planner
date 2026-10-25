@@ -160,7 +160,8 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
     var selected by rememberSaveable { mutableStateOf(0) }
     var randomLoading by remember { mutableStateOf(false) }
     var randomError by remember { mutableStateOf(false) }
-    val listState = rememberLazyListState()
+    // Show token #2 in the center on first launch, with #1 and #3 visible beside it.
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = 1)
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(preloader) {
