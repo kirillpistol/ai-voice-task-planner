@@ -210,23 +210,28 @@ fun GenesisTasksWorkspace(
             )
         }
         if (filteredCalendarTasks.isEmpty() && model.tasks.isEmpty()) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth().background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.workspace_tasks_empty),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = panelMuted,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         } else {
+            Card(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = panel)
+            ) {
             LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(bottom = 6.dp),
+                modifier = Modifier.fillMaxSize().padding(12.dp),
+                contentPadding = PaddingValues(bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredCalendarTasks, key = { "calendar:" + it.id }) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(containerColor = panelTile),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -237,13 +242,13 @@ fun GenesisTasksWorkspace(
                                 colors = CheckboxDefaults.colors(checkedColor = Color(0xFF2E7D32))
                             )
                             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                                Text(task.text, style = MaterialTheme.typography.bodyMedium)
+                                Text(task.text, style = MaterialTheme.typography.bodyMedium, color = panelInk)
                                 Text(
                                     java.time.Instant.ofEpochMilli(task.timestamp)
                                         .atZone(ZoneId.systemDefault())
                                         .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = panelMuted
                                 )
                                 TextButton(
                                     onClick = { onEvent(MainScreenEvent.EditTaskClicked(task)) },
@@ -261,13 +266,13 @@ fun GenesisTasksWorkspace(
                 }
                 if (model.tasks.isNotEmpty()) {
                     item(key = "sql-heading") {
-                        Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall, color = panelAccent)
                     }
                 }
                 items(model.tasks, key = { "sql:" + it.sourceTaskId }) { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(containerColor = panelTile),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
@@ -275,12 +280,12 @@ fun GenesisTasksWorkspace(
                                 Text(
                                     text = task.title,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = panelInk
                                 )
                                 Text(
                                     text = formatGenesisDate(task.dueAt),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = panelMuted
                                 )
                             }
                             IconButton(
@@ -296,6 +301,7 @@ fun GenesisTasksWorkspace(
                         }
                     }
                 }
+            }
             }
         }
 
@@ -323,6 +329,7 @@ fun GenesisTasksWorkspace(
                 )
             }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
