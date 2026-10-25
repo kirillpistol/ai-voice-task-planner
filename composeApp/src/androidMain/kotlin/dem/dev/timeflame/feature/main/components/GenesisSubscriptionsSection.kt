@@ -110,8 +110,6 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                 Text("БЕСПЛАТНЫЙ ЛИМИТ / ЗАКАЗЫ / PISTOL", style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("G", style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Black)
         }
         Card(
             shape = RoundedCornerShape(22.dp),
