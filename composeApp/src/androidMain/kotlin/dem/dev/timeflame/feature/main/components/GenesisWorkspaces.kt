@@ -788,6 +788,16 @@ private fun GenesisCommentComposer(
                 Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workspace_check_connection))
             }
         }
+        // The scanner currently adds OCR text to the memory-rule composer.
+        // It does NOT send a document to an AI executor.
+        Text(
+            text = if (language == "ru")
+                "Режим: подготовка правила памяти. Сканирование распознаёт текст, но не отправляет документ на анализ. Не вводите банковские реквизиты и конфиденциальные данные."
+            else
+                "Mode: memory rule draft. Scanning extracts text but does not submit a document for AI analysis. Do not enter banking credentials or confidential data.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         GenesisScanButton(
             onClick = { showScanner = true },
             enabled = !busy
