@@ -622,7 +622,10 @@ fun GenesisReportsWorkspace(
     val sector = GenesisSector.values().firstOrNull { it.name == selectedSector }
     val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
     LaunchedEffect(account, selectedSector, language) {
-        sector?.let { onEvent(MainScreenEvent.GenesisMemoryRefresh(it.name, language)) }
+        sector?.let {
+            onEvent(MainScreenEvent.GenesisCoreStatusRefresh)
+            onEvent(MainScreenEvent.GenesisMemoryRefresh(it.name, language))
+        }
     }
     // Sector output is independent of SQL recommendations and other modules.
     val output = sector?.let { state.genesisWorkspace.moduleOutputs[it.name] }
