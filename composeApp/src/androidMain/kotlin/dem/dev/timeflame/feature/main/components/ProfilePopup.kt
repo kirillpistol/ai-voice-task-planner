@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,11 +29,13 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -50,17 +54,134 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dem.dev.timeflame.R
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONObject
 import dem.dev.timeflame.domain.model.User
 import dem.dev.timeflame.feature.main.MainScreen
 import dem.dev.timeflame.util.language.UiLanguageHelper
 import dem.dev.timeflame.util.theme.AppTheme
 import dem.dev.timeflame.util.theme.DarkModeHelper
+
+/** Read-only, authenticated server counter; PISTOL monetary balance is separate. */
+internal suspend fun genesisRequestUsage(): Pair<Int, Int>? {
+    val user = FirebaseAuth.getInstance().currentUser ?: return null
+    val token = suspendCancellableCoroutine<String?> { continuation ->
+        user.getIdToken(false).addOnCompleteListener { result ->
+            if (continuation.isActive) continuation.resume(
+                if (result.isSuccessful) result.result?.token else null
+            )
+        }
+    } ?: return null
+    return withContext(Dispatchers.IO) {
+        runCatching {
+            val connection = URL("https://api.pistolgenesis.ru/api/v2/genesis/ai/billing/summary")
+                .openConnection() as HttpURLConnection
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
+            connection.setRequestProperty("Authorization", "Bearer $token")
+            try {
+                if (connection.responseCode != 200) return@runCatching null
+                val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                val used = json.optInt("used", -1)
+                val limit = json.optInt("limit", -1)
+                if (used < 0 || limit <= 0) null else used to limit
+            } finally {
+                connection.disconnect()
+            }
+        }.getOrNull()
+    }
+}
+
+@Composable
+private fun GenesisUsageHeader(onReportClick: (Pair<Int, Int>?) -> Unit) {
+    val context = LocalContext.current
+    var usage by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var loading by remember { mutableStateOf(true) }
+    LaunchedEffect(FirebaseAuth.getInstance().currentUser?.uid) {
+        loading = true
+        usage = genesisRequestUsage()
+        loading = false
+    }
+    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val accent = if (dark) Color(0xFFD5B65E) else Color(0xFF806016)
+    val name = "pistol_token_micro"
+    val imageId = remember(context) {
+        context.resources.getIdentifier(name, "drawable", context.packageName)
+            .takeIf { it != 0 }
+            ?: context.resources.getIdentifier("pistol_token", "drawable", context.packageName)
+    }
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                if (imageId != 0) {
+                    Image(
+                        painter = painterResource(imageId),
+                        contentDescription = "PISTOL",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(30.dp)
+                    )
+                } else {
+                    Text("P", color = accent, style = MaterialTheme.typography.titleMedium)
+                }
+            }
+            Column(Modifier.weight(1f)) {
+                Text("Запросы GENESIS", style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface)
+                Text("Израсходовано / всего", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text(
+                if (loading) "…" else usage?.let { "${it.first} / ${it.second}" } ?: "— / —",
+                style = MaterialTheme.typography.titleMedium,
+                color = accent
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Эффективность: —", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Потенциал: —", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Box(
+                modifier = Modifier.size(40.dp)
+                    .clickable { onReportClick(usage) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = "Открыть отчёт в документах",
+                    tint = accent,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ProfilePopup(
@@ -68,7 +189,8 @@ fun ProfilePopup(
     user: User,
     darkModeEnabled: Boolean,
     onLogoutClicked: () -> Unit,
-    onDarkModeSwitchClicked: (Boolean) -> Unit
+    onDarkModeSwitchClicked: (Boolean) -> Unit,
+    onGenesisReportClick: (Pair<Int, Int>?) -> Unit
 ) {
     var isSettingsOpen by remember { mutableStateOf(false) }
     // Keep the menu inside the screen on compact phones, rather than sizing to the flags.
@@ -129,6 +251,7 @@ fun ProfilePopup(
                         )
                     }
                 }
+                GenesisUsageHeader(onGenesisReportClick)
                 Divider(modifier = Modifier
                     .padding(top = 5.dp),
                     color = MaterialTheme.colorScheme.onSurface

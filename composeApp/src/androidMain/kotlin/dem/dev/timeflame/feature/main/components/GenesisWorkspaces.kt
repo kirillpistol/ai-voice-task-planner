@@ -5,7 +5,19 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import dem.dev.timeflame.domain.model.Task
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
@@ -38,8 +51,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -72,6 +87,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dem.dev.timeflame.R
+import dem.dev.timeflame.feature.main.components.genesisRequestUsage
 import dem.dev.timeflame.feature.main.MainScreenEvent
 import dem.dev.timeflame.feature.main.state.MainScreenState
 import dem.dev.timeflame.util.components.GenesisTaskSkeleton
@@ -94,30 +110,87 @@ fun GenesisTasksWorkspace(
     var confirmClear by remember { mutableStateOf(false) }
     var confirmDeleteId by remember { mutableStateOf<String?>(null) }
     var confirmCalendarDelete by remember { mutableStateOf<Task?>(null) }
+    var calendarFilter by rememberSaveable { mutableStateOf("today") }
+    val today = java.time.LocalDate.now(ZoneId.systemDefault())
+    val filteredCalendarTasks = if (calendarFilter == "today") calendarTasks.filter {
+        java.time.Instant.ofEpochMilli(it.timestamp).atZone(ZoneId.systemDefault()).toLocalDate() == today
+    } else calendarTasks
+    val completed = calendarTasks.count { it.completed }
+    val progress = if (calendarTasks.isEmpty()) 0f else completed.toFloat() / calendarTasks.size
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val panel = if (darkApp) Color.White else Color.Black
+    val panelInk = if (darkApp) Color.Black else Color.White
+    val panelMuted = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val panelAccent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val panelTile = if (darkApp) Color(0xFFF0F0F0) else Color(0xFF171717)
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         WorkspaceTitle(
             stringResource(R.string.workspace_tasks_title),
             stringResource(R.string.workspace_tasks_subtitle)
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-            Text(
-                text = stringResource(R.string.genesis_sql_count, model.tasks.size),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.genesis_recommendations_count, model.recommendations.size),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.workspace_tasks_total, calendarTasks.size))
-            Text(stringResource(R.string.workspace_tasks_completed, calendarTasks.count { it.completed }))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = panel)
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("GENESIS / TASK CONTROL", color = panelAccent,
+                    style = MaterialTheme.typography.labelSmall)
+                Text("Управление задачами", color = panelInk,
+                    style = MaterialTheme.typography.titleLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        "Всего" to calendarTasks.size,
+                        "Активные" to (calendarTasks.size - completed),
+                        "Готово" to completed
+                    ).forEach { (label, value) ->
+                        Column(
+                            Modifier.weight(1f).background(panelTile, RoundedCornerShape(10.dp)).padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(label, color = panelMuted, style = MaterialTheme.typography.labelSmall)
+                            Text(value.toString(), color = panelInk, style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("today" to "Сегодня", "all" to "Все задачи").forEach { (key, label) ->
+                        val active = calendarFilter == key
+                        Card(
+                            onClick = { calendarFilter = key },
+                            modifier = Modifier.weight(1f),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (active) panelAccent else panelTile
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(label, modifier = Modifier.fillMaxWidth().padding(10.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                color = if (active) panel else panelInk,
+                                style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Прогресс выполнения", color = panelInk, style = MaterialTheme.typography.bodySmall)
+                    Text("${(progress * 100).toInt()}%", color = panelAccent,
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                androidx.compose.material3.LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = panelAccent,
+                    trackColor = panelTile
+                )
+                Text(
+                    "SQL: ${model.tasks.size} · Рекомендации: ${model.recommendations.size}",
+                    color = panelMuted, style = MaterialTheme.typography.labelSmall
+                )
+            }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         if (model.loading) {
@@ -149,24 +222,34 @@ fun GenesisTasksWorkspace(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        if (calendarTasks.isEmpty() && model.tasks.isEmpty()) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        if (filteredCalendarTasks.isEmpty() && model.tasks.isEmpty()) {
+            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp).background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.workspace_tasks_empty),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = panelMuted,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(bottom = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = panel)
             ) {
-                items(calendarTasks, key = { "calendar:" + it.id }) { task ->
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                            "Список задач",
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = panelInk
+                        )
+                filteredCalendarTasks.forEach { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(containerColor = panelTile),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -174,40 +257,44 @@ fun GenesisTasksWorkspace(
                                 checked = task.completed,
                                 onCheckedChange = { onEvent(MainScreenEvent.TaskStatusChangeClicked(task)) },
                                 enabled = !state.isSavingTask,
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF2E7D32))
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = panelAccent,
+                                    uncheckedColor = panelInk,
+                                    checkmarkColor = panel,
+                                    disabledCheckedColor = panelMuted,
+                                    disabledUncheckedColor = panelMuted
+                                )
                             )
                             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                                Text(task.text, style = MaterialTheme.typography.bodyMedium)
+                                Text(task.text, style = MaterialTheme.typography.bodyMedium, color = panelInk)
                                 Text(
                                     java.time.Instant.ofEpochMilli(task.timestamp)
                                         .atZone(ZoneId.systemDefault())
                                         .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = panelMuted
                                 )
                                 TextButton(
                                     onClick = { onEvent(MainScreenEvent.EditTaskClicked(task)) },
                                     enabled = !state.isSavingTask
-                                ) { Text(stringResource(R.string.edit_task)) }
+                                ) { Text(stringResource(R.string.edit_task), color = panelAccent) }
                             }
                             IconButton(
                                 onClick = { confirmCalendarDelete = task },
                                 enabled = !state.isSavingTask
                             ) {
-                                Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.workspace_delete_task))
+                                Icon(Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.workspace_delete_task), tint = panelMuted)
                             }
                         }
                     }
                 }
                 if (model.tasks.isNotEmpty()) {
-                    item(key = "sql-heading") {
-                        Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall)
-                    }
+                    Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall, color = panelAccent)
                 }
-                items(model.tasks, key = { "sql:" + it.sourceTaskId }) { task ->
+                model.tasks.forEach { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        colors = CardDefaults.cardColors(containerColor = panelTile),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
@@ -215,12 +302,12 @@ fun GenesisTasksWorkspace(
                                 Text(
                                     text = task.title,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = panelInk
                                 )
                                 Text(
                                     text = formatGenesisDate(task.dueAt),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = panelMuted
                                 )
                             }
                             IconButton(
@@ -230,11 +317,12 @@ fun GenesisTasksWorkspace(
                                 Icon(
                                     Icons.Default.DeleteOutline,
                                     contentDescription = stringResource(R.string.genesis_sql_delete_one),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = panelMuted
                                 )
                             }
                         }
                     }
+                }
                 }
             }
         }
@@ -263,6 +351,7 @@ fun GenesisTasksWorkspace(
                 )
             }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -392,11 +481,25 @@ private fun formatGenesisDate(raw: String?): String {
 }
 
 @Composable
-fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
+fun GenesisServicesWorkspace(
+    modifier: Modifier = Modifier,
+    focusDocuments: Boolean = false,
+    initialReportUsage: Pair<Int, Int>? = null
+) {
+    val scrollState = rememberScrollState()
+    var reportUsage by remember { mutableStateOf(initialReportUsage) }
+    LaunchedEffect(focusDocuments) {
+        if (focusDocuments) reportUsage = genesisRequestUsage()
+    }
+    LaunchedEffect(focusDocuments, scrollState.maxValue) {
+        if (focusDocuments && scrollState.maxValue > 0) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -404,20 +507,101 @@ fun GenesisServicesWorkspace(modifier: Modifier = Modifier) {
             stringResource(R.string.workspace_services_title),
             stringResource(R.string.workspace_services_subtitle)
         )
-        WorkspaceModuleCard(
-            Icons.Default.GridView,
-            stringResource(R.string.workspace_services_crypto),
-            stringResource(R.string.workspace_services_crypto_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
+        GenesisMarketCarousel()
         GenesisNftCarousel()
-        WorkspaceModuleCard(
-            Icons.Default.Description,
-            stringResource(R.string.workspace_services_documents),
-            stringResource(R.string.workspace_services_documents_desc),
-            stringResource(R.string.workspace_coming_soon)
-        )
+        GenesisSubscriptionsSection()
+        GenesisDocumentsPreviewCard(reportVisible = focusDocuments, usage = reportUsage)
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Document entry retains its original upcoming status; no unsupported action is attached. */
+@Composable
+private fun GenesisDocumentsPreviewCard(reportVisible: Boolean, usage: Pair<Int, Int>?) {
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val surface = if (darkApp) Color.White else Color.Black
+    val ink = if (darkApp) Color.Black else Color.White
+    val muted = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val accent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val line = if (darkApp) Color(0xFFB8B8B8) else Color(0xFF5D5D5D)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = surface)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(Icons.Default.Description, contentDescription = null, tint = accent)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.workspace_services_documents),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ink
+                    )
+                    Text(
+                        text = stringResource(R.string.workspace_services_documents_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = muted
+                    )
+                }
+            }
+            if (reportVisible) {
+                HorizontalDivider(color = line)
+                Text("GENESIS / PERFORMANCE REPORT", color = accent,
+                    style = MaterialTheme.typography.labelSmall)
+                Text("Запросы: " + (usage?.let { "${it.first} / ${it.second}" } ?: "— / —"),
+                    color = ink, style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("Эффективность" to "— %", "Потенциал" to "— %").forEach { (label, value) ->
+                        Column(
+                            modifier = Modifier.weight(1f).background(
+                                if (darkApp) Color(0xFFF2F2F2) else Color(0xFF222222),
+                                RoundedCornerShape(12.dp)
+                            ).padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(label, color = muted, style = MaterialTheme.typography.labelSmall)
+                            Text(value, color = accent, style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                }
+                Text("Потенциал GENESIS", color = ink, style = MaterialTheme.typography.labelMedium)
+                androidx.compose.material3.LinearProgressIndicator(
+                    progress = { 0f },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = accent,
+                    trackColor = line
+                )
+                Text("Методика оценки разрабатывается · данные пока не рассчитаны",
+                    color = muted, style = MaterialTheme.typography.labelSmall)
+                Text("Учитываемые направления: подписка, ИИ, задачи, NFT, токены PISTOL, ядро и персональные системы.",
+                    color = muted, style = MaterialTheme.typography.bodySmall)
+                Text("Отчёт хранится как представление в приложении: при открытии актуализируется без создания новых файлов.",
+                    color = muted, style = MaterialTheme.typography.bodySmall)
+            }
+            HorizontalDivider(color = line)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("GENESIS / DOCUMENTS", color = accent, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    stringResource(R.string.workspace_coming_soon),
+                    color = muted,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
     }
 }
 
@@ -438,7 +622,10 @@ fun GenesisReportsWorkspace(
     val sector = GenesisSector.values().firstOrNull { it.name == selectedSector }
     val language = if (LocalConfiguration.current.locales[0].language == "ru") "ru" else "en"
     LaunchedEffect(account, selectedSector, language) {
-        sector?.let { onEvent(MainScreenEvent.GenesisMemoryRefresh(it.name, language)) }
+        sector?.let {
+            onEvent(MainScreenEvent.GenesisCoreStatusRefresh)
+            onEvent(MainScreenEvent.GenesisMemoryRefresh(it.name, language))
+        }
     }
     // Sector output is independent of SQL recommendations and other modules.
     val output = sector?.let { state.genesisWorkspace.moduleOutputs[it.name] }
@@ -453,6 +640,10 @@ fun GenesisReportsWorkspace(
         WorkspaceTitle(
             stringResource(R.string.workspace_genesis_title),
             stringResource(R.string.workspace_genesis_subtitle)
+        )
+        GenesisOverviewBanner(
+            selectedSectorTitle = sector?.let { stringResource(it.titleRes) },
+            connected = state.genesisWorkspace.coreStatus?.status == "ok"
         )
         GenesisSectorSelector(selectedSector) { name ->
             selectedSector = name
@@ -469,7 +660,8 @@ fun GenesisReportsWorkspace(
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_source),
             output?.source,
-            stringResource(R.string.genesis_output_source_empty)
+            stringResource(R.string.genesis_output_source_empty),
+            sourceLink = true
         )
         GenesisOutputDetail(
             stringResource(R.string.genesis_output_connector),
@@ -482,6 +674,89 @@ fun GenesisReportsWorkspace(
             stringResource(R.string.genesis_output_security_empty)
         )
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Visual system overview; system availability is not inferred from selected sector. */
+@Composable
+private fun GenesisOverviewBanner(selectedSectorTitle: String?, connected: Boolean) {
+    val inverse = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val bg = if (inverse) Color.White else Color.Black
+    val fg = if (inverse) Color.Black else Color.White
+    val soft = if (inverse) Color(0xFF555555) else Color(0xFFCCCCCC)
+    val gold = if (inverse) Color(0xFF866618) else Color(0xFFD5B65E)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = bg)
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("PISTOL / GENESIS CORE", color = gold, style = MaterialTheme.typography.labelSmall)
+            Text("Индивидуальные системы", color = fg, style = MaterialTheme.typography.titleLarge)
+            Text(
+                selectedSectorTitle?.let { "Направление: $it" } ?: "Выберите направление для работы с системой",
+                color = soft, style = MaterialTheme.typography.bodySmall
+            )
+            HorizontalDivider(color = soft.copy(alpha = 0.35f))
+            Text(
+                if (connected) "Ядро: связь подтверждена" else "Ядро: статус не подтверждён",
+                color = soft,
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun GenesisScanButton(onClick: () -> Unit, enabled: Boolean) {
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val backgroundColor = if (darkApp) Color.White else Color.Black
+    val foreground = if (darkApp) Color.Black else Color.White
+    val muted = if (darkApp) Color(0xFF555555) else Color(0xFFCECECE)
+    val accent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val progress = remember { Animatable(-1f) }
+    LaunchedEffect(Unit) {
+        repeat(2) {
+            progress.snapTo(-1f)
+            progress.animateTo(2f, tween(1100, easing = FastOutSlowInEasing))
+            delay(180)
+        }
+    }
+    val shimmer = Brush.linearGradient(
+        colors = listOf(backgroundColor, accent.copy(alpha = 0.20f), backgroundColor),
+        start = Offset(progress.value * 850f, 0f),
+        end = Offset(progress.value * 850f + 260f, 260f)
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .border(1.dp, accent.copy(alpha = 0.32f), RoundedCornerShape(18.dp))
+            .background(backgroundColor)
+            .clickable(enabled = enabled, onClick = onClick)
+    ) {
+        Box(Modifier.matchParentSize().background(shimmer))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 15.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(42.dp).clip(CircleShape)
+                    .background(if (darkApp) Color(0xFFF1F1F1) else Color(0xFF202020)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Description, contentDescription = null,
+                    tint = accent, modifier = Modifier.size(22.dp))
+            }
+            Column(Modifier.weight(1f)) {
+                Text("Сканировать документ", color = foreground,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold)
+                Text("Камера / галерея / ручной ввод", color = muted,
+                    style = MaterialTheme.typography.labelSmall)
+            }
+        }
     }
 }
 
@@ -498,18 +773,11 @@ private fun GenesisCommentComposer(
     val busy = model.memoryBusySector != null
     val pending = model.pendingRules[sector]
     val rules = model.memoryRules[sector].orEmpty()
-    val kind = model.commentKinds[sector] ?: "constraint"
     val draft = model.commentDrafts[sector].orEmpty()
     var consent by remember(sector, policy?.policyVersion) { mutableStateOf(false) }
     var showRules by rememberSaveable(sector) { mutableStateOf(false) }
     var forgetId by remember(sector) { mutableStateOf<String?>(null) }
     var showScanner by remember(sector) { mutableStateOf(false) }
-    val kinds = listOf(
-        "goal" to R.string.genesis_memory_goal,
-        "constraint" to R.string.genesis_memory_constraint,
-        "preference" to R.string.genesis_memory_preference,
-        "correction" to R.string.genesis_memory_correction
-    )
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.genesis_memory_comment),
@@ -521,25 +789,20 @@ private fun GenesisCommentComposer(
                 Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workspace_check_connection))
             }
         }
-        kinds.chunked(2).forEach { pair ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                pair.forEach { (key, label) ->
-                    OutlinedButton(
-                        onClick = { onEvent(MainScreenEvent.GenesisCommentKindSelected(sector, key)) },
-                        modifier = Modifier.weight(1f).semantics { selected = kind == key },
-                        enabled = model.memoryBusySector != sector,
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = if (kind == key) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            contentColor = if (kind == key) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                        )
-                    ) { Text(stringResource(label), style = MaterialTheme.typography.labelMedium) }
-                }
-            }
-        }
-        OutlinedButton(onClick = { showScanner = true }, enabled = !busy) {
-            Text("Сканировать документ · Камера / Галерея")
-        }
+        // The scanner currently adds OCR text to the memory-rule composer.
+        // It does NOT send a document to an AI executor.
+        Text(
+            text = if (language == "ru")
+                "Режим: подготовка правила памяти. Сканирование распознаёт текст, но не отправляет документ на анализ. Не вводите банковские реквизиты и конфиденциальные данные."
+            else
+                "Mode: memory rule draft. Scanning extracts text but does not submit a document for AI analysis. Do not enter banking credentials or confidential data.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        GenesisScanButton(
+            onClick = { showScanner = true },
+            enabled = !busy
+        )
         if (showScanner) {
             GenesisDocumentScanner(
                 onDismiss = { showScanner = false },
@@ -554,8 +817,8 @@ private fun GenesisCommentComposer(
             onValueChange = { onEvent(MainScreenEvent.GenesisCommentEdited(sector, it)) },
             modifier = Modifier.fillMaxWidth(),
             enabled = model.memoryBusySector != sector,
-            minLines = 3, maxLines = 6,
-            label = { Text(stringResource(R.string.genesis_memory_comment)) },
+            minLines = 5, maxLines = 10,
+            label = { Text("Текст документа или ручной ввод") },
             supportingText = { Text(stringResource(R.string.genesis_memory_limit, draft.length)) }
         )
         if (model.memoryFailedSector == sector) {
@@ -675,13 +938,14 @@ private fun GenesisOutputWindow(
 }
 
 @Composable
-private fun GenesisOutputDetail(title: String, value: String?, emptyText: String) {
+private fun GenesisOutputDetail(title: String, value: String?, emptyText: String, sourceLink: Boolean = false) {
+    val context = LocalContext.current
+    val displayedValue = value?.takeIf { it.isNotBlank() } ?: emptyText
+    val link = value?.trim()?.takeIf { sourceLink && (it.startsWith("https://") || it.startsWith("http://")) }
     Card(
         modifier = Modifier.fillMaxWidth().animateContentSize(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -690,9 +954,17 @@ private fun GenesisOutputDetail(title: String, value: String?, emptyText: String
             Text(title, style = MaterialTheme.typography.labelLarge)
             SelectionContainer {
                 Text(
-                    value?.takeIf { it.isNotBlank() } ?: emptyText,
+                    displayedValue,
+                    modifier = if (link != null) Modifier.clickable {
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                        } catch (_: android.content.ActivityNotFoundException) {
+                            // Retain selectable text when no URL handler exists.
+                        }
+                    } else Modifier,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (link != null) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

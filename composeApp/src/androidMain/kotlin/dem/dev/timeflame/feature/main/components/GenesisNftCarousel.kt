@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,6 +49,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -127,6 +130,14 @@ private class GenesisCoinPreloader(
 @Composable
 fun GenesisNftCarousel(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    // Follow the same inverse-card palette as GENESIS membership.
+    val darkApp = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val cardSurface = if (darkApp) Color.White else Color.Black
+    val textInk = if (darkApp) Color.Black else Color.White
+    val secondaryInk = if (darkApp) Color(0xFF444444) else Color(0xFFD5D5D5)
+    val accent = if (darkApp) Color(0xFF8B6816) else Color(0xFFD5B65E)
+    val innerSurface = if (darkApp) Color(0xFFF4F4F4) else Color(0xFF151515)
+    val dividerInk = if (darkApp) Color(0xFFB8B8B8) else Color(0xFF5D5D5D)
     val client = remember { GenesisNftClient(context.applicationContext) }
     val pixels = with(LocalDensity.current) { 144.dp.roundToPx() }.coerceAtMost(432)
     val imageLoader = remember(context) {
@@ -149,7 +160,8 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
     var selected by rememberSaveable { mutableStateOf(0) }
     var randomLoading by remember { mutableStateOf(false) }
     var randomError by remember { mutableStateOf(false) }
-    val listState = rememberLazyListState()
+    // Show token #2 in the center on first launch, with #1 and #3 visible beside it.
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = 1)
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(preloader) {
@@ -225,15 +237,15 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = cardSurface)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
-                Text("PISTOL GENESIS NFT", style = MaterialTheme.typography.titleMedium)
+                Text("PISTOL GENESIS NFT", style = MaterialTheme.typography.titleMedium, color = textInk)
                 Text(
                     stringResource(R.string.genesis_nft_carousel_count, total),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = secondaryInk
                 )
             }
             if (ready.isNotEmpty()) {
@@ -250,6 +262,10 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
                             GenesisCoinCard(
                                 item = item,
                                 selected = selected == item.index,
+                                textInk = textInk,
+                                secondaryInk = secondaryInk,
+                                innerSurface = innerSurface,
+                                accent = accent,
                                 onSelected = {
                                     selected = item.index
                                     scope.launch {
@@ -263,15 +279,15 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
                 }
             } else if (initialLoading) {
                 Box(Modifier.fillMaxWidth().height(190.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(Modifier.size(24.dp))
+                    CircularProgressIndicator(Modifier.size(24.dp), color = accent)
                 }
             }
             if (failed || randomError) {
                 Column(Modifier.padding(horizontal = 16.dp)) {
                     Text(stringResource(R.string.genesis_nft_load_failed),
-                        style = MaterialTheme.typography.bodySmall)
+                        style = MaterialTheme.typography.bodySmall, color = textInk)
                     TextButton(onClick = { failed = false; randomError = false; retry++ }) {
-                        Text(stringResource(R.string.genesis_nft_retry))
+                        Text(stringResource(R.string.genesis_nft_retry), color = accent)
                     }
                 }
             }
@@ -308,11 +324,13 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
                     },
                     enabled = ready.isNotEmpty() && !randomLoading,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = cardSurface,
+                        disabledContainerColor = dividerInk, disabledContentColor = secondaryInk)
                 ) {
                     if (randomLoading) {
                         CircularProgressIndicator(Modifier.size(18.dp),
-                            color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                            color = cardSurface, strokeWidth = 2.dp)
                     } else {
                         Icon(Icons.Default.Shuffle, contentDescription = null, modifier = Modifier.size(18.dp))
                     }
@@ -333,7 +351,7 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
-            ) { Text(stringResource(R.string.genesis_nft_open_collection)) }
+            ) { Text(stringResource(R.string.genesis_nft_open_collection), color = accent) }
         }
     }
 }
@@ -342,14 +360,18 @@ fun GenesisNftCarousel(modifier: Modifier = Modifier) {
 private fun GenesisCoinCard(
     item: ReadyGenesisCoin,
     selected: Boolean,
+    textInk: Color,
+    secondaryInk: Color,
+    innerSurface: Color,
+    accent: Color,
     onSelected: () -> Unit
 ) {
     Card(
         onClick = onSelected,
         modifier = Modifier.width(164.dp),
         shape = RoundedCornerShape(12.dp),
-        border = if (selected) BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface) else null,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        border = BorderStroke(if (selected) 2.dp else 1.dp, if (selected) accent else secondaryInk.copy(alpha = 0.35f)),
+        colors = CardDefaults.cardColors(containerColor = innerSurface)
     ) {
         Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Image(
@@ -361,13 +383,14 @@ private fun GenesisCoinCard(
             Text(
                 item.coin.rarity ?: "—",
                 style = MaterialTheme.typography.labelLarge,
+                color = textInk,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 stringResource(R.string.genesis_nft_token_id, item.coin.tokenId),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = secondaryInk
             )
         }
     }

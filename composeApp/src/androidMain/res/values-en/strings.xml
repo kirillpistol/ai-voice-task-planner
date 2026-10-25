@@ -166,7 +166,7 @@
     <string name="genesis_output_title">GENESIS output</string>
     <string name="genesis_output_choose">Select a sector. Result text will appear here.</string>
     <string name="genesis_output_waiting">Waiting for a server result.</string>
-    <string name="genesis_output_source">Source · website or link</string>
+    <string name="genesis_output_source">Source</string>
     <string name="genesis_output_source_empty">No source received yet.</string>
     <string name="genesis_output_connector">Connection resource or tool</string>
     <string name="genesis_output_connector_empty">No connection resource or tool identified yet.</string>
@@ -200,6 +200,6 @@
     <string name="genesis_core_node_ready">ready</string>
     <string name="genesis_core_node_waiting">waiting for a service</string>
     <string name="genesis_core_execution_closed">Status access only. Service execution is still closed.</string>
-    <string name="genesis_security_finance">Finance profile\nInbound VPN → VM → temporary Docker container with cleanup → outbound VPN\nProfile defined; deployment will be connected separately.</string>
+    <string name="genesis_security_finance">VPN → VM → DOC → VPN</string>
 </resources>
 

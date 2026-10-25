@@ -186,6 +186,8 @@ private fun MainScreenView(
     onEvent: (MainScreenEvent) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState()
+    var genesisDocumentRequested by remember { mutableStateOf(false) }
+    var genesisReportUsage by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     val isDarkModeEnabled = DarkModeHelper.isDarkModeEnabled()
     val isSystemInDarkMode = isSystemInDarkTheme()
@@ -245,7 +247,9 @@ private fun MainScreenView(
                                 modifier = Modifier.weight(1f)
                             )
                             MainSection.SERVICES -> GenesisServicesWorkspace(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                focusDocuments = genesisDocumentRequested,
+                                initialReportUsage = genesisReportUsage
                             )
                             MainSection.GENESIS -> GenesisReportsWorkspace(
                                 state = state,
@@ -280,7 +284,13 @@ private fun MainScreenView(
                                 user = state.currentUser,
                                 darkModeEnabled = darkModeEnabled,
                                 onLogoutClicked = { onEvent(MainScreenEvent.LogoutBtnClicked) },
-                                onDarkModeSwitchClicked = { darkModeEnabled = it }
+                                onDarkModeSwitchClicked = { darkModeEnabled = it },
+                                onGenesisReportClick = { usage ->
+                                    genesisReportUsage = usage
+                                    genesisDocumentRequested = true
+                                    onEvent(MainScreenEvent.MainSectionSelected(MainSection.SERVICES))
+                                    onEvent(MainScreenEvent.ProfileContextMenuDismissed)
+                                }
                             )
                         }
                     }
