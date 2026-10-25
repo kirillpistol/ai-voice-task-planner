@@ -49,17 +49,18 @@ import dem.dev.timeflame.R
 private data class GenesisTier(
     val name: String,
     val usageLabel: String,
+    val priceLabel: String,
     val subtitle: String,
     val features: List<String>
 )
 
 private val demoTiers = listOf(
-    GenesisTier("FREE", "Бесплатный лимит", "Начало работы с GENESIS",
-        listOf("Бесплатные запросы в пределах выделенного лимита", "Контроль доступного остатка")),
-    GenesisTier("ЯДРО", "Индивидуальный расчёт", "Индивидуальный заказ сверх бесплатного лимита",
-        listOf("Запросы и вычисления сверх бесплатной квоты", "Персональная конфигурация ядра", "Стоимость и условия рассчитываются по заказу")),
-    GenesisTier("ULTRA", "Большой пакет запросов", "Настройка, эксперименты и тестирование",
-        listOf("Увеличенный объём запросов", "Настройка сценариев", "Тестирование и отладка"))
+    GenesisTier("CORE", "Индивидуальный заказ", "CUSTOM", "Ядро · индивидуальная конфигурация",
+        listOf("Проектные запросы сверх бесплатного лимита", "Собственные модули и инфраструктура", "Стоимость рассчитывается индивидуально")),
+    GenesisTier("PRO", "1 000 запросов ИИ / месяц", "Цена не установлена", "Расширенный пакет · прежний PLUS",
+        listOf("Расширенная квота запросов", "Платёжное подключение пока недоступно")),
+    GenesisTier("ULTRA", "Большой пакет запросов", "Цена не установлена", "Настройка и тестирование",
+        listOf("Большой объём запросов", "Настройка сценариев", "Тестирование и отладка"))
 )
 
 private val graphite = Color(0xFF111318)
@@ -130,7 +131,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             style = MaterialTheme.typography.titleMedium)
                         Text("Расчётный токен GENESIS", color = secondaryText,
                             style = MaterialTheme.typography.bodySmall)
-                        Text("Баланс: подключение биллинга", color = gold,
+                        Text("FREE: 100 запросов/мес · 0 ₽", color = gold,
                             style = MaterialTheme.typography.labelSmall)
                     }
                 }
@@ -181,6 +182,8 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                                     PistolTokenIcon()
                                     Text(current.usageLabel,
                                         color = accent, style = MaterialTheme.typography.bodyMedium)
+                                    Text("Стоимость: ${current.priceLabel}", color = Color.White,
+                                        style = MaterialTheme.typography.titleSmall)
                                 }
                                 current.features.forEach { feature ->
                                     Text("• $feature", color = Color(0xFFE4E5E8),
@@ -189,7 +192,7 @@ fun GenesisSubscriptionsSection(modifier: Modifier = Modifier) {
                             }
                         }
                         HorizontalDivider(color = Color(0xFF3C4149))
-                        Text("Цены в P и точные лимиты определим после расчёта экономики.",
+                        Text("Стоимость: ${tier.priceLabel}. Цена в PISTOL появится после подключения биллинга.",
                             color = secondaryText, style = MaterialTheme.typography.labelSmall)
                     }
                 }
