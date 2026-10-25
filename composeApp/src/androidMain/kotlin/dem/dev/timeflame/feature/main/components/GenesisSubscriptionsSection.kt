@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -65,8 +66,13 @@ private val gold = Color(0xFFD5B65E)
 @Composable
 private fun PistolTokenIcon(modifier: Modifier = Modifier, large: Boolean = false) {
     // This is the customer's original raster artwork: never redraw or recolor it.
+    val context = LocalContext.current
+    val resourceId = remember(context) {
+        context.resources.getIdentifier("pistol_token", "drawable", context.packageName)
+    }
+    if (resourceId == 0) return
     Image(
-        painter = painterResource(R.drawable.pistol_token),
+        painter = painterResource(resourceId),
         contentDescription = "Оригинальный токен PISTOL",
         contentScale = ContentScale.Fit,
         modifier = modifier.size(if (large) 54.dp else 24.dp)
