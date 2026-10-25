@@ -113,7 +113,7 @@ fun GenesisTasksWorkspace(
     val panelTile = if (darkApp) Color(0xFFF0F0F0) else Color(0xFF171717)
 
     Column(
-        modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
+        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         WorkspaceTitle(
@@ -211,7 +211,7 @@ fun GenesisTasksWorkspace(
             )
         }
         if (filteredCalendarTasks.isEmpty() && model.tasks.isEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth().weight(1f).background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp).background(panel, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.workspace_tasks_empty),
                     color = panelMuted,
@@ -220,24 +220,21 @@ fun GenesisTasksWorkspace(
             }
         } else {
             Card(
-                modifier = Modifier.fillMaxWidth().weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = panel)
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 10.dp),
-                    contentPadding = PaddingValues(bottom = 12.dp),
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    item(key = "tasks-list-title") {
-                        Text(
+                    Text(
                             "Список задач",
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.titleMedium,
                             color = panelInk
                         )
-                    }
-                items(filteredCalendarTasks, key = { "calendar:" + it.id }) { task ->
+                filteredCalendarTasks.forEach { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = panelTile),
@@ -274,11 +271,9 @@ fun GenesisTasksWorkspace(
                     }
                 }
                 if (model.tasks.isNotEmpty()) {
-                    item(key = "sql-heading") {
-                        Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall, color = panelAccent)
-                    }
+                    Text(stringResource(R.string.genesis_sql_tasks_title), style = MaterialTheme.typography.titleSmall, color = panelAccent)
                 }
-                items(model.tasks, key = { "sql:" + it.sourceTaskId }) { task ->
+                model.tasks.forEach { task ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = panelTile),
