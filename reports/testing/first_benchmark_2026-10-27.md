@@ -16,3 +16,15 @@ python reports/testing/storage_benchmark.py --mib 256 --iterations 3 --output st
 ```
 
 Use `--dir D:\\` (replace with the actual drive) to select the target storage. Requires Python 3; test writes and deletes a temporary file. Ensure enough free disk space. To reduce cache influence, use larger runs and repeat under stable conditions. Benchmark the actual database separately before estimating storage ingestion throughput.
+
+## User Windows machine: measured synthetic write test
+
+- Command: `python reports/testing/storage_benchmark.py --mib 256 --iterations 3`
+- 3 × 256 MiB (768 MiB total); `flush` and `fsync` per run.
+- Run 1: 0.7914 s, **323.47 MiB/s**
+- Run 2: 0.7037 s, **363.78 MiB/s**
+- Run 3: 1.0400 s, **246.16 MiB/s**
+- Median: **323.47 MiB/s**; mean: **311.14 MiB/s**.
+- Idealized 1 TB extrapolation: **0.82 h (~49 min)**, not measured.
+- Machine storage type, filesystem, free capacity, sustained thermal behavior and DB overhead not established.
+- Next: larger local synthetic runs and database-specific benchmark; avoid third-party banking systems.
